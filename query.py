@@ -1,40 +1,48 @@
 
+from collections import deque
 
 class Query(object):
 
-    def __init__(self, select):
-        self.select = select
+	def __init__(self, select):
+		self.select = select
 
 def query(obj, q):
-    attrs = q.select.split('.')
-    print attrs
-    def select(obj, attrs, i=1):
-        def flatten(l):
-            r = list()
-            for o in l:
-                if hasattr(o, '__iter__'):
-                    for x in o: yield x
-                else:
-                    yield o
-        def get(cobj, attr):
-            print cobj, attr
-            if hasattr(cobj, attr):
-                return getattr(cobj, attr)
-            else:
-                raise Exception, "could not select %s from obj %s. failed at %s, %s" % \
-                                    (q.select, str(obj), attr, cobj)
-        cobj = obj
-        for j, attr in enumerate(attrs[i:]):
-            if hasattr(cobj, '__iter__'):
-                def gen(cobj, attr):
-                    for o in cobj: yield get(o, attr)
-                cobj = flatten(gen(cobj, attr))
-            else:
-                cobj = get(cobj, attr)
-        return cobj
-    return select(obj, attrs)
+	attrs = q
+	def select(obj, attrs):
+		def add(queue, u, v, i):
+			#setattr(v, '_objquery__path', u)
+			setattr(v, '_objquery__i', i+1)
+			queue.appendleft(v)
+		queue = deque()
+		add(queue, None, type('base', (object,), {attrs[0][0]:obj}), -1)
+		while len(queue) > 0:
+			u = queue.pop()
+			#setattr(u, '_objquery__visited', 1)
+			i = getattr(u, '_objquery__i')
+			attrname, where = attrs[i]
+			print u, attrname, where
+			if hasattr(u, attrname):
+				v = getattr(u, attrname)
+				#print v, hasattr(v, '_objquery__visited')
+				#if not hasattr(v, '_objquery__visited'):
+					#print 'not visited'
+				if not isinstance(v, basestring) and hasattr(v, '__iter__'):
+					for z in v:
+						if where != None:
+							if not where(z): continue
+						if i+1 == len(attrs): yield z
+						else: add(queue, u, z, i)
+				else:
+					if where != None:
+						if not where(v): continue
+					if i+1 == len(attrs): yield v
+					else: add(queue, u, v, i)
+			
+	return select(obj, attrs)
 
 if __name__ == '__main__':
-    import example
-    a = example.A(1)
-    print list(query(a, Query('a.b.c.n')))
+	import example
+	a = example.A(1)
+	def acheck(a):
+		return a.n == 1
+	print list(query(a, [('a', None),('b', acheck),('c', None),('n', None)]))
