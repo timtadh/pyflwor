@@ -9,8 +9,8 @@ from ply import lex
 from ply.lex import Token
 
 tokens = ('NUMBER', 'STRING', 'NAME', 'SOME', 'EVERY', 'IN', 'NOT', 'SATISFIES', 'AND', 'OR',
-			'SLASH', 'EQ', 'NQ', 'LT', 'LE', 'GT', 'GE', 'DOLLAR',
-			'LPAREN', 'RPAREN', 'LSQUARE', 'RSQUARE')
+			'SLASH', 'EQ', 'NQ', 'LT', 'LE', 'GT', 'GE', 'DOLLAR', 'DOT', 'COLON', 'COMMA',
+			'LPAREN', 'RPAREN', 'LSQUARE', 'RSQUARE', 'LANGLE', 'RANGLE')
 reserved = {'some':'SOME', 'every':'EVERY', 'in':'IN', 'not':'NOT', 'satisfies':'SATISFIES',
 			'and':'AND', 'or':'OR'}
 
@@ -30,16 +30,21 @@ class Lexer(object):
 
 	tokens = tokens
 
-	t_SLASH = r'/'
 	t_EQ = r'=='
 	t_NQ = r'!='
 	t_LT = r'<'
 	t_LE = r'<='
 	t_GT = r'>'
 	t_GE = r'>='
+	t_DOT = r'\.'
+	t_COMMA = r','
+	t_COLON = r'\:'
+	t_SLASH = r'/'
 	t_DOLLAR = r'\$'
-	t_LPAREN  = r'\('
-	t_RPAREN  = r'\)'
+	t_LPAREN = r'\('
+	t_RPAREN = r'\)'
+	t_LANGLE = r'\<'
+	t_RANGLE = r'\>'
 	t_LSQUARE  = r'\['
 	t_RSQUARE  = r'\]'
 
@@ -51,7 +56,7 @@ class Lexer(object):
 		token.value = token.value[1:-1]
 		return token;
 
-	name = '(' + L + ')((' + L + ')|(' + D + ')|(\.))*'
+	name = '(' + L + ')((' + L + ')|(' + D + '))*'
 	@Token(name)
 	def t_NAME(self, token):
 		if token.value in reserved: token.type = reserved[token.value]
@@ -103,19 +108,20 @@ class Lexer(object):
 
 
 
-
-lexer = Lexer()
-print lexer.input('''Finding[Severity == 3.0 and (Catagory == "12" or Catagory == "17")]
-					 /
-					 Trace
-						[
-							every $node in Trace/Node
-							statisfies $node in Finding[Severity == 3.0]/Trace/Node
-						]''')
-print [x for x in lexer]
-#while 1:
-	#try:
-		#s = raw_input('calc>>> ')
-	#except EOFError:
-		#break
-	#Parser().parse(s, lexer=Lexer())
+if __name__ == '__main__':
+	lexer = Lexer()
+	print lexer.input('.')
+	#print lexer.input('''Finding[Severity == 3.0 and (Catagory == "12" or Catagory == "17")]
+						#/
+						#Trace
+							#[
+								#every $node in Trace/Node
+								#statisfies $node in Finding[Severity == 3.0]/Trace/Node
+							#]''')
+	print [x for x in lexer]
+	#while 1:
+		#try:
+			#s = raw_input('calc>>> ')
+		#except EOFError:
+			#break
+		#Parser().parse(s, lexer=Lexer())
