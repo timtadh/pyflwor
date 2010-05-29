@@ -33,31 +33,52 @@ class Parser(object):
 
 	def p_Where(self, t):
 		'Where : OrExpr'
-		#print t
+		t[0] = t[1]
+		class A(object): pass
+		a = A()
+		a.x = 'x attr'
+		a.y = 'y attr'
+		a.z = 'z attr'
+		a.a = lambda : [0, lambda x,y,z: ((x,y,z))]
+		a.b = 'b attr'
+		objs = {'locals': dict((x, getattr(a, x)) for x in dir(a)), 'globals':{'gx':'gx global'}}
+		print t[0](objs)
 
 	def p_OrExpr1(self, t):
 		'OrExpr : OrExpr OR AndExpr'
-		#print t
+		def create(x, y):
+			def oor(objs):
+				return x(objs) or y(objs)
+			return oor
+		t[0] = create(t[1], t[3])
 
 	def p_OrExpr2(self, t):
 		'OrExpr : AndExpr'
-		#print t
+		t[0] = t[1]
 
 	def p_AndExpr1(self, t):
 		'AndExpr : AndExpr AND NotExpr'
-		#print t
+		def create(x, y):
+			def annd(objs):
+				return x(objs) and y(objs)
+			return annd
+		t[0] = create(t[1], t[3])
 
 	def p_AndExpr2(self, t):
 		'AndExpr : NotExpr'
-		#print t
+		t[0] = t[1]
 
 	def p_NotExpr1(self, t):
 		'NotExpr : NOT BooleanExpr'
-		#print t
+		def create(x):
+			def noot(objs):
+				return not x(objs)
+			return noot
+		t[0] = create(t[2])
 
 	def p_NotExpr2(self, t):
 		'NotExpr : BooleanExpr'
-		#print t
+		t[0] = t[1]
 
 	def p_BooleanExpr1(self, t):
 		'BooleanExpr : CmpExpr'
@@ -73,20 +94,11 @@ class Parser(object):
 
 	def p_BooleanExpr4(self, t):
 		'BooleanExpr : LPAREN Where RPAREN'
-		#print t
+		t[0] = t[2]
 
 	def p_CmpExpr(self, t):
 		'CmpExpr : Value CmpOp Value'
 		t[0] = symbols.comparisonValue(t[1], t[2], t[3])
-		class A(object): pass
-		a = A()
-		a.x = 'x attr'
-		a.y = 'y attr'
-		a.z = 'z attr'
-		a.a = lambda : [0, lambda x,y,z: ((x,y,z))]
-		a.b = 'b attr'
-		objs = {'locals': dict((x, getattr(a, x)) for x in dir(a)), 'globals':{'gx':'gx global'}}
-		print t[0](objs)
 
 	def p_CmpOp(self, t):
 		'''CmpOp : EQ
@@ -230,9 +242,10 @@ if __name__ == '__main__':
 		#Parser()
 		#Parser().parse('''a/b[a==b.as.s and c == e.f.as[1](x, y, z, "hello []12^w234,.23")[2][q(b[5][6].c).qw.d] and __getitem__(1) == "213" and not f==<g.ae.wse().sd>]/e/f/g''', lexer=Lexer())
 		#Parser().parse('a/b[x not in a/b/x - q/w/x | y/x and every y in a/b/c satisfies (y == x)]', lexer=Lexer())
-		Parser().parse('a[a()[1](<gx>,b,z)[1] == "b attr"]', lexer=Lexer())
+		Parser().parse('a[not (not a()[1](<gx>,b,z)[1] == "b attr" or not 1 == 1)]', lexer=Lexer())
 		print "SUCCESS"
 	except Exception, e:
 		print e
 		print "FAILURE"
+		raise
 	#Parser().parse('Attr1.SubAttr.SubSubAttr', lexer=Lexer())
