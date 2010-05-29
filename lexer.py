@@ -9,7 +9,8 @@ from ply import lex
 from ply.lex import Token
 
 tokens = ('NUMBER', 'STRING', 'NAME', 'SOME', 'EVERY', 'IN', 'NOT', 'SATISFIES', 'AND', 'OR',
-			'SLASH', 'EQ', 'NQ', 'LT', 'LE', 'GT', 'GE', 'DOLLAR', 'DOT', 'COLON', 'COMMA',
+			'SLASH', 'EQ', 'NQ', 'LT', 'LE', 'GT', 'GE', 'COMMA',  'DOT', #'DOLLAR', 'COLON',
+			'UNION', 'INTERSECTION', 'DIFFERENCE',
 			'LPAREN', 'RPAREN', 'LSQUARE', 'RSQUARE', 'LANGLE', 'RANGLE')
 reserved = {'some':'SOME', 'every':'EVERY', 'in':'IN', 'not':'NOT', 'satisfies':'SATISFIES',
 			'and':'AND', 'or':'OR'}
@@ -38,15 +39,18 @@ class Lexer(object):
 	t_GE = r'>='
 	t_DOT = r'\.'
 	t_COMMA = r','
-	t_COLON = r'\:'
+	#t_COLON = r'\:'
 	t_SLASH = r'/'
-	t_DOLLAR = r'\$'
+	t_UNION = r'\|'
+	#t_DOLLAR = r'\$'
 	t_LPAREN = r'\('
 	t_RPAREN = r'\)'
 	t_LANGLE = r'\<'
 	t_RANGLE = r'\>'
 	t_LSQUARE  = r'\['
 	t_RSQUARE  = r'\]'
+	t_DIFFERENCE = r'-'
+	t_INTERSECTION = r'&'
 
 
 	string_literal = r'\"[^"]*\"'
