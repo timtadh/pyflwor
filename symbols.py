@@ -17,32 +17,29 @@ class Call(object):
 		if self.lookup: return "__getitem__" + str(tuple(self.params))
 		return "__call__" + str(tuple(self.params))
 
-def attributeValue(attribute_list):
+def attributeValue(attribute_list, context='locals'):
+	def expand(objs, obj, attr, x=None):
+		if x == None: x = getattr(obj, attr.name)
+		if attr.callchain:
+			for call in attr.callchain:
+				p = list()
+				for param in call.params:
+					if isinstance(param, type(value)) and value.func_code == param.func_code:
+						p.append(param(objs))
+					else:
+						p.append(param)
+				if call.lookup:
+					x = x.__getitem__(p[0])
+				else:
+					x = x.__call__(*p)
+		return x
 	def value(objs):
 		attr0 = attribute_list[0]
-		obj = None
-		for o in objs:
-			if hasattr(o, attr0.name):
-				obj = o
-				break;
-		if not obj:
-			raise Exception, "no object in %s had attribute %s" % (str(objs), attr0.name)
-		for attr in attribute_list:
+		obj = expand(objs, objs[context], attr0, objs[context][attr0.name])
+		for attr in attribute_list[1:]:
+			print attr, obj
 			if hasattr(obj, attr.name):
-				x = getattr(obj, attr.name)
-				if attr.callchain:
-					for call in attr.callchain:
-						p = list()
-						for param in call.params:
-							if isinstance(param, type(value)) and value.func_code == param.func_code:
-								p.append(param(objs))
-							else:
-								p.append(param)
-						if call.lookup:
-							x = x.__getitem__(p[0])
-						else:
-							x = x.__call__(*p)
-				obj = x
+				obj = expand(objs, obj, attr)
 			else:
 				raise Exception, "object %s did not have attr %s" % (str(obj), attr.name)
 		return obj

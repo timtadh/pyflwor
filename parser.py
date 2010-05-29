@@ -130,11 +130,20 @@ class Parser(object):
 
 	def p_Value3(self, t):
 		'Value : LANGLE AttributeValue RANGLE'
-		#print t                                                          TODO: FIX ME
+		t[0] = symbols.attributeValue(t[2], context='globals')
 
 	def p_Value4(self, t):
 		'Value : AttributeValue'
-		t[0] = symbols.attributeValue(t[1])
+		t[0] = symbols.attributeValue(t[1], context='locals')
+		class A(object): pass
+		a = A()
+		a.x = 'x attr'
+		a.y = 'y attr'
+		a.z = 'z attr'
+		a.a = lambda : [0, lambda x,y,z: ((x,y,z))]
+		a.b = 'b attr'
+		objs = {'locals': dict((x, getattr(a, x)) for x in dir(a)), 'globals':{'gx':'gx global'}}
+		print t[0](objs)
 
 	def p_AttributeValue1(self, t):
 		'AttributeValue : AttributeValue DOT Attr'
@@ -220,7 +229,7 @@ if __name__ == '__main__':
 		#Parser()
 		#Parser().parse('''a/b[a==b.as.s and c == e.f.as[1](x, y, z, "hello []12^w234,.23")[2][q(b[5][6].c).qw.d] and __getitem__(1) == "213" and not f==<g.ae.wse().sd>]/e/f/g''', lexer=Lexer())
 		#Parser().parse('a/b[x not in a/b/x - q/w/x | y/x and every y in a/b/c satisfies (y == x)]', lexer=Lexer())
-		Parser().parse('a[a()[1](x,y,z) == b]', lexer=Lexer())
+		Parser().parse('a[a()[1](<gx>,y,z) == b]', lexer=Lexer())
 		print "SUCCESS"
 	except Exception, e:
 		print e
