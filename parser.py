@@ -15,38 +15,6 @@ class Parser(object):
 	tokens = tokens
 	precedence = tuple()
 
-	def p_Set1(self, t):
-		'Set : Set DIFFERENCE UnionExpr'
-		#print t
-
-	def p_Set2(self, t):
-		'Set : UnionExpr'
-		#print t
-
-	def p_UnionExpr1(self, t):
-		'UnionExpr : UnionExpr UNION IntersectionExpr'
-		#print t
-
-	def p_UnionExpr2(self, t):
-		'UnionExpr : IntersectionExpr'
-		#print t
-
-	def p_IntersectionExpr1(self, t):
-		'IntersectionExpr : IntersectionExpr INTERSECTION Collection'
-		#print t
-
-	def p_IntersectionExpr2(self, t):
-		'IntersectionExpr : Collection'
-		#print t
-
-	def p_Collection1(self, t):
-		'Collection : Query'
-		#print t
-
-	def p_Collection2(self, t):
-		'Collection : LPAREN Set RPAREN'
-		#print t
-
 	def p_Query1(self, t):
 		'Query : Query SLASH Entity'
 		#print t
@@ -217,6 +185,39 @@ class Parser(object):
 
 	def p_SetExpr2(self, t):
 		'SetExpr : Value NOT IN Set'
+		#print t
+
+
+	def p_Set1(self, t):
+		'Set : Set DIFFERENCE UnionExpr'
+		#print t
+
+	def p_Set2(self, t):
+		'Set : UnionExpr'
+		#print t
+
+	def p_UnionExpr1(self, t):
+		'UnionExpr : UnionExpr UNION IntersectionExpr'
+		#print t
+
+	def p_UnionExpr2(self, t):
+		'UnionExpr : IntersectionExpr'
+		#print t
+
+	def p_IntersectionExpr1(self, t):
+		'IntersectionExpr : IntersectionExpr INTERSECTION Collection'
+		#print t
+
+	def p_IntersectionExpr2(self, t):
+		'IntersectionExpr : Collection'
+		#print t
+
+	def p_Collection1(self, t):
+		'Collection : Query'
+		#print t
+
+	def p_Collection2(self, t):
+		'Collection : LPAREN Set RPAREN'
 		#print t
 
 	def p_error(self, t):
