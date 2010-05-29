@@ -17,19 +17,19 @@ class Parser(object):
 
 	def p_Query1(self, t):
 		'Query : Query SLASH Entity'
-		#print t
+		t[0] = t[1] + [t[3]]
 
 	def p_Query2(self, t):
 		'Query : Entity'
-		#print t
+		t[0] = [t[1]]
 
 	def p_Entity1(self, t):
 		'Entity : NAME'
-		#print t
+		t[0] = (t[1], lambda objs: True)
 
 	def p_Entity2(self, t):
 		'Entity : NAME LSQUARE Where RSQUARE'
-		#print t
+		t[0] = (t[1], t[3])
 
 	def p_Where(self, t):
 		'Where : OrExpr'
@@ -242,7 +242,7 @@ if __name__ == '__main__':
 		#Parser()
 		#Parser().parse('''a/b[a==b.as.s and c == e.f.as[1](x, y, z, "hello []12^w234,.23")[2][q(b[5][6].c).qw.d] and __getitem__(1) == "213" and not f==<g.ae.wse().sd>]/e/f/g''', lexer=Lexer())
 		#Parser().parse('a/b[x not in a/b/x - q/w/x | y/x and every y in a/b/c satisfies (y == x)]', lexer=Lexer())
-		Parser().parse('a[not (not a()[1](<gx>,b,z)[1] == "b attr" or not 1 == 1)]', lexer=Lexer())
+		print Parser().parse('a[not (not a()[1](<gx>,b,z)[1] == "b attr" or not 1 == 1)]/b/c', lexer=Lexer())
 		print "SUCCESS"
 	except Exception, e:
 		print e
