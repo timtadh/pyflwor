@@ -9,7 +9,7 @@ from ply import lex
 from ply.lex import Token
 
 tokens = ('NUMBER', 'STRING', 'NAME', 'SOME', 'EVERY', 'IN', 'NOT', 'SATISFIES', 'AND', 'OR',
-			'SLASH', 'EQ', 'NQ', 'LT', 'LE', 'GT', 'GE', 'COMMA',  'DOT', #'DOLLAR', 'COLON',
+			'SLASH', 'EQ', 'NQ', 'LE', 'GE', 'COMMA',  'DOT', #'DOLLAR', 'COLON',
 			'UNION', 'INTERSECTION', 'DIFFERENCE',
 			'LPAREN', 'RPAREN', 'LSQUARE', 'RSQUARE', 'LANGLE', 'RANGLE')
 reserved = {'some':'SOME', 'every':'EVERY', 'in':'IN', 'not':'NOT', 'satisfies':'SATISFIES',
@@ -33,9 +33,9 @@ class Lexer(object):
 
 	t_EQ = r'=='
 	t_NQ = r'!='
-	t_LT = r'<'
+	#t_LT = r'<'
 	t_LE = r'<='
-	t_GT = r'>'
+	#t_GT = r'>'
 	t_GE = r'>='
 	t_DOT = r'\.'
 	t_COMMA = r','

@@ -17,7 +17,7 @@ class Call(object):
 		if self.lookup: return "__getitem__" + str(tuple(self.params))
 		return "__call__" + str(tuple(self.params))
 
-def attributeValue(attribute_list, context='locals'):
+def attributeValue(attribute_list, scalar=False, context='locals'):
 	def expand(objs, obj, attr, x=None):
 		if x == None: x = getattr(obj, attr.name)
 		if attr.callchain:
@@ -34,6 +34,7 @@ def attributeValue(attribute_list, context='locals'):
 					x = x.__call__(*p)
 		return x
 	def value(objs):
+		if scalar: return attribute_list
 		attr0 = attribute_list[0]
 		obj = expand(objs, objs[context], attr0, objs[context][attr0.name])
 		for attr in attribute_list[1:]:
@@ -43,4 +44,18 @@ def attributeValue(attribute_list, context='locals'):
 			else:
 				raise Exception, "object %s did not have attr %s" % (str(obj), attr.name)
 		return obj
+	return value
+
+def operator(op):
+	if op == '==': return lambda x,y: x == y
+	if op == '!=': return lambda x,y: x != y
+	if op == '<=': return lambda x,y: x <= y
+	if op == '>=': return lambda x,y: x >= y
+	if op == '<': return lambda x,y: x < y
+	if op == '>': return lambda x,y: x > y
+	raise Exception, "operator %s not found" % op
+
+def comparisonValue(value1, op, value2):
+	def value(objs):
+		return op(value1(objs), value2(objs))
 	return value
