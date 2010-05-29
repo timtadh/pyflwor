@@ -188,7 +188,7 @@ class Parser(object):
 		print t
 
 	def p_QuantifiedExpr(self, t):
-		'QuantifiedExpr : Quantifier NAME IN Set SATISFIES Where'
+		'QuantifiedExpr : Quantifier NAME IN Set SATISFIES LPAREN Where RPAREN'
 		print t
 
 	def p_Quantifier1(self, t):
@@ -200,7 +200,7 @@ class Parser(object):
 		print t
 
 	def p_SetExpr1(self, t):
-		'SetExpr : Value IN Set'
+		'SetExpr : Value IN Set '
 		print t
 
 	def p_SetExpr2(self, t):
@@ -214,8 +214,9 @@ class Parser(object):
 if __name__ == '__main__':
 	#Parser().parse('''a/b[x == y and not (1 == 1 or 1 == 2) and not c == d]/c/d''', lexer=Lexer())
 	try:
+		#Parser()
 		#Parser().parse('''a/b[a==b.as.s and c == e.f.as[1](x, y, z, "hello []12^w234,.23")[2][q(b[5][6].c).qw.d] and __getitem__(1) == "213" and not f==<g.ae.wse().sd>]/e/f/g''', lexer=Lexer())
-		Parser().parse('a/b[x not in a/b/x - q/w/x | y/x and every $y in a/b/c satisfies y == x]', lexer=Lexer())
+		Parser().parse('a/b[x not in a/b/x - q/w/x | y/x and every y in a/b/c satisfies (y == x)]', lexer=Lexer())
 		print "SUCCESS"
 	except Exception, e:
 		print e

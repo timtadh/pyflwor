@@ -106,7 +106,7 @@ class Lexer(object):
 	t_ignore = " \t"
 
 	def t_error(self, t):
-		print "Illegal character '%s'" % t
+		raise Exception, "Illegal character '%s'" % t
 		t.lexer.skip(1)
 
 
