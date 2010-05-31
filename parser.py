@@ -15,8 +15,8 @@ class Parser(object):
 	tokens = tokens
 	precedence = tuple()
 
-	def p_Start(self, t):
-		'Start : Query'
+	def p_QueryStart(self, t):
+		'QueryStart : Query'
 		t[0] = symbols.queryValue(t[1])
 
 	def p_Query1(self, t):
@@ -129,8 +129,8 @@ class Parser(object):
 		t[0] = symbols.attributeValue(t[2], context='globals')
 
 	def p_Value4(self, t):
-		'Value : AT AttributeValue'
-		t[0] = symbols.attributeValue(t[2], context='locals')
+		'Value : SELF DOT AttributeValue'
+		t[0] = symbols.attributeValue(t[3], context='locals')
 
 	def p_Value5(self, t):
 		'Value : SELF'
@@ -253,8 +253,8 @@ if __name__ == '__main__':
 		#Parser().parse('''a/b[a==b.as.s and c == e.f.as[1](x, y, z, "hello []12^w234,.23")[2][q(b[5]
 		#[6].c).qw.d] and __getitem__(1) == "213" and not f==<g.ae.wse().sd>]/e/f/g''', lexer=Lexer())
 		#Parser().parse('a/b[x not in a/b/x - q/w/x | y/x and every y in a/b/c satisfies (y == x)]', lexer=Lexer())
-		query = Parser().parse('''a[not (not @a()[1](<gx>,@z.z.b,@a)[1] == "b attr" and
-									not 1 == 1)]/z/z/z/x[@__mod__(2)]''', lexer=Lexer())
+		query = Parser().parse('''a[not (not self.a()[1](<gx>,self.z.z.b,self.a)[1] == "b attr" and
+									not 1 == 1)]/z/z/z/x[self.__mod__(2)]''', lexer=Lexer())
 		class A(object): pass
 		a = A()
 		a.x = [1,2,3,4,5,6]
