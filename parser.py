@@ -15,6 +15,10 @@ class Parser(object):
 	tokens = tokens
 	precedence = tuple()
 
+	def p_Start(self, t):
+		'Start : Query'
+		t[0] = symbols.queryValue(t[1])
+
 	def p_Query1(self, t):
 		'Query : Query SLASH Entity'
 		t[0] = t[1] + [t[3]]
@@ -25,24 +29,19 @@ class Parser(object):
 
 	def p_Entity1(self, t):
 		'Entity : NAME'
-		t[0] = (t[1], lambda objs: True)
+		t[0] = (t[1], lambda obj, glbls: True)
 
 	def p_Entity2(self, t):
 		'Entity : NAME LSQUARE Where RSQUARE'
-		t[0] = (t[1], t[3])
+		def create(x):
+			def value(obj, glbls):
+				return x({'locals': dict((o, getattr(obj, o)) for o in dir(obj)), 'globals':glbls})
+			return value
+		t[0] = (t[1], create(t[3]))
 
 	def p_Where(self, t):
 		'Where : OrExpr'
 		t[0] = t[1]
-		class A(object): pass
-		a = A()
-		a.x = 'x attr'
-		a.y = 'y attr'
-		a.z = 'z attr'
-		a.a = lambda : [0, lambda x,y,z: ((x,y,z))]
-		a.b = 'b attr'
-		objs = {'locals': dict((x, getattr(a, x)) for x in dir(a)), 'globals':{'gx':'gx global'}}
-		print t[0](objs)
 
 	def p_OrExpr1(self, t):
 		'OrExpr : OrExpr OR AndExpr'
@@ -242,7 +241,15 @@ if __name__ == '__main__':
 		#Parser()
 		#Parser().parse('''a/b[a==b.as.s and c == e.f.as[1](x, y, z, "hello []12^w234,.23")[2][q(b[5][6].c).qw.d] and __getitem__(1) == "213" and not f==<g.ae.wse().sd>]/e/f/g''', lexer=Lexer())
 		#Parser().parse('a/b[x not in a/b/x - q/w/x | y/x and every y in a/b/c satisfies (y == x)]', lexer=Lexer())
-		print Parser().parse('a[not (not a()[1](<gx>,b,z)[1] == "b attr" or not 1 == 1)]/b/c', lexer=Lexer())
+		query = Parser().parse('a[not (not a()[1](<gx>,b,z)[1] == "b attr" or not 1 == 1)]', lexer=Lexer())
+		class A(object): pass
+		a = A()
+		a.x = 'x attr'
+		a.y = 'y attr'
+		a.z = 'z attr'
+		a.a = lambda : [0, lambda x,y,z: ((x,y,z))]
+		a.b = 'b attr'
+		print list(query(a, {'gx':'gx attr'}))
 		print "SUCCESS"
 	except Exception, e:
 		print e

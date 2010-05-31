@@ -1,4 +1,6 @@
 
+from collections import deque
+
 class Attribute(object):
 
 	def __init__(self, name, callchain=None):
@@ -59,3 +61,34 @@ def comparisonValue(value1, op, value2):
 	def value(objs):
 		return op(value1(objs), value2(objs))
 	return value
+
+def queryValue(q):
+	attrs = q
+	def query(obj, glbls):
+		def select(obj, glbls, attrs):
+			def add(queue, u, v, i):
+				setattr(v, '_objquery__i', i+1)
+				queue.appendleft(v)
+			queue = deque()
+			add(queue, None, type('base', (object,), {attrs[0][0]:obj}), -1)
+			while len(queue) > 0:
+				u = queue.pop()
+				i = getattr(u, '_objquery__i')
+				attrname, where = attrs[i]
+				print u, attrname, where
+				if hasattr(u, attrname):
+					v = getattr(u, attrname)
+					if not isinstance(v, basestring) and hasattr(v, '__iter__'):
+						for z in v:
+							if where != None:
+								if not where(z, glbls): continue
+							if i+1 == len(attrs): yield z
+							else: add(queue, u, z, i)
+					else:
+						if where != None:
+							if not where(v, glbls): continue
+						if i+1 == len(attrs): yield v
+						else: add(queue, u, v, i)
+		return select(obj, glbls, attrs)
+	return query
+
