@@ -102,7 +102,6 @@ class Lexer(object):
 	@Token(r'\n+')
 	def t_newline(self, t):
 		t.lexer.lineno += t.value.count("\n")
-		t.lexer.lexpos = 0
 
 	# Ignored characters
 	t_ignore = " \t"

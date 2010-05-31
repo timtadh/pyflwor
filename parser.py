@@ -250,9 +250,11 @@ if __name__ == '__main__':
 	#Parser().parse('''a/b[x == y and not (1 == 1 or 1 == 2) and not c == d]/c/d''', lexer=Lexer())
 	try:
 		#Parser()
-		#Parser().parse('''a/b[a==b.as.s and c == e.f.as[1](x, y, z, "hello []12^w234,.23")[2][q(b[5][6].c).qw.d] and __getitem__(1) == "213" and not f==<g.ae.wse().sd>]/e/f/g''', lexer=Lexer())
+		#Parser().parse('''a/b[a==b.as.s and c == e.f.as[1](x, y, z, "hello []12^w234,.23")[2][q(b[5]
+		#[6].c).qw.d] and __getitem__(1) == "213" and not f==<g.ae.wse().sd>]/e/f/g''', lexer=Lexer())
 		#Parser().parse('a/b[x not in a/b/x - q/w/x | y/x and every y in a/b/c satisfies (y == x)]', lexer=Lexer())
-		query = Parser().parse('a[not (not @a()[1](<gx>,@z.z.b,@a)[1] == "b attr" and not 1 == 1)]/x[@__mod__(2)]', lexer=Lexer())
+		query = Parser().parse('''a[not (not @a()[1](<gx>,@z.z.b,@a)[1] == "b attr" and
+									not 1 == 1)]/z/z/z/x[@__mod__(2)]''', lexer=Lexer())
 		class A(object): pass
 		a = A()
 		a.x = [1,2,3,4,5,6]
