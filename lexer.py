@@ -8,12 +8,12 @@
 from ply import lex
 from ply.lex import Token
 
-tokens = ('NUMBER', 'STRING', 'NAME', 'SOME', 'EVERY', 'IN', 'NOT', 'SATISFIES', 'AND', 'OR',
-			'SLASH', 'EQ', 'NQ', 'LE', 'GE', 'COMMA',  'DOT', #'DOLLAR', 'COLON',
+tokens = ('NUMBER', 'STRING', 'NAME', 'SOME', 'EVERY', 'IN', 'NOT', 'SATISFIES', 'AND', 'OR', 'SELF',
+			'SLASH', 'EQ', 'NQ', 'LE', 'GE', 'COMMA',  'DOT', 'AT',# 'COLON', #'DOLLAR',
 			'UNION', 'INTERSECTION', 'DIFFERENCE',
 			'LPAREN', 'RPAREN', 'LSQUARE', 'RSQUARE', 'LANGLE', 'RANGLE')
 reserved = {'some':'SOME', 'every':'EVERY', 'in':'IN', 'not':'NOT', 'satisfies':'SATISFIES',
-			'and':'AND', 'or':'OR'}
+			'and':'AND', 'or':'OR', 'self':'SELF'}
 
 D = r'[0-9]'
 L = r'[a-zA-Z_]'
@@ -31,6 +31,7 @@ class Lexer(object):
 
 	tokens = tokens
 
+	t_AT = r'@'
 	t_EQ = r'=='
 	t_NQ = r'!='
 	#t_LT = r'<'
@@ -101,6 +102,7 @@ class Lexer(object):
 	@Token(r'\n+')
 	def t_newline(self, t):
 		t.lexer.lineno += t.value.count("\n")
+		t.lexer.lexpos = 0
 
 	# Ignored characters
 	t_ignore = " \t"

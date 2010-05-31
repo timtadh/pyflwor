@@ -35,7 +35,7 @@ class Parser(object):
 		'Entity : NAME LSQUARE Where RSQUARE'
 		def create(x):
 			def value(obj, glbls):
-				return x({'locals': dict((o, getattr(obj, o)) for o in dir(obj)), 'globals':glbls})
+				return x({'locals': dict((o, getattr(obj, o)) for o in dir(obj)), 'globals':glbls, 'self':obj})
 			return value
 		t[0] = (t[1], create(t[3]))
 
@@ -95,6 +95,14 @@ class Parser(object):
 		'BooleanExpr : LPAREN Where RPAREN'
 		t[0] = t[2]
 
+	def p_BooleanExpr5(self, t):
+		'BooleanExpr : Value'
+		def create(x):
+			def value(objs):
+				return bool(x(objs))
+			return value
+		t[0] = create(t[1])
+
 	def p_CmpExpr(self, t):
 		'CmpExpr : Value CmpOp Value'
 		t[0] = symbols.comparisonValue(t[1], t[2], t[3])
@@ -121,12 +129,16 @@ class Parser(object):
 		t[0] = symbols.attributeValue(t[2], context='globals')
 
 	def p_Value4(self, t):
-		'Value : AttributeValue'
-		t[0] = symbols.attributeValue(t[1], context='locals')
+		'Value : AT AttributeValue'
+		t[0] = symbols.attributeValue(t[2], context='locals')
+
+	def p_Value5(self, t):
+		'Value : SELF'
+		t[0] = symbols.attributeValue(t[1], context='self')
 
 	def p_AttributeValue1(self, t):
 		'AttributeValue : AttributeValue DOT Attr'
-		t[0] = t[1] + [t[2]]
+		t[0] = t[1] + [t[3]]
 
 	def p_AttributeValue2(self, t):
 		'AttributeValue : Attr'
@@ -198,7 +210,6 @@ class Parser(object):
 		'SetExpr : Value NOT IN Set'
 		#print t
 
-
 	def p_Set1(self, t):
 		'Set : Set DIFFERENCE UnionExpr'
 		#print t
@@ -232,7 +243,7 @@ class Parser(object):
 		#print t
 
 	def p_error(self, t):
-		raise Exception, "Syntax error at '%s'" % t
+		raise Exception, "Syntax error at '%s', %s.%s" % (t,t.lineno,t.lexpos)
 
 
 if __name__ == '__main__':
@@ -241,15 +252,15 @@ if __name__ == '__main__':
 		#Parser()
 		#Parser().parse('''a/b[a==b.as.s and c == e.f.as[1](x, y, z, "hello []12^w234,.23")[2][q(b[5][6].c).qw.d] and __getitem__(1) == "213" and not f==<g.ae.wse().sd>]/e/f/g''', lexer=Lexer())
 		#Parser().parse('a/b[x not in a/b/x - q/w/x | y/x and every y in a/b/c satisfies (y == x)]', lexer=Lexer())
-		query = Parser().parse('a[not (not a()[1](<gx>,b,z)[1] == "b attr" or not 1 == 1)]', lexer=Lexer())
+		query = Parser().parse('a[not (not @a()[1](<gx>,@z.z.b,@a)[1] == "b attr" and not 1 == 1)]/x[@__mod__(2)]', lexer=Lexer())
 		class A(object): pass
 		a = A()
-		a.x = 'x attr'
+		a.x = [1,2,3,4,5,6]
 		a.y = 'y attr'
-		a.z = 'z attr'
+		a.z = a
 		a.a = lambda : [0, lambda x,y,z: ((x,y,z))]
 		a.b = 'b attr'
-		print list(query(a, {'gx':'gx attr'}))
+		print tuple(query(a, {'gx':'gx attr'}))
 		print "SUCCESS"
 	except Exception, e:
 		print e

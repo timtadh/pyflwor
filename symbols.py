@@ -37,10 +37,10 @@ def attributeValue(attribute_list, scalar=False, context='locals'):
 		return x
 	def value(objs):
 		if scalar: return attribute_list
+		if context == 'self': return objs[context]
 		attr0 = attribute_list[0]
 		obj = expand(objs, objs[context], attr0, objs[context][attr0.name])
 		for attr in attribute_list[1:]:
-			print attr, obj
 			if hasattr(obj, attr.name):
 				obj = expand(objs, obj, attr)
 			else:
@@ -75,7 +75,6 @@ def queryValue(q):
 				u = queue.pop()
 				i = getattr(u, '_objquery__i')
 				attrname, where = attrs[i]
-				print u, attrname, where
 				if hasattr(u, attrname):
 					v = getattr(u, attrname)
 					if not isinstance(v, basestring) and hasattr(v, '__iter__'):
