@@ -88,6 +88,6 @@ def queryValue(q):
 							if not where(v, glbls): continue
 						if i+1 == len(attrs): yield v
 						else: add(queue, u, v, i)
-		return select(obj, glbls, attrs)
+		return set(select(obj, glbls, attrs))
 	return query
 
