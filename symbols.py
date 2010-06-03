@@ -57,9 +57,44 @@ def operator(op):
 	if op == '>': return lambda x,y: x > y
 	raise Exception, "operator %s not found" % op
 
+def setoperator(op):
+	if op == '|': return lambda x,y: x | y
+	if op == '&': return lambda x,y: x & y
+	if op == '-': return lambda x,y: x - y
+	raise Exception, "operator %s not found" % op
+
+def setexprOperator1(op):
+	if op == 'in': return lambda x,y: x in y
+	if op == 'not in': return lambda x,y: x not in y
+	raise Exception, "operator %s not found" % op
+
+def setexprOperator2(op):
+	if op == 'is': return lambda x,y: x == y
+	if op == 'is not': return lambda x,y: x != y
+	if op == 'subset': return lambda x,y: x <= y
+	if op == 'superset': return lambda x,y: x >= y
+	if op == 'proper subset': return lambda x,y: x < y
+	if op == 'proper superset': return lambda x,y: x > y
+	raise Exception, "operator %s not found" % op
+
 def comparisonValue(value1, op, value2):
 	def value(objs):
 		return op(value1(objs), value2(objs))
+	return value
+
+def setValue(s1, op, s2):
+	def query(obj, glbls):
+		return op(s1(obj, glbls), s2(obj, glbls))
+	return query
+
+def setexprValue1(val, op, s):
+	def value(objs):
+		return op(val(objs), s(objs['self'], objs['globals']))
+	return value
+
+def setexprValue2(s1, op, s2):
+	def value(objs):
+		return op(s1(objs['self'], objs['globals']), s2(objs['self'], objs['globals']))
 	return value
 
 def queryValue(q):
@@ -91,3 +126,22 @@ def queryValue(q):
 		return set(select(obj, glbls, attrs))
 	return query
 
+def quantifiedValue(mode, name, s, where):
+	def value(objs):
+		if mode == 'every':
+			r = True
+			for x in s(objs['self'], objs['globals']):
+				cobjs = {'self':x, 'globals':objs['globals'],
+						'locals':dict((o,getattr(x,o))for o in dir(x))}
+				if not where(cobjs):
+					r = False
+			return r
+		elif mode == 'some':
+			for x in s(objs['self'], objs['globals']):
+				cobjs = {'self':x, 'globals':objs['globals'],
+						'locals':dict((o,getattr(x,o))for o in dir(x))}
+				if where(cobjs):
+					return True
+			return False
+		raise Exception, "mode '%s' is not 'every' or 'some'" % mode
+	return value

@@ -8,12 +8,15 @@
 from ply import lex
 from ply.lex import Token
 
-tokens = ('NUMBER', 'STRING', 'NAME', 'SOME', 'EVERY', 'IN', 'NOT', 'SATISFIES', 'AND', 'OR', 'SELF',
+tokens = ('NUMBER', 'STRING', 'NAME', 'SOME', 'EVERY', 'IN', 'NOT', 'SATISFIES', 'AND', 'OR', 'IS',
+			'SELF', 'SUBSET', 'SUPERSET', 'PROPER',
 			'SLASH', 'EQ', 'NQ', 'LE', 'GE', 'COMMA',  'DOT', 'AT',# 'COLON', #'DOLLAR',
 			'UNION', 'INTERSECTION', 'DIFFERENCE',
 			'LPAREN', 'RPAREN', 'LSQUARE', 'RSQUARE', 'LANGLE', 'RANGLE')
+
 reserved = {'some':'SOME', 'every':'EVERY', 'in':'IN', 'not':'NOT', 'satisfies':'SATISFIES',
-			'and':'AND', 'or':'OR', 'self':'SELF'}
+			'and':'AND', 'or':'OR', 'self':'SELF', 'subset':'SUBSET', 'superset':'SUPERSET',
+			'proper':'PROPER', 'is':'IS'}
 
 D = r'[0-9]'
 L = r'[a-zA-Z_]'
