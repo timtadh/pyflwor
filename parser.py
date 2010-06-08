@@ -61,13 +61,13 @@ class Parser(object):
 
 	def p_Entity1(self, t):
 		'Entity : NAME'
-		t[0] = (t[1], lambda obj, glbls: True)
+		t[0] = (t[1], lambda obj: True)
 
 	def p_Entity2(self, t):
 		'Entity : NAME LSQUARE Where RSQUARE'
 		def create(x):
-			def value(obj, glbls):
-				return x({'locals': dict((o, getattr(obj, o)) for o in dir(obj)), 'globals':glbls, 'self':obj})
+			def value(objs):
+				return x(objs)
 			return value
 		t[0] = (t[1], create(t[3]))
 
@@ -161,12 +161,12 @@ class Parser(object):
 		t[0] = symbols.attributeValue(t[2], context='globals')
 
 	def p_Value4(self, t):
-		'Value : SELF DOT AttributeValue'
-		t[0] = symbols.attributeValue(t[3], context='locals')
+		'Value : AttributeValue'
+		t[0] = symbols.attributeValue(t[1], context='locals')
 
-	def p_Value5(self, t):
-		'Value : SELF'
-		t[0] = symbols.attributeValue(t[1], context='self')
+	#def p_Value5(self, t):
+		#'Value : SELF'
+		#t[0] = symbols.attributeValue(t[1], context='self')
 
 	def p_AttributeValue1(self, t):
 		'AttributeValue : AttributeValue DOT Attr'
@@ -280,17 +280,18 @@ if __name__ == '__main__':
 		#Parser().parse('a/b[x not in a/b/x - q/w/x | y/x and every y in a/b/c satisfies (y == x)]', lexer=Lexer())
 		#query = Parser().parse('''a[not (not self.a()[1](<gx>,self.z.z.b,self.a)[1] == "b attr" and
 									#not 1 == 1)]/z/z/z/x[self.__mod__(2)]''', lexer=Lexer())
-		query = Parser().parse('''a[every x in a/r - a/x[not self.__mod__(2)] satisfies (self.__mod__(2))]/r''', lexer=Lexer())
+		query = Parser().parse('''a[every x in self/r - a/p satisfies (x)]/q''', lexer=Lexer())
 		class A(object): pass
 		a = A()
 		a.q = [1,3,5]
+		a.p = [2,4,6]
 		a.r = [1,2,5,6]
 		a.x = [1,2,3,4,5,6]
 		a.y = 'y attr'
 		a.z = a
 		a.a = lambda : [0, lambda x,y,z: ((x,y,z))]
 		a.b = 'b attr'
-		print tuple(query(a, {'gx':'gx attr'}))
+		print tuple(query({'a':a, 'gx':'gx attr'}))
 		print "SUCCESS"
 	except Exception, e:
 		print e

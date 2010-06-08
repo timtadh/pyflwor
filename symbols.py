@@ -37,7 +37,7 @@ def attributeValue(attribute_list, scalar=False, context='locals'):
 		return x
 	def value(objs):
 		if scalar: return attribute_list
-		if context == 'self': return objs[context]
+		#if context == 'self': return objs[context]
 		attr0 = attribute_list[0]
 		obj = expand(objs, objs[context], attr0, objs[context][attr0.name])
 		for attr in attribute_list[1:]:
@@ -83,29 +83,29 @@ def comparisonValue(value1, op, value2):
 	return value
 
 def setValue(s1, op, s2):
-	def query(obj, glbls):
-		return op(s1(obj, glbls), s2(obj, glbls))
+	def query(glbls):
+		return op(s1(glbls), s2(glbls))
 	return query
 
 def setexprValue1(val, op, s):
 	def value(objs):
-		return op(val(objs), s(objs['self'], objs['globals']))
+		return op(val(objs), s(objs['globals']))
 	return value
 
 def setexprValue2(s1, op, s2):
 	def value(objs):
-		return op(s1(objs['self'], objs['globals']), s2(objs['self'], objs['globals']))
+		return op(s1(objs['globals']), s2(objs['globals']))
 	return value
 
 def queryValue(q):
 	attrs = q
-	def query(obj, glbls):
-		def select(obj, glbls, attrs):
+	def query(objs):
+		def select(objs, attrs):
 			def add(queue, u, v, i):
 				setattr(v, '_objquery__i', i+1)
 				queue.appendleft(v)
 			queue = deque()
-			add(queue, None, type('base', (object,), {attrs[0][0]:obj}), -1)
+			add(queue, None, type('base', (object,), objs), -1)
 			while len(queue) > 0:
 				u = queue.pop()
 				i = getattr(u, '_objquery__i')
@@ -115,31 +115,36 @@ def queryValue(q):
 					if not isinstance(v, basestring) and hasattr(v, '__iter__'):
 						for z in v:
 							if where != None:
-								if not where(z, glbls): continue
+								if not where({'locals':{'self':z}, 'globals':objs}): continue
 							if i+1 == len(attrs): yield z
 							else: add(queue, u, z, i)
 					else:
 						if where != None:
-							if not where(v, glbls): continue
+							if not where({'locals':{'self':v}, 'globals':objs}): continue
 						if i+1 == len(attrs): yield v
 						else: add(queue, u, v, i)
-		return set(select(obj, glbls, attrs))
+		return set(select(objs, attrs))
 	return query
 
 def quantifiedValue(mode, name, s, where):
 	def value(objs):
+		glbls = dict(objs['globals'])
+		glbls.update(objs['locals'])
+		nobjs = s(glbls)
+		print nobjs
+		if not nobjs: return False
 		if mode == 'every':
 			r = True
-			for x in s(objs['self'], objs['globals']):
-				cobjs = {'self':x, 'globals':objs['globals'],
-						'locals':dict((o,getattr(x,o))for o in dir(x))}
+			#import pdb
+			#pdb.set_trace()
+			for x in nobjs:
+				cobjs = {'locals':{name:x}, 'globals':objs['globals']}
 				if not where(cobjs):
 					r = False
 			return r
 		elif mode == 'some':
-			for x in s(objs['self'], objs['globals']):
-				cobjs = {'self':x, 'globals':objs['globals'],
-						'locals':dict((o,getattr(x,o))for o in dir(x))}
+			for x in nobjs:
+				cobjs = {'locals':{name:x}, 'globals':objs['globals']}
 				if where(cobjs):
 					return True
 			return False
