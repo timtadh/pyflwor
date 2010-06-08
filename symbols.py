@@ -39,7 +39,7 @@ def attributeValue(attribute_list, scalar=False, context='locals'):
 		if scalar: return attribute_list
 		#if context == 'self': return objs[context]
 		attr0 = attribute_list[0]
-		obj = expand(objs, objs[context], attr0, objs[context][attr0.name])
+		obj = expand(objs, objs, attr0, objs[attr0.name])
 		for attr in attribute_list[1:]:
 			if hasattr(obj, attr.name):
 				obj = expand(objs, obj, attr)
@@ -89,12 +89,12 @@ def setValue(s1, op, s2):
 
 def setexprValue1(val, op, s):
 	def value(objs):
-		return op(val(objs), s(objs['globals']))
+		return op(val(objs), s(objs))
 	return value
 
 def setexprValue2(s1, op, s2):
 	def value(objs):
-		return op(s1(objs['globals']), s2(objs['globals']))
+		return op(s1(objs), s2(objs))
 	return value
 
 def queryValue(q):
@@ -115,12 +115,16 @@ def queryValue(q):
 					if not isinstance(v, basestring) and hasattr(v, '__iter__'):
 						for z in v:
 							if where != None:
-								if not where({'locals':{'self':z}, 'globals':objs}): continue
+								cobjs = dict(objs)
+								cobjs.update({'self':z})
+								if not where(cobjs): continue
 							if i+1 == len(attrs): yield z
 							else: add(queue, u, z, i)
 					else:
 						if where != None:
-							if not where({'locals':{'self':v}, 'globals':objs}): continue
+							cobjs = dict(objs)
+							cobjs.update({'self':v})
+							if not where(cobjs): continue
 						if i+1 == len(attrs): yield v
 						else: add(queue, u, v, i)
 		return set(select(objs, attrs))
@@ -128,9 +132,7 @@ def queryValue(q):
 
 def quantifiedValue(mode, name, s, where):
 	def value(objs):
-		glbls = dict(objs['globals'])
-		glbls.update(objs['locals'])
-		nobjs = s(glbls)
+		nobjs = s(objs)
 		print nobjs
 		if not nobjs: return False
 		if mode == 'every':
@@ -138,13 +140,15 @@ def quantifiedValue(mode, name, s, where):
 			#import pdb
 			#pdb.set_trace()
 			for x in nobjs:
-				cobjs = {'locals':{name:x}, 'globals':objs['globals']}
+				cobjs = dict(objs)
+				cobjs.update({name:x})
 				if not where(cobjs):
 					r = False
 			return r
 		elif mode == 'some':
 			for x in nobjs:
-				cobjs = {'locals':{name:x}, 'globals':objs['globals']}
+				cobjs = dict(objs)
+				cobjs.update({name:x})
 				if where(cobjs):
 					return True
 			return False

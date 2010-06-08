@@ -13,7 +13,10 @@ class Parser(object):
 		return self.yacc
 
 	tokens = tokens
-	precedence = tuple()
+	precedence = (
+		('right', 'RSQUARE'),
+	)
+
 
 	def p_Set1(self, t):
 		'Set : Set DIFFERENCE UnionExpr'
@@ -124,16 +127,16 @@ class Parser(object):
 		t[0] = t[1]
 
 	def p_BooleanExpr4(self, t):
-		'BooleanExpr : LPAREN Where RPAREN'
-		t[0] = t[2]
-
-	def p_BooleanExpr5(self, t):
 		'BooleanExpr : Value'
 		def create(x):
 			def value(objs):
 				return bool(x(objs))
 			return value
 		t[0] = create(t[1])
+
+	def p_BooleanExpr5(self, t):
+		'BooleanExpr : LPAREN Where RPAREN'
+		t[0] = t[2]
 
 	def p_CmpExpr(self, t):
 		'CmpExpr : Value CmpOp Value'
@@ -157,7 +160,7 @@ class Parser(object):
 		t[0] = symbols.attributeValue(t[1], scalar=True)
 
 	def p_Value3(self, t):
-		'Value : LANGLE AttributeValue RANGLE'
+		'Value : COLON AttributeValue COLON'
 		t[0] = symbols.attributeValue(t[2], context='globals')
 
 	def p_Value4(self, t):
@@ -223,8 +226,8 @@ class Parser(object):
 		t[0] = symbols.Call([t[2]], lookup=True)
 
 	def p_QuantifiedExpr(self, t):
-		'QuantifiedExpr : Quantifier NAME IN Set SATISFIES LPAREN Where RPAREN'
-		t[0] = symbols.quantifiedValue(t[1], t[2], t[4], t[7])
+		'QuantifiedExpr : Quantifier NAME IN LANGLE Set RANGLE SATISFIES LPAREN Where RPAREN'
+		t[0] = symbols.quantifiedValue(t[1], t[2], t[5], t[9])
 
 	def p_Quantifier1(self, t):
 		'Quantifier : EVERY'
@@ -235,36 +238,36 @@ class Parser(object):
 		t[0] = t[1]
 
 	def p_SetExpr1(self, t):
-		'SetExpr : Value IN Set'
-		t[0] = symbols.setexprValue1(t[1], symbols.setexprOperator1('in'), t[3])
+		'SetExpr : Value IN LANGLE Set RANGLE'
+		t[0] = symbols.setexprValue1(t[1], symbols.setexprOperator1('in'), t[4])
 
 	def p_SetExpr2(self, t):
-		'SetExpr : Value NOT IN Set'
-		t[0] = symbols.setexprValue1(t[1], symbols.setexprOperator1('not in'), t[4])
+		'SetExpr : Value NOT IN LANGLE Set RANGLE'
+		t[0] = symbols.setexprValue1(t[1], symbols.setexprOperator1('not in'), t[5])
 
 	def p_SetExpr3(self, t):
-		'SetExpr : Set SUBSET Set'
-		t[0] = symbols.setexprValue2(t[1], symbols.setexprOperator2('subset'), t[3])
+		'SetExpr : LANGLE Set RANGLE SUBSET LANGLE Set RANGLE'
+		t[0] = symbols.setexprValue2(t[2], symbols.setexprOperator2('subset'), t[6])
 
 	def p_SetExpr4(self, t):
-		'SetExpr : Set SUPERSET Set'
-		t[0] = symbols.setexprValue2(t[1], symbols.setexprOperator2('superset'), t[3])
+		'SetExpr : LANGLE Set RANGLE SUPERSET LANGLE Set RANGLE'
+		t[0] = symbols.setexprValue2(t[2], symbols.setexprOperator2('superset'), t[6])
 
 	def p_SetExpr5(self, t):
-		'SetExpr : Set PROPER SUBSET Set'
-		t[0] = symbols.setexprValue2(t[1], symbols.setexprOperat2or('proper subset'), t[4])
+		'SetExpr : LANGLE Set RANGLE PROPER SUBSET LANGLE Set RANGLE'
+		t[0] = symbols.setexprValue2(t[2], symbols.setexprOperat2or('proper subset'), t[7])
 
 	def p_SetExpr6(self, t):
-		'SetExpr : Set PROPER SUPERSET Set'
-		t[0] = symbols.setexprValue2(t[1], symbols.setexprOperator2('proper superset'), t[4])
+		'SetExpr : LANGLE Set RANGLE PROPER SUPERSET LANGLE Set RANGLE'
+		t[0] = symbols.setexprValue2(t[2], symbols.setexprOperator2('proper superset'), t[7])
 
 	def p_SetExpr7(self, t):
-		'SetExpr : Set IS Set'
-		t[0] = symbols.setexprValue2(t[1], symbols.setexprOperator2('is'), t[3])
+		'SetExpr : LANGLE Set RANGLE IS LANGLE Set RANGLE'
+		t[0] = symbols.setexprValue2(t[2], symbols.setexprOperator2('is'), t[6])
 
 	def p_SetExpr8(self, t):
-		'SetExpr : Set IS NOT Set'
-		t[0] = symbols.setexprValue2(t[1], symbols.setexprOperator2('is not'), t[4])
+		'SetExpr : LANGLE Set RANGLE IS NOT LANGLE Set RANGLE'
+		t[0] = symbols.setexprValue2(t[2], symbols.setexprOperator2('is not'), t[7])
 
 
 	def p_error(self, t):
@@ -280,11 +283,10 @@ if __name__ == '__main__':
 		#Parser().parse('a/b[x not in a/b/x - q/w/x | y/x and every y in a/b/c satisfies (y == x)]', lexer=Lexer())
 		#query = Parser().parse('''a[not (not self.a()[1](<gx>,self.z.z.b,self.a)[1] == "b attr" and
 									#not 1 == 1)]/z/z/z/x[self.__mod__(2)]''', lexer=Lexer())
-		query = Parser().parse('''a[every x in self/r - a/p satisfies (x)]/q''', lexer=Lexer())
+		query = Parser().parse('''a[every x in <self/q> satisfies (x) and <self/x> proper superset <self/q>]/q''', lexer=Lexer())
 		class A(object): pass
 		a = A()
 		a.q = [1,3,5]
-		a.p = [2,4,6]
 		a.r = [1,2,5,6]
 		a.x = [1,2,3,4,5,6]
 		a.y = 'y attr'

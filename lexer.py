@@ -10,7 +10,7 @@ from ply.lex import Token
 
 tokens = ('NUMBER', 'STRING', 'NAME', 'SOME', 'EVERY', 'IN', 'NOT', 'SATISFIES', 'AND', 'OR', 'IS',
 			'SUBSET', 'SUPERSET', 'PROPER',
-			'SLASH', 'EQ', 'NQ', 'LE', 'GE', 'COMMA',  'DOT', 'AT',# 'COLON', #'DOLLAR',
+			'SLASH', 'EQ', 'NQ', 'LE', 'GE', 'COMMA',  'DOT', 'AT', 'COLON', #'DOLLAR',
 			'UNION', 'INTERSECTION', 'DIFFERENCE',
 			'LPAREN', 'RPAREN', 'LSQUARE', 'RSQUARE', 'LANGLE', 'RANGLE')
 
@@ -43,7 +43,7 @@ class Lexer(object):
 	t_GE = r'>='
 	t_DOT = r'\.'
 	t_COMMA = r','
-	#t_COLON = r'\:'
+	t_COLON = r'\:'
 	t_SLASH = r'/'
 	t_UNION = r'\|'
 	#t_DOLLAR = r'\$'
