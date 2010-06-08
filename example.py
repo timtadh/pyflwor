@@ -51,17 +51,65 @@ agents = [Agent('Aho', 'Stanford', .25), Agent('Lam', 'Baltimore', .15),
 products = [Product('Coca-Cola', 'Atlanta', 1000000, 1.0), Product('Koss Porta-Pro', 'Columbus', 500, 44.99),
 			Product('Altec Speakers', 'Cleveland', 10000, 59.99), Product('Pilot G-2', 'New York', 1000, .50)]
 
-orders = list(Order(customers[t[0]], agents[t[1]], products[t[2]], randint(0,100)) for t in itertools.product(range(4), repeat=3))
+#orders = list(Order(customers[t[0]], agents[t[1]], products[t[2]], randint(0,100)) for t in itertools.product(range(4), repeat=3))
 
-orders += list(Order(customers[t[0]], agents[t[1]], products[t[2]], randint(0,100)) for t in itertools.permutations(range(4), 3))
+#orders += list(Order(customers[t[0]], agents[t[1]], products[t[2]], randint(0,100)) for t in itertools.permutations(range(4), 3))
 
-orders += list(Order(customers[t[0]], agents[t[1]], products[t[2]], randint(0,100)) for t in itertools.product(range(4), repeat=3))
+#orders = list(Order(customers[t[0]], agents[t[1]], products[t[2]], randint(0,100)) for t in itertools.product(range(4), repeat=3))
+
+orders = [
+		Order(customers[0], agents[0], products[0], randint(0,100)),
+		Order(customers[0], agents[1], products[0], randint(0,100)),
+		Order(customers[0], agents[2], products[0], randint(0,100)),
+		Order(customers[1], agents[3], products[1], randint(0,100)),
+		Order(customers[2], agents[0], products[3], randint(0,100)),
+		Order(customers[3], agents[1], products[2], randint(0,100)),
+		Order(customers[3], agents[2], products[1], randint(0,100)),
+		Order(customers[1], agents[3], products[2], randint(0,100)),
+		Order(customers[3], agents[3], products[2], randint(0,100)),
+	]
 
 if __name__ == '__main__':
 	from parser import Parser
 	from lexer import Lexer
-	print "Orders where customer.name = Steve and agent.name = Ullman"
-	q = Parser().parse('o[self.customer.name == "Steve" and self.agent.name == "Ullman"]', lexer=Lexer())
-	for x in q(orders, dict()):
+	print "all orders"
+	for x in orders:
 		print x
+	print
+	print
+	print
+
+	print "Orders where customer.name = Steve and agent.name = Ullman"
+	q = Parser().parse('orders[self.customer.name == "Steve" and self.agent.name == "Ullman"]', lexer=Lexer())
+	for x in q(locals()):
+		print x
+	print
+	print
+	print
+
+	print "Q1: Get names of products that are ordered by at least one customer three different times."
+	q = Parser().parse('''
+			orders/product
+			[
+				some o1 in <orders> satisfies
+				(
+					some o2 in <orders> satisfies
+					(
+						some o3 in <orders> satisfies
+						(
+							self == o1.product and self == o2.product and self == o3.product and
+							o1 != o2 and o2 != o3 and o3 != o1 and
+							o1.customer == o2.customer and o2.customer == o3.customer and
+							o3.customer == o1.customer
+						)
+					)
+				)
+			]
+		''', lexer=Lexer())
+	t = q(locals())
+	for x in t:
+		print x
+	print
+	print
+	print
 

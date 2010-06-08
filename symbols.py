@@ -133,7 +133,6 @@ def queryValue(q):
 def quantifiedValue(mode, name, s, where):
 	def value(objs):
 		nobjs = s(objs)
-		print nobjs
 		if not nobjs: return False
 		if mode == 'every':
 			r = True

@@ -159,13 +159,13 @@ class Parser(object):
 		'Value : STRING'
 		t[0] = symbols.attributeValue(t[1], scalar=True)
 
-	def p_Value3(self, t):
-		'Value : COLON AttributeValue COLON'
-		t[0] = symbols.attributeValue(t[2], context='globals')
+	#def p_Value3(self, t):
+		#'Value : COLON AttributeValue COLON'
+		#t[0] = symbols.attributeValue(t[2], context='globals')
 
 	def p_Value4(self, t):
 		'Value : AttributeValue'
-		t[0] = symbols.attributeValue(t[1], context='locals')
+		t[0] = symbols.attributeValue(t[1])
 
 	#def p_Value5(self, t):
 		#'Value : SELF'
@@ -283,7 +283,7 @@ if __name__ == '__main__':
 		#Parser().parse('a/b[x not in a/b/x - q/w/x | y/x and every y in a/b/c satisfies (y == x)]', lexer=Lexer())
 		#query = Parser().parse('''a[not (not self.a()[1](<gx>,self.z.z.b,self.a)[1] == "b attr" and
 									#not 1 == 1)]/z/z/z/x[self.__mod__(2)]''', lexer=Lexer())
-		query = Parser().parse('''a[every x in <self/q> satisfies (x) and <self/x> proper superset <self/q>]/q''', lexer=Lexer())
+		query = Parser().parse('''a[every x in <self/q> satisfies (x != self.q[0]) and <self/x> proper superset <self/q>]/q''', lexer=Lexer())
 		class A(object): pass
 		a = A()
 		a.q = [1,3,5]
