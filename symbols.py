@@ -77,6 +77,15 @@ def setexprOperator2(op):
 	if op == 'proper superset': return lambda x,y: x > y
 	raise Exception, "operator %s not found" % op
 
+def booleanOperator(op):
+	if op == 'and': return lambda x,y: x and y
+	if op == 'or':  return lambda x,y: x or y
+	raise Exception, "operator %s not found" % op
+
+def unaryOperator(op):
+	if op == 'not': return lambda x: not x
+	raise Exception, "operator %s not found" % op
+
 def comparisonValue(value1, op, value2):
 	def value(objs):
 		return op(value1(objs), value2(objs))
@@ -95,6 +104,26 @@ def setexprValue1(val, op, s):
 def setexprValue2(s1, op, s2):
 	def value(objs):
 		return op(s1(objs), s2(objs))
+	return value
+
+def booleanexprValue(value1, op, value2):
+	def value(objs):
+		return op(value1(objs), value2(objs))
+	return value
+
+def unaryexprValue(op, val):
+	def value(objs):
+		return op(val(objs))
+	return value
+
+def booleanValue(val):
+	def value(objs):
+		return bool(val(objs))
+	return value
+
+def whereValue(where):
+	def value(objs):
+		return where(objs)
 	return value
 
 def queryValue(q):

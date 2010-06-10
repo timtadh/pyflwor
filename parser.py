@@ -17,7 +17,6 @@ class Parser(object):
 		('right', 'RSQUARE'),
 	)
 
-
 	def p_Set1(self, t):
 		'Set : Set DIFFERENCE UnionExpr'
 		t[0] = symbols.setValue(t[1], symbols.setoperator(t[2]), t[3])
@@ -64,15 +63,11 @@ class Parser(object):
 
 	def p_Entity1(self, t):
 		'Entity : NAME'
-		t[0] = (t[1], lambda obj: True)
+		t[0] = (t[1], symbols.whereValue(lambda objs: True))
 
 	def p_Entity2(self, t):
 		'Entity : NAME LSQUARE Where RSQUARE'
-		def create(x):
-			def value(objs):
-				return x(objs)
-			return value
-		t[0] = (t[1], create(t[3]))
+		t[0] = (t[1], symbols.whereValue(t[3]))
 
 	def p_Where(self, t):
 		'Where : OrExpr'
@@ -80,11 +75,7 @@ class Parser(object):
 
 	def p_OrExpr1(self, t):
 		'OrExpr : OrExpr OR AndExpr'
-		def create(x, y):
-			def oor(objs):
-				return x(objs) or y(objs)
-			return oor
-		t[0] = create(t[1], t[3])
+		t[0] = symbols.booleanexprValue(t[1], symbols.booleanOperator(t[2]), t[3])
 
 	def p_OrExpr2(self, t):
 		'OrExpr : AndExpr'
@@ -92,11 +83,7 @@ class Parser(object):
 
 	def p_AndExpr1(self, t):
 		'AndExpr : AndExpr AND NotExpr'
-		def create(x, y):
-			def annd(objs):
-				return x(objs) and y(objs)
-			return annd
-		t[0] = create(t[1], t[3])
+		t[0] = symbols.booleanexprValue(t[1], symbols.booleanOperator(t[2]), t[3])
 
 	def p_AndExpr2(self, t):
 		'AndExpr : NotExpr'
@@ -104,11 +91,7 @@ class Parser(object):
 
 	def p_NotExpr1(self, t):
 		'NotExpr : NOT BooleanExpr'
-		def create(x):
-			def noot(objs):
-				return not x(objs)
-			return noot
-		t[0] = create(t[2])
+		t[0] = symbols.unaryexprValue(symbols.unaryOperator(t[1]), t[2])
 
 	def p_NotExpr2(self, t):
 		'NotExpr : BooleanExpr'
@@ -128,11 +111,7 @@ class Parser(object):
 
 	def p_BooleanExpr4(self, t):
 		'BooleanExpr : Value'
-		def create(x):
-			def value(objs):
-				return bool(x(objs))
-			return value
-		t[0] = create(t[1])
+		t[0] = symbols.booleanValue(t[1])
 
 	def p_BooleanExpr5(self, t):
 		'BooleanExpr : LPAREN Where RPAREN'
@@ -159,17 +138,9 @@ class Parser(object):
 		'Value : STRING'
 		t[0] = symbols.attributeValue(t[1], scalar=True)
 
-	#def p_Value3(self, t):
-		#'Value : COLON AttributeValue COLON'
-		#t[0] = symbols.attributeValue(t[2], context='globals')
-
 	def p_Value4(self, t):
 		'Value : AttributeValue'
 		t[0] = symbols.attributeValue(t[1])
-
-	#def p_Value5(self, t):
-		#'Value : SELF'
-		#t[0] = symbols.attributeValue(t[1], context='self')
 
 	def p_AttributeValue1(self, t):
 		'AttributeValue : AttributeValue DOT Attr'
@@ -219,7 +190,6 @@ class Parser(object):
 	def p_Fcall2(self, t):
 		'Fcall : LPAREN ParameterList RPAREN'
 		t[0] = symbols.Call(t[2])
-		#t[0] = symbols.Call(['PLACE HOLDER'])
 
 	def p_Dcall(self, t):
 		'Dcall : LSQUARE Value RSQUARE'
@@ -269,7 +239,6 @@ class Parser(object):
 		'SetExpr : LANGLE Set RANGLE IS NOT LANGLE Set RANGLE'
 		t[0] = symbols.setexprValue2(t[2], symbols.setexprOperator2('is not'), t[7])
 
-
 	def p_error(self, t):
 		raise Exception, "Syntax error at '%s', %s.%s" % (t,t.lineno,t.lexpos)
 
@@ -283,9 +252,11 @@ if __name__ == '__main__':
 		#Parser().parse('a/b[x not in a/b/x - q/w/x | y/x and every y in a/b/c satisfies (y == x)]', lexer=Lexer())
 		#query = Parser().parse('''a[not (not self.a()[1](<gx>,self.z.z.b,self.a)[1] == "b attr" and
 									#not 1 == 1)]/z/z/z/x[self.__mod__(2)]''', lexer=Lexer())
-		query = Parser().parse('''a[every x in <self/q> satisfies (x != self.q[0]) and <self/x> proper superset <self/q>]/q''', lexer=Lexer())
+		query = Parser().parse('''a[self.f or not self.f]''', lexer=Lexer())
 		class A(object): pass
 		a = A()
+		a.t = True
+		a.f = False
 		a.q = [1,3,5]
 		a.r = [1,2,5,6]
 		a.x = [1,2,3,4,5,6]
