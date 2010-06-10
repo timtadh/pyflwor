@@ -19,6 +19,13 @@ class Call(object):
 		if self.lookup: return "__getitem__" + str(tuple(self.params))
 		return "__call__" + str(tuple(self.params))
 
+class KeyValuePair(object):
+	def __init__(self, key, value):
+		self.key = key
+		self.value = value
+	def __repr__(self): return str(self)
+	def __str__(self): return "<key:%s, value:%s>" % (self.key, self.value)
+
 def attributeValue(attribute_list, scalar=False, context='locals'):
 	def expand(objs, obj, attr, x=None):
 		if x == None: x = getattr(obj, attr.name)
@@ -143,12 +150,16 @@ def queryValue(q):
 					v = getattr(u, attrname)
 					if not isinstance(v, basestring) and hasattr(v, '__iter__'):
 						for z in v:
+							if isinstance(v, dict):
+								next = KeyValuePair(z, v[z])
+							else:
+								next = z
 							if where != None:
 								cobjs = dict(objs)
-								cobjs.update({'self':z})
+								cobjs.update({'self':next})
 								if not where(cobjs): continue
-							if i+1 == len(attrs): yield z
-							else: add(queue, u, z, i)
+							if i+1 == len(attrs): yield next
+							else: add(queue, u, next, i)
 					else:
 						if where != None:
 							cobjs = dict(objs)

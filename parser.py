@@ -252,7 +252,7 @@ if __name__ == '__main__':
 		#Parser().parse('a/b[x not in a/b/x - q/w/x | y/x and every y in a/b/c satisfies (y == x)]', lexer=Lexer())
 		#query = Parser().parse('''a[not (not self.a()[1](<gx>,self.z.z.b,self.a)[1] == "b attr" and
 									#not 1 == 1)]/z/z/z/x[self.__mod__(2)]''', lexer=Lexer())
-		query = Parser().parse('''a[self.f or not self.f]''', lexer=Lexer())
+		query = Parser().parse('''a[self.f or not self.f]/d[self.value.__mod__(2)]/key''', lexer=Lexer())
 		class A(object): pass
 		a = A()
 		a.t = True
@@ -260,6 +260,7 @@ if __name__ == '__main__':
 		a.q = [1,3,5]
 		a.r = [1,2,5,6]
 		a.x = [1,2,3,4,5,6]
+		a.d = {'one':1, 'two':2}
 		a.y = 'y attr'
 		a.z = a
 		a.a = lambda : [0, lambda x,y,z: ((x,y,z))]

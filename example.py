@@ -56,7 +56,7 @@ products = [Product('Coca-Cola', 'Atlanta', 1000000, 1.0), Product('Koss Porta-P
 
 #orders += list(Order(customers[t[0]], agents[t[1]], products[t[2]], randint(0,100)) for t in itertools.permutations(range(4), 3))
 
-#orders = list(Order(customers[t[0]], agents[t[1]], products[t[2]], randint(0,100)) for t in itertools.product(range(4), repeat=3))
+#orders += list(Order(customers[t[0]], agents[t[1]], products[t[2]], randint(0,100)) for t in itertools.product(range(4), repeat=3))
 
 orders = [
 		Order(customers[0], agents[0], products[0], randint(0,100)),
