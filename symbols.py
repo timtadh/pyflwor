@@ -1,3 +1,13 @@
+'''
+PyQuery - The Python Object Query System
+Author: Tim Henderson
+Contact: tim.tadh@hackthology.com
+Copyright (c) 2010 All Rights Reserved.
+Licensed under a BSD style license see the LICENSE file.
+
+File: symbols.py
+Purpose: Objects and functions representing components of a query.
+'''
 
 from collections import deque
 

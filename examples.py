@@ -1,3 +1,14 @@
+'''
+PyQuery - The Python Object Query System
+Author: Tim Henderson
+Contact: tim.tadh@hackthology.com
+Copyright (c) 2010 All Rights Reserved.
+Licensed under a BSD style license see the LICENSE file.
+
+File: examples.py
+Purpose: Example queries for PyQuery.
+'''
+
 import itertools
 from random import seed, randint
 seed('Example CAP Database')
