@@ -1,0 +1,133 @@
+
+PyQuery - The Python Object Query System
+========================================
+
+By Tim Henderson - tim.tadh@hackthology.com
+
+
+Introducton
+-----------
+
+PyQuery is an query language for querying python object collections. While Python has many
+interesting ways to persisting objects, it does not have (to my knowledge) a query language. This
+language was inspired in part by OQL (Object Query Language), XPath2.0, and XQuery. It is still
+under rapid development so expect the language to change often. PyQuery works on any type of Python
+object. The only requirement being that the objects returned have to be hashable (as they are
+currently returned as set).
+
+
+Motivation
+----------
+
+The motivation for this work occured while working on a software system with a unified namespace to
+address hetergenous data models. Some of the models were relational, some were XML, and increasingly
+some were simply native python objects. To unify this namespace I am working on this language.
+However, I expect that since PyQuery works on any Python object collection it may be generally
+useful to the Python community.
+
+
+Langauge
+--------
+
+The language syntax is based roughly on XPath. At the base of the language is a "Query" expression.
+This returns a set of objects. Those objects can be heterogenous, but they all must be hashable.
+
+
+Here is a degenerate example of the syntax:
+
+| x = [1, "string", type("Class Object", (object,), dict()), 5]
+| print pyquery.execute("x", locals())
+
+This would of simply return:
+
+| set([1, "string", type("Class Object", (object,), dict()), 5])
+
+To make the query more interesting one can add where conditions consider:
+
+| x = [0,1,2,3,4,5,6,7,8,9,10]
+| print pyquery.execute("x[self.__mod__(2) == 0]", locals())
+
+Would return all of the even numbers:
+
+| set([0,2,4,6,8,10])
+
+Since we are working with set objects common set operations and be used such as union (|),
+intersection (&), and difference(-):
+
+| x = [0,1,2,3,4,5,6,7,8,9,10]
+| print pyquery.execute('x[self.__mod__(2)] & x[self.__mod__(3) == 2 and self >= 3]', locals())
+
+yields:
+
+| set([5])
+
+----------------------------------------------------------------------------------------------------
+
+One is not limited to returning a subset of the objects queried. Here is an example where we query
+an object heirarchy to return one of the child objects.
+
+
+
+Grammar
+-------
+
+S' -> Set
+Set -> Set DIFFERENCE UnionExpr
+Set -> UnionExpr
+UnionExpr -> UnionExpr UNION IntersectionExpr
+UnionExpr -> IntersectionExpr
+IntersectionExpr -> IntersectionExpr INTERSECTION Collection
+IntersectionExpr -> Collection
+Collection -> Query
+Collection -> LPAREN Set RPAREN
+Query -> Query_
+Query_ -> Query_ SLASH Entity
+Query_ -> Entity
+Entity -> NAME
+Entity -> NAME LSQUARE Where RSQUARE
+Where -> OrExpr
+OrExpr -> OrExpr OR AndExpr
+OrExpr -> AndExpr
+AndExpr -> AndExpr AND NotExpr
+AndExpr -> NotExpr
+NotExpr -> NOT BooleanExpr
+NotExpr -> BooleanExpr
+BooleanExpr -> CmpExpr
+BooleanExpr -> QuantifiedExpr
+BooleanExpr -> SetExpr
+BooleanExpr -> Value
+BooleanExpr -> LPAREN Where RPAREN
+CmpExpr -> Value CmpOp Value
+CmpOp -> EQ
+CmpOp -> NQ
+CmpOp -> LANGLE
+CmpOp -> LE
+CmpOp -> RANGLE
+CmpOp -> GE
+Value -> NUMBER
+Value -> STRING
+Value -> AttributeValue
+AttributeValue -> AttributeValue DOT Attr
+AttributeValue -> Attr
+ParameterList -> ParameterList COMMA Value
+ParameterList -> Value
+Attr -> NAME
+Attr -> NAME Call
+Call -> Call Call_
+Call -> Call_
+Call_ -> Fcall
+Call_ -> Dcall
+Fcall -> LPAREN RPAREN
+Fcall -> LPAREN ParameterList RPAREN
+Dcall -> LSQUARE Value RSQUARE
+QuantifiedExpr -> Quantifier NAME IN LANGLE Set RANGLE SATISFIES LPAREN Where RPAREN
+Quantifier -> EVERY
+Quantifier -> SOME
+SetExpr -> Value IN LANGLE Set RANGLE
+SetExpr -> Value NOT IN LANGLE Set RANGLE
+SetExpr -> LANGLE Set RANGLE SUBSET LANGLE Set RANGLE
+SetExpr -> LANGLE Set RANGLE SUPERSET LANGLE Set RANGLE
+SetExpr -> LANGLE Set RANGLE PROPER SUBSET LANGLE Set RANGLE
+SetExpr -> LANGLE Set RANGLE PROPER SUPERSET LANGLE Set RANGLE
+SetExpr -> LANGLE Set RANGLE IS LANGLE Set RANGLE
+SetExpr -> LANGLE Set RANGLE IS NOT LANGLE Set RANGLE

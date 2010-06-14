@@ -87,8 +87,7 @@ orders = [
 	]
 
 if __name__ == '__main__':
-	from parser import Parser
-	from lexer import Lexer
+	import pyquery
 	print "all orders"
 	for x in orders:
 		print x
@@ -98,7 +97,7 @@ if __name__ == '__main__':
 
 
 	print "Orders where customer.name = Steve and agent.name = Ullman"
-	q = Parser().parse('orders[self.customer.name == "Steve" and self.agent.name == "Ullman"]', lexer=Lexer())
+	q = pyquery.compile('orders[self.customer.name == "Steve" and self.agent.name == "Ullman"]')
 	for x in q(locals()):
 		print x
 	print
@@ -106,7 +105,7 @@ if __name__ == '__main__':
 	print
 
 	print "1. Get names of products that are ordered by at least one customer three different times."
-	q = Parser().parse('''
+	q = pyquery.compile('''
 			products
 			[
 				some o1 in <orders> satisfies
@@ -124,7 +123,7 @@ if __name__ == '__main__':
 				)
 			]
 			/name
-		''', lexer=Lexer())
+		''')
 	t = q(locals())
 	for x in t:
 		print x
@@ -133,7 +132,7 @@ if __name__ == '__main__':
 	print
 
 	print "2. Get product names that are ordered by at least three customers in the same city."
-	q = Parser().parse('''
+	q = pyquery.compile('''
 			products
 			[
 				some o1 in <orders> satisfies
@@ -153,7 +152,7 @@ if __name__ == '__main__':
 				)
 			]
 			/name
-		''', lexer=Lexer())
+		''')
 	for x in q(locals()):
 		print x
 	print
@@ -161,7 +160,7 @@ if __name__ == '__main__':
 	print
 
 	print '''3. Get product names that are ordered by at least one customer in each and every customer city listed in the database (universal quantification).'''
-	q = Parser().parse('''
+	q = pyquery.compile('''
 			products
 			[
 				every c1 in <customers> satisfies
@@ -176,7 +175,7 @@ if __name__ == '__main__':
 				)
 			]
 			/name
-		''', lexer=Lexer())
+		''')
 	for x in q(locals()):
 		print x
 	print
