@@ -148,13 +148,19 @@ def queryValue(q):
 	def query(objs):
 		def select(objs, attrs):
 			def add(queue, u, v, i):
-				setattr(v, '_objquery__i', i+1)
+				args = (v, '_objquery__i', i+1)
+				try:
+					object.__setattr__(*args)
+				except TypeError:
+					setattr(*args)
+				except:
+					raise
 				queue.appendleft(v)
 			queue = deque()
 			add(queue, None, type('base', (object,), objs), -1)
 			while len(queue) > 0:
 				u = queue.pop()
-				i = getattr(u, '_objquery__i')
+				i = object.__getattribute__(u, '_objquery__i')
 				attrname, where = attrs[i]
 				if hasattr(u, attrname):
 					v = getattr(u, attrname)
