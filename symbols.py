@@ -112,6 +112,7 @@ def comparisonValue(value1, op, value2):
 def setValue(s1, op, s2):
 	def query(glbls):
 		return op(s1(glbls), s2(glbls))
+	object.__setattr__(query, '__objquery__', True)
 	return query
 
 def setexprValue1(val, op, s):

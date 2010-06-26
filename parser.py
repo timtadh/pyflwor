@@ -271,7 +271,7 @@ if __name__ == '__main__':
 		#query = Parser().parse('''a[not (not self.a()[1](<gx>,self.z.z.b,self.a)[1] == "b attr" and
 									#not 1 == 1)]/z/z/z/x[self.__mod__(2)]''', lexer=Lexer())
 
-		query = Parser().parse('''a[sum(<self/q>) == 9]''', lexer=Lexer())
+		query = Parser().parse('''a[sum(<(self/x | self/r) & self/r>) == 14]''', lexer=Lexer())
 		class A(object): pass
 		a = A()
 		a.t = True
