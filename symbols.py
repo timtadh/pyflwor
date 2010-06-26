@@ -43,7 +43,8 @@ def attributeValue(attribute_list, scalar=False, context='locals'):
 			for call in attr.callchain:
 				p = list()
 				for param in call.params:
-					if isinstance(param, type(value)) and value.func_code == param.func_code:
+					if isinstance(param, type(value)) and value.func_code == param.func_code or \
+						isinstance(param, type(value)) and hasattr(param, '__objquery__'):
 						p.append(param(objs))
 					else:
 						p.append(param)
@@ -184,6 +185,7 @@ def queryValue(q):
 						if i+1 == len(attrs): yield v
 						else: add(queue, u, v, i)
 		return set(select(objs, attrs))
+	object.__setattr__(query, '__objquery__', True)
 	return query
 
 def quantifiedValue(mode, name, s, where):

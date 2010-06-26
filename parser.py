@@ -161,12 +161,20 @@ class Parser(object):
 		t[0] = [t[1]]
 
 	def p_ParameterList1(self, t):
-		'ParameterList : ParameterList COMMA Value'
+		'ParameterList : ParameterList COMMA Parameter'
 		t[0] = t[1] + [t[3]]
 
 	def p_ParameterList2(self, t):
-		'ParameterList : Value'
+		'ParameterList : Parameter'
 		t[0] = [t[1]]
+
+	def p_Parameter1(self, t):
+		'Parameter : Value'
+		t[0] = t[1]
+
+	def p_Parameter2(self, t):
+		'Parameter : LANGLE Set RANGLE'
+		t[0] = t[2]
 
 	def p_Attr1(self, t):
 		'Attr : NAME'
@@ -262,7 +270,8 @@ if __name__ == '__main__':
 		#Parser().parse('a/b[x not in a/b/x - q/w/x | y/x and every y in a/b/c satisfies (y == x)]', lexer=Lexer())
 		#query = Parser().parse('''a[not (not self.a()[1](<gx>,self.z.z.b,self.a)[1] == "b attr" and
 									#not 1 == 1)]/z/z/z/x[self.__mod__(2)]''', lexer=Lexer())
-		query = Parser().parse('''a[self.f or not self.f]/d[self.value.__mod__(2)]/key''', lexer=Lexer())
+
+		query = Parser().parse('''a[sum(<self/q>) == 9]''', lexer=Lexer())
 		class A(object): pass
 		a = A()
 		a.t = True
@@ -275,7 +284,7 @@ if __name__ == '__main__':
 		a.z = a
 		a.a = lambda : [0, lambda x,y,z: ((x,y,z))]
 		a.b = 'b attr'
-		print tuple(query({'a':a, 'gx':'gx attr'}))
+		print tuple(query({'a':a, 'gx':'gx attr', 'sum':sum}))
 		print "SUCCESS"
 	except Exception, e:
 		print e
