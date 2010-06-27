@@ -33,86 +33,66 @@ class Parser(object):
 
 	def p_Start2(self, t):
 		'Start : LCURLY FLWRexpr RCURLY'
-		print t
 		t[0] = t[2]
 
 	def p_FLWRexpr1(self, t):
 		'FLWRexpr : ForExpr ReturnExpr'
-		print t
-		print t[1], t[2]
 		t[0] = symbols.flwrSequence(t[1], t[2])
 
 	def p_FLWRexpr2(self, t):
 		'FLWRexpr : ForExpr LetExpr ReturnExpr'
-		print t
-		print t[1], t[2], t[3]
 		t[0] = symbols.flwrSequence(t[1], t[3], let_expr=t[2])
 
 	def p_FLWRexpr3(self, t):
 		'FLWRexpr : ForExpr WhereExpr ReturnExpr'
-		print t
-		print t[1], t[2], t[3]
 		t[0] = symbols.flwrSequence(t[1], t[3], where_expr=t[2])
 
 	def p_FLWRexpr4(self, t):
 		'FLWRexpr : ForExpr LetExpr WhereExpr ReturnExpr'
-		print t
-		print t[1], t[2], t[3], t[4]
 		t[0] = symbols.flwrSequence(t[1], t[4], let_expr=t[2], where_expr=t[3])
 
 	def p_ForExpr(self, t):
 		'ForExpr : FOR ForList'
-		print t
 		t[0] = t[2]
 
 	def p_ForList1(self, t):
 		'ForList : ForList COMMA ForDefinition'
-		print t
 		t[0] = t[1] + [t[3]]
 
 	def p_ForList2(self, t):
 		'ForList : ForDefinition'
-		print t
 		t[0] = [t[1]]
 
 	def p_ForDefinition(self, t):
 		'ForDefinition : NAME IN LANGLE Set RANGLE'
-		print t
 		t[0] = (t[1], t[4])
 
 	def p_LetExpr1(self, t):
 		'LetExpr : LetExpr LetDefinition'
-		print t
 		t[0] = t[1] + [t[2]]
 
 	def p_LetExpr2(self, t):
 		'LetExpr : LetDefinition'
-		print t
 		t[0] = [t[1]]
 
 	def p_LetDefinition(self, t):
 		'LetDefinition : LET NAME EQ LANGLE Set RANGLE'
-		print t
 		t[0] = (t[2], t[5])
 
 	def p_WhereExpr(self, t):
 		'WhereExpr : WHERE Where'
-		print t
 		t[0] = t[2]
 
 	def p_ReturnExpr(self, t):
 		'ReturnExpr : RETURN OutputTuple'
-		print t
 		t[0] = t[2]
 
 	def p_OutputTuple(self, t):
 		'OutputTuple : OutputTuple COMMA Value'
-		print t
 		t[0] = t[1] + [t[3]]
 
 	def p_OutputTuple2(self, t):
 		'OutputTuple : Value'
-		print t
 		t[0] = [t[1]]
 
 	def p_Set1(self, t):
