@@ -10,6 +10,7 @@ Purpose: Objects and functions representing components of a query.
 '''
 
 from collections import deque
+from itertools import product
 
 class Attribute(object):
 
@@ -105,9 +106,9 @@ def unaryOperator(op):
 	raise Exception, "operator %s not found" % op
 
 def comparisonValue(value1, op, value2):
-	def value(objs):
+	def where(objs):
 		return op(value1(objs), value2(objs))
-	return value
+	return where
 
 def setValue(s1, op, s2):
 	def query(glbls):
@@ -116,34 +117,34 @@ def setValue(s1, op, s2):
 	return query
 
 def setexprValue1(val, op, s):
-	def value(objs):
+	def where(objs):
 		return op(val(objs), s(objs))
-	return value
+	return where
 
 def setexprValue2(s1, op, s2):
-	def value(objs):
+	def where(objs):
 		return op(s1(objs), s2(objs))
-	return value
+	return where
 
 def booleanexprValue(value1, op, value2):
-	def value(objs):
+	def where(objs):
 		return op(value1(objs), value2(objs))
-	return value
+	return where
 
 def unaryexprValue(op, val):
-	def value(objs):
+	def where(objs):
 		return op(val(objs))
-	return value
+	return where
 
 def booleanValue(val):
-	def value(objs):
+	def where(objs):
 		return bool(val(objs))
-	return value
+	return where
 
-def whereValue(where):
-	def value(objs):
-		return where(objs)
-	return value
+def whereValue(val):
+	def where(objs):
+		return val(objs)
+	return where
 
 def queryValue(q):
 	attrs = q
@@ -189,8 +190,8 @@ def queryValue(q):
 	object.__setattr__(query, '__objquery__', True)
 	return query
 
-def quantifiedValue(mode, name, s, where):
-	def value(objs):
+def quantifiedValue(mode, name, s, satisfies):
+	def where(objs):
 		nobjs = s(objs)
 		if not nobjs: return False
 		if mode == 'every':
@@ -200,15 +201,35 @@ def quantifiedValue(mode, name, s, where):
 			for x in nobjs:
 				cobjs = dict(objs)
 				cobjs.update({name:x})
-				if not where(cobjs):
+				if not satisfies(cobjs):
 					r = False
 			return r
 		elif mode == 'some':
 			for x in nobjs:
 				cobjs = dict(objs)
 				cobjs.update({name:x})
-				if where(cobjs):
+				if satisfies(cobjs):
 					return True
 			return False
 		raise Exception, "mode '%s' is not 'every' or 'some'" % mode
-	return value
+	return where
+
+def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None):
+	print 'for', for_expr
+	print 'let', let_expr
+	print 'where', where_expr
+	print 'return', return_expr
+	def sequence(objs):
+		obs = [[(seqs[0], obj) for obj in seqs[1](objs)] for seqs in for_expr]
+		for items in product(*obs):
+			cobjs = dict(objs)
+			for name, item in items:
+				cobjs.update({name:item})
+			if let_expr:
+				for name, let in let_expr:
+					cobjs.update({name:let(cobjs)})
+			if where_expr and not where_expr(cobjs):
+				continue
+			yield tuple(x(cobjs) for x in return_expr)
+	return sequence
+

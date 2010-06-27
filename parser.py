@@ -34,46 +34,86 @@ class Parser(object):
 	def p_Start2(self, t):
 		'Start : LCURLY FLWRexpr RCURLY'
 		print t
+		t[0] = t[2]
 
 	def p_FLWRexpr1(self, t):
 		'FLWRexpr : ForExpr ReturnExpr'
 		print t
+		print t[1], t[2]
+		t[0] = symbols.flwrSequence(t[1], t[2])
 
 	def p_FLWRexpr2(self, t):
 		'FLWRexpr : ForExpr LetExpr ReturnExpr'
 		print t
+		print t[1], t[2], t[3]
+		t[0] = symbols.flwrSequence(t[1], t[3], let_expr=t[2])
 
 	def p_FLWRexpr3(self, t):
 		'FLWRexpr : ForExpr WhereExpr ReturnExpr'
 		print t
+		print t[1], t[2], t[3]
+		t[0] = symbols.flwrSequence(t[1], t[3], where_expr=t[2])
 
 	def p_FLWRexpr4(self, t):
 		'FLWRexpr : ForExpr LetExpr WhereExpr ReturnExpr'
 		print t
+		print t[1], t[2], t[3], t[4]
+		t[0] = symbols.flwrSequence(t[1], t[4], let_expr=t[2], where_expr=t[3])
 
 	def p_ForExpr(self, t):
-		'ForExpr : FOR NAME IN LANGLE Set RANGLE'
+		'ForExpr : FOR ForList'
 		print t
+		t[0] = t[2]
 
-	def p_LetExpr(self, t):
-		'LetExpr : LET NAME EQ LANGLE Set RANGLE'
+	def p_ForList1(self, t):
+		'ForList : ForList COMMA ForDefinition'
 		print t
+		t[0] = t[1] + [t[3]]
+
+	def p_ForList2(self, t):
+		'ForList : ForDefinition'
+		print t
+		t[0] = [t[1]]
+
+	def p_ForDefinition(self, t):
+		'ForDefinition : NAME IN LANGLE Set RANGLE'
+		print t
+		t[0] = (t[1], t[4])
+
+	def p_LetExpr1(self, t):
+		'LetExpr : LetExpr LetDefinition'
+		print t
+		t[0] = t[1] + [t[2]]
+
+	def p_LetExpr2(self, t):
+		'LetExpr : LetDefinition'
+		print t
+		t[0] = [t[1]]
+
+	def p_LetDefinition(self, t):
+		'LetDefinition : LET NAME EQ LANGLE Set RANGLE'
+		print t
+		t[0] = (t[2], t[5])
 
 	def p_WhereExpr(self, t):
 		'WhereExpr : WHERE Where'
 		print t
+		t[0] = t[2]
 
 	def p_ReturnExpr(self, t):
 		'ReturnExpr : RETURN OutputTuple'
 		print t
+		t[0] = t[2]
 
 	def p_OutputTuple(self, t):
 		'OutputTuple : OutputTuple COMMA Value'
 		print t
+		t[0] = t[1] + [t[3]]
 
 	def p_OutputTuple2(self, t):
 		'OutputTuple : Value'
 		print t
+		t[0] = [t[1]]
 
 	def p_Set1(self, t):
 		'Set : Set DIFFERENCE UnionExpr'
@@ -319,7 +359,14 @@ if __name__ == '__main__':
 		#query = Parser().parse('''a[not (not self.a()[1](<gx>,self.z.z.b,self.a)[1] == "b attr" and
 									#not 1 == 1)]/z/z/z/x[self.__mod__(2)]''', lexer=Lexer())
 
-		query = Parser().parse('''{for x in <a> let b = <a> where x == b return x, b}''', lexer=Lexer())
+		query = Parser().parse('''
+								{
+									for r in <a/r>, y in <a/q>
+									let x = <a/x>
+									let q = <a/q>
+									where r > y and <x> superset <q>
+									return r, y, x, q
+								}''', lexer=Lexer())
 		class A(object): pass
 		a = A()
 		a.t = True
@@ -332,7 +379,7 @@ if __name__ == '__main__':
 		a.z = a
 		a.a = lambda : [0, lambda x,y,z: ((x,y,z))]
 		a.b = 'b attr'
-		#print tuple(query({'a':a, 'gx':'gx attr', 'sum':sum}))
+		print tuple(query({'a':a, 'gx':'gx attr', 'sum':sum}))
 		print "SUCCESS"
 	except Exception, e:
 		print e
