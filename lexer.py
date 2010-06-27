@@ -13,14 +13,15 @@ from ply import lex
 from ply.lex import Token
 
 tokens = ('NUMBER', 'STRING', 'NAME', 'SOME', 'EVERY', 'IN', 'NOT', 'SATISFIES', 'AND', 'OR', 'IS',
-			'SUBSET', 'SUPERSET', 'PROPER',
-			'SLASH', 'EQ', 'NQ', 'LE', 'GE', 'COMMA',  'DOT', 'AT', 'COLON', #'DOLLAR',
+			'SUBSET', 'SUPERSET', 'PROPER', 'FOR', 'LET', 'RETURN', 'WHERE',
+			'SLASH', 'EQEQ', 'EQ', 'NQ', 'LE', 'GE', 'COMMA',  'DOT',# 'AT', 'COLON', #'DOLLAR',
 			'UNION', 'INTERSECTION', 'DIFFERENCE',
-			'LPAREN', 'RPAREN', 'LSQUARE', 'RSQUARE', 'LANGLE', 'RANGLE')
+			'LPAREN', 'RPAREN', 'LSQUARE', 'RSQUARE', 'LANGLE', 'RANGLE', 'LCURLY', 'RCURLY')
 
 reserved = {'some':'SOME', 'every':'EVERY', 'in':'IN', 'not':'NOT', 'satisfies':'SATISFIES',
 			'and':'AND', 'or':'OR', 'subset':'SUBSET', 'superset':'SUPERSET',
-			'proper':'PROPER', 'is':'IS'}
+			'proper':'PROPER', 'is':'IS', 'for':'FOR', 'let':'LET', 'return':'RETURN',
+			'where':'WHERE'}
 
 D = r'[0-9]'
 L = r'[a-zA-Z_]'
@@ -38,8 +39,9 @@ class Lexer(object):
 
 	tokens = tokens
 
-	t_AT = r'@'
-	t_EQ = r'=='
+	#t_AT = r'@'
+	t_EQ = r'='
+	t_EQEQ = r'=='
 	t_NQ = r'!='
 	#t_LT = r'<'
 	t_LE = r'<='
@@ -47,12 +49,14 @@ class Lexer(object):
 	t_GE = r'>='
 	t_DOT = r'\.'
 	t_COMMA = r','
-	t_COLON = r'\:'
+	#t_COLON = r'\:'
 	t_SLASH = r'/'
 	t_UNION = r'\|'
 	#t_DOLLAR = r'\$'
 	t_LPAREN = r'\('
 	t_RPAREN = r'\)'
+	t_LCURLY = r'\{'
+	t_RCURLY = r'\}'
 	t_LANGLE = r'\<'
 	t_RANGLE = r'\>'
 	t_LSQUARE  = r'\['
