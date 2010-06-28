@@ -215,10 +215,6 @@ def quantifiedValue(mode, name, s, satisfies):
 	return where
 
 def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None):
-	print 'for:', for_expr
-	print 'let:', let_expr
-	print 'where:', where_expr
-	print 'return:', return_expr
 	def sequence(objs):
 		def inner(objs):
 			obs = [[(seqs[0], obj) for obj in seqs[1](objs)] for seqs in for_expr]
