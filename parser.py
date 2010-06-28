@@ -32,68 +32,113 @@ class Parser(object):
 		t[0] = t[1]
 
 	def p_Start2(self, t):
-		'Start : LCURLY FLWRexpr RCURLY'
-		t[0] = t[2]
+		'Start : FLWRexpr'
+		t[0] = t[1]
 
 	def p_FLWRexpr1(self, t):
 		'FLWRexpr : ForExpr ReturnExpr'
+		print t
 		t[0] = symbols.flwrSequence(t[1], t[2])
 
 	def p_FLWRexpr2(self, t):
 		'FLWRexpr : ForExpr LetExpr ReturnExpr'
+		print t
 		t[0] = symbols.flwrSequence(t[1], t[3], let_expr=t[2])
 
 	def p_FLWRexpr3(self, t):
 		'FLWRexpr : ForExpr WhereExpr ReturnExpr'
+		print t
 		t[0] = symbols.flwrSequence(t[1], t[3], where_expr=t[2])
 
 	def p_FLWRexpr4(self, t):
 		'FLWRexpr : ForExpr LetExpr WhereExpr ReturnExpr'
+		print t
 		t[0] = symbols.flwrSequence(t[1], t[4], let_expr=t[2], where_expr=t[3])
 
 	def p_ForExpr(self, t):
 		'ForExpr : FOR ForList'
+		print t
 		t[0] = t[2]
 
 	def p_ForList1(self, t):
 		'ForList : ForList COMMA ForDefinition'
+		print t
 		t[0] = t[1] + [t[3]]
 
 	def p_ForList2(self, t):
 		'ForList : ForDefinition'
+		print t
 		t[0] = [t[1]]
 
 	def p_ForDefinition(self, t):
 		'ForDefinition : NAME IN LANGLE Set RANGLE'
+		print t
 		t[0] = (t[1], t[4])
 
 	def p_LetExpr1(self, t):
-		'LetExpr : LetExpr LetDefinition'
-		t[0] = t[1] + [t[2]]
+		'LetExpr : LetExpr LET LetList'
+		print t
+		t[0] = t[1] + t[3]
 
 	def p_LetExpr2(self, t):
-		'LetExpr : LetDefinition'
+		'LetExpr : LET LetList'
+		print t
+		t[0] = t[2]
+
+	def p_LetList1(self, t):
+		'LetList : LetList COMMA LetDefinition'
+		print t
+		t[0] = t[1] + [t[3]]
+
+	def p_LetList2(self, t):
+		'LetList : LetDefinition'
+		print t
 		t[0] = [t[1]]
 
-	def p_LetDefinition(self, t):
-		'LetDefinition : LET NAME EQ LANGLE Set RANGLE'
-		t[0] = (t[2], t[5])
+	def p_LetDefinition1(self, t):
+		'LetDefinition : NAME EQ LANGLE Set RANGLE'
+		print t
+		t[0] = (t[1], t[4])
+
+	def p_LetDefinition2(self, t):
+		'LetDefinition : NAME EQ LCURLY FLWRexpr RCURLY'
+		print t
+		t[0] = (t[1], t[4])
 
 	def p_WhereExpr(self, t):
 		'WhereExpr : WHERE Where'
+		print t
 		t[0] = t[2]
 
 	def p_ReturnExpr(self, t):
 		'ReturnExpr : RETURN OutputTuple'
+		print t
 		t[0] = t[2]
 
 	def p_OutputTuple(self, t):
-		'OutputTuple : OutputTuple COMMA Value'
+		'OutputTuple : OutputTuple COMMA OutputValue'
+		print t
 		t[0] = t[1] + [t[3]]
 
 	def p_OutputTuple2(self, t):
-		'OutputTuple : Value'
+		'OutputTuple : OutputValue'
+		print t
 		t[0] = [t[1]]
+
+	def p_OutputValue1(self, t):
+		'OutputValue : Value'
+		print t
+		t[0] = t[1]
+
+	def p_OutputValue2(self, t):
+		'OutputValue : LANGLE Set RANGLE'
+		print t
+		t[0] = t[2]
+
+	def p_OutputValue3(self, t):
+		'OutputValue : LCURLY FLWRexpr RCURLY'
+		print t
+		t[0] = t[2]
 
 	def p_Set1(self, t):
 		'Set : Set DIFFERENCE UnionExpr'
@@ -218,67 +263,88 @@ class Parser(object):
 
 	def p_Value4(self, t):
 		'Value : AttributeValue'
+		print t
 		t[0] = symbols.attributeValue(t[1])
 
 	def p_AttributeValue1(self, t):
 		'AttributeValue : AttributeValue DOT Attr'
+		print t
 		t[0] = t[1] + [t[3]]
 
 	def p_AttributeValue2(self, t):
 		'AttributeValue : Attr'
+		print t
 		t[0] = [t[1]]
 
 	def p_ParameterList1(self, t):
 		'ParameterList : ParameterList COMMA Parameter'
+		print t
 		t[0] = t[1] + [t[3]]
 
 	def p_ParameterList2(self, t):
 		'ParameterList : Parameter'
+		print t
 		t[0] = [t[1]]
 
 	def p_Parameter1(self, t):
 		'Parameter : Value'
+		print t
 		t[0] = t[1]
 
 	def p_Parameter2(self, t):
 		'Parameter : LANGLE Set RANGLE'
+		print t
+		t[0] = t[2]
+
+	def p_Parameter3(self, t):
+		'Parameter : LCURLY FLWRexpr RCURLY'
+		print t, t[2]
 		t[0] = t[2]
 
 	def p_Attr1(self, t):
 		'Attr : NAME'
+		print t
 		t[0] = symbols.Attribute(t[1])
 
 	def p_Attr2(self, t):
 		'Attr : NAME Call'
+		print t
 		t[0] = symbols.Attribute(t[1], t[2])
 		#print t
 
 	def p_Call1(self, t):
 		'Call : Call Call_'
+		print t
 		t[0] = t[1] + [t[2]]
 
 	def p_Call2(self, t):
 		'Call : Call_'
+		print t
 		t[0] = [t[1]]
 
 	def p_Call_1(self, t):
 		'Call_ : Fcall'
+		print t
 		t[0] = t[1]
 
 	def p_Call_2(self, t):
 		'Call_ : Dcall'
+		print t
 		t[0] = t[1]
 
 	def p_Fcall1(self, t):
 		'Fcall : LPAREN RPAREN'
+		print t
 		t[0] = symbols.Call([])
 
 	def p_Fcall2(self, t):
 		'Fcall : LPAREN ParameterList RPAREN'
+		print t
 		t[0] = symbols.Call(t[2])
 
 	def p_Dcall(self, t):
 		'Dcall : LSQUARE Value RSQUARE'
+		print t
 		t[0] = symbols.Call([t[2]], lookup=True)
 
 	def p_QuantifiedExpr(self, t):
@@ -340,13 +406,14 @@ if __name__ == '__main__':
 									#not 1 == 1)]/z/z/z/x[self.__mod__(2)]''', lexer=Lexer())
 
 		query = Parser().parse('''
-								{
-									for r in <a/r>, y in <a/q>
-									let x = <a/x>
-									let q = <a/q>
-									where r > y and <x> superset <q>
-									return r, y, x, q
-								}''', lexer=Lexer())
+									for r in <a/r>
+									let tuple = {
+													for y in <a/x>
+													where r > y
+													return y
+												}
+									return r, tuple
+								''', lexer=Lexer())
 		class A(object): pass
 		a = A()
 		a.t = True
@@ -359,7 +426,7 @@ if __name__ == '__main__':
 		a.z = a
 		a.a = lambda : [0, lambda x,y,z: ((x,y,z))]
 		a.b = 'b attr'
-		print tuple(query({'a':a, 'gx':'gx attr', 'sum':sum}))
+		print tuple(query({'a':a, 'gx':'gx attr', 'sum':sum, 'tuple':tuple}))
 		print "SUCCESS"
 	except Exception, e:
 		print e

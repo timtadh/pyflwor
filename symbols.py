@@ -215,17 +215,27 @@ def quantifiedValue(mode, name, s, satisfies):
 	return where
 
 def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None):
+	print 'for:', for_expr
+	print 'let:', let_expr
+	print 'where:', where_expr
+	print 'return:', return_expr
 	def sequence(objs):
-		obs = [[(seqs[0], obj) for obj in seqs[1](objs)] for seqs in for_expr]
-		for items in product(*obs):
-			cobjs = dict(objs)
-			for name, item in items:
-				cobjs.update({name:item})
-			if let_expr:
-				for name, let in let_expr:
-					cobjs.update({name:let(cobjs)})
-			if where_expr and not where_expr(cobjs):
-				continue
-			yield tuple(x(cobjs) for x in return_expr)
+		def inner(objs):
+			obs = [[(seqs[0], obj) for obj in seqs[1](objs)] for seqs in for_expr]
+			for items in product(*obs):
+				cobjs = dict(objs)
+				for name, item in items:
+					cobjs.update({name:item})
+				if let_expr:
+					for name, let in let_expr:
+						cobjs.update({name:let(cobjs)})
+				if where_expr and not where_expr(cobjs):
+					continue
+				if len(return_expr) == 1:
+					yield return_expr[0](cobjs)
+				else:
+					yield tuple(x(cobjs) for x in return_expr)
+		return tuple(inner(objs))
+	object.__setattr__(sequence, '__objquery__', True)
 	return sequence
 
