@@ -63,8 +63,12 @@ class Parser(object):
 		'ForList : ForDefinition'
 		t[0] = [t[1]]
 
-	def p_ForDefinition(self, t):
+	def p_ForDefinition1(self, t):
 		'ForDefinition : NAME IN LANGLE Set RANGLE'
+		t[0] = (t[1], t[4])
+
+	def p_ForDefinition2(self, t):
+		'ForDefinition : NAME IN LCURLY FLWRexpr RCURLY'
 		t[0] = (t[1], t[4])
 
 	def p_LetExpr1(self, t):
