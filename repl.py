@@ -1,9 +1,19 @@
-# Copyright Cigital Inc. 2010 All Rights Reserved
+'''
+PyQuery - The Python Object Query System
+Author: Tim Henderson
+Contact: tim.tadh@hackthology.com
+Copyright (c) 2010 All Rights Reserved.
+Licensed under a BSD style license see the LICENSE file.
 
-import os, sys, termios, fcntl, struct
+File: repl.py
+Purpose: REPL for PyQuery
+'''
+
+import os, sys
 import subprocess
 import cPickle as pickle
 from tempfile import mkstemp as tmpfile
+from getline import getline
 import pyquery
 
 EDITOR = os.getenv('EDITOR')
@@ -308,215 +318,15 @@ class REPL(object):
 			else:
 				return cmd(cmds)
 		except Exception, e:
-			print '\n-----------ERROR-----------'
+			print '\n<----------ERROR---------->'
 			print 'error: ', e
 			print 'command: ', cmd_name
 			print 'arguments: ', args
-			print '-----------ERROR-----------\n'
+			print '</---------ERROR---------->\n'
 			#raise
 
-	def loadhist(self):
-		try:
-			f = open(self.histfile, 'r')
-		except:
-			return list()
-		hist = list()
-		for l in f:
-			l = list(l[:-1])
-			if not l: continue
-			hist.append(l)
-		f.close()
-		if len(hist) > 50: return hist[-50:]
-		return hist
-
-	def savehist(self, hist):
-		try:
-			f = open(self.histfile, 'w')
-		except:
-			return
-		for l in hist:
-			if not l: continue
-			f.write(''.join(l) + '\n')
-		f.close()
-
-
 	def start(self):
-		print 'Welcome to the OFS REPL!'
-		print 'type "help" to get started.'
-		up = chr(27)+chr(91)+chr(65)
-		down = chr(27)+chr(91)+chr(66)
-		left = chr(27)+chr(91)+chr(68)
-		right = chr(27)+chr(91)+chr(67)
-		backspace = left + ' ' + left
-
-		fd = sys.stdin.fileno()
-
-		winsz = fcntl.ioctl(fd, termios.TIOCGWINSZ, "        ")
-		rows, cols, xpixel, ypixel = struct.unpack('HHHH', winsz)
-
-		old = termios.tcgetattr(fd)
-		new = termios.tcgetattr(fd)
-		new[3] = new[3] & ~ termios.ICANON
-		new[3] = new[3] & ~ termios.ECHOCTL
-		termios.tcsetattr(fd, termios.TCSADRAIN, new)
-
-		curpos = [0, 2, 0]
-
-		def clear_block(top):
-			mvcur((top+1, 0))
-			for x in xrange(top+1):
-				sys.stdout.write(down)
-				clear_line()
-		def clear_line():
-			sys.stdout.flush()
-
-			#for x in xrange(cols - l):
-				#sys.stdout.write(right)
-			sys.stdout.write(left*cols)
-			sys.stdout.write(' '*cols)
-			sys.stdout.write(left*cols)
-			#print curpos
-			sys.stdout.flush()
-
-		def moveleft(curpos, inpt):
-			if curpos[2] == 0 and curpos[1] == 0:
-				return
-			elif curpos[2] > 0  and curpos[1] == 0:
-				curpos[1] = cols - 1
-				curpos[0] += 1
-			elif curpos[1] > 0:
-				curpos[1] -= 1
-			#curpos[2] = (len(inpt) + 2)/cols
-			if curpos[0] > curpos[2]: curpos[0] = curpos[2]
-
-		def moveright(curpos, inpt):
-			old2 = curpos[2]
-			old1 = curpos[1]
-			if (len(inpt) + 2)/cols > curpos[2]:
-				curpos[2] = (len(inpt) + 2)/cols
-			if curpos[1] < cols - 1:
-				curpos[1] += 1
-			elif curpos[1] >= cols -1:
-				curpos[1] = 0
-				if curpos[0] > 0: curpos[0] -= 1
-			if old2 != curpos[2] and old1 != cols-1:
-				curpos[0] += 1
-			if curpos[2] > old2:
-				sys.stdout.write('\n')
-				clear_line()
-
-		def reset(curpos):
-			curpos[0] = 0
-			curpos[1] = 2
-			curpos[2] = 0
-
-		def setcur(curpos, inpt):
-			reset(curpos)
-			if len(inpt) < cols-1:
-				curpos[1] += len(inpt)
-			else:
-				curpos[2] = (len(inpt) + 2)/cols
-				curpos[1] = (len(inpt) + 2)%cols
-
-		def mvcur(curpos):
-			for x in xrange(rows): sys.stdout.write(down)
-			for x in xrange(cols): sys.stdout.write(left)
-			for x in xrange(curpos[0]): sys.stdout.write(up)
-			for x in xrange(curpos[1]): sys.stdout.write(right)
-			sys.stdout.flush()
-
-		try:
-			history = self.loadhist()
-			histpos = -1
-			exit = False
-			while not exit:
-				#prompt = raw_input('> ')
-				sys.stdout.write('> ')
-				sys.stdout.flush()
-				inpt = list()
-				inptpos = 0
-				reset(curpos)
-				x = ''
-				while 1:
-					try:
-						x = os.read(fd, 1)
-					except KeyboardInterrupt:
-						sys.stdout.write('\n')
-						clear_line()
-						print 'exit'
-						exit = True
-						break
-					if ord(x) == 127:
-						if inpt == list(): continue
-						if curpos[2] == curpos[0] and curpos[1] == 2:
-							continue
-						inptpos -= 1
-						del inpt[inptpos]
-						moveleft(curpos, inpt)
-					elif ord(x) == 27:
-						os.read(fd, 1)
-						z = os.read(fd, 1)
-						if ord(z) == 65: #up
-							sys.stdout.write(chr(27)+chr(91)+chr(66))
-							if history: inpt = list(history[histpos])
-							if histpos == -1: histpos = len(history) - 1
-							histpos -= 1
-							inptpos = len(inpt)
-							setcur(curpos, inpt)
-						elif ord(z) == 66: #down
-							#sys.stdout.write(chr(27)+chr(91)+chr(65))
-							histpos = -1
-							inpt = list()
-							inptpos = 0
-							reset(curpos)
-						elif ord(z) == 67: #right
-							if inptpos < len(inpt):
-								inptpos += 1
-								moveright(curpos, inpt)
-							else:
-								sys.stdout.write(left)
-						elif ord(z) == 68: #left
-							if inptpos > 0:
-								inptpos -= 1
-								moveleft(curpos, inpt)
-							else:
-								sys.stdout.write(right)
-					else:
-						if x == '\n': break
-						inpt.insert(inptpos, x)
-						inptpos += 1
-						moveright(curpos, inpt)
-
-					clear_block(curpos[2])
-					mvcur((curpos[2], 0))
-					clear_line()
-					sys.stdout.write('> ')
-					r = 0
-					l = min(cols-2, len(inpt))
-					sys.stdout.write(''.join(inpt[r:l]))
-					sys.stdout.flush()
-					while l < len(inpt):
-						sys.stdout.write(down)
-						clear_line()
-						sys.stdout.flush()
-						r = l
-						l = min(l+cols, len(inpt))
-						sys.stdout.write(''.join(inpt[r:l]))
-						sys.stdout.flush()
-					if curpos[0] < curpos[2] and curpos[1] == 0:
-						sys.stdout.write(down)
-						clear_line()
-						sys.stdout.flush()
-					#sys.stdout.write(''.join(inpt))
-					sys.stdout.flush()
-					mvcur(curpos)
-
-				if not history or not ''.join(history[-1]) == ''.join(inpt):
-					history.append(inpt)
-				histpos = -1
-				#print prompt
-				if not exit: exit = self.exe(''.join(inpt))
-				#exit = True
-		finally:
-			self.savehist(history)
-			termios.tcsetattr(fd, termios.TCSADRAIN, old)
+		exit = False
+		while not exit:
+			line = getline('pyquery> ')
+			exit = self.exe(line)
