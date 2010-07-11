@@ -87,74 +87,109 @@ orders = [
 	]
 
 if __name__ == '__main__':
-	import pyquery, repl
+	import pyquery
+	print "all orders"
+	for x in orders:
+		print x
+	print
+	print
+	print
 
-	print "0. Orders where customer.name = Steve and agent.name = Ullman"
-	q0 = 'orders[self.customer.name == "Steve" and self.agent.name == "Ullman"]'
 
+	print "Orders where customer.name = Steve and agent.name = Ullman"
+	q = pyquery.compile('orders[self.customer.name == "Steve" and self.agent.name == "Ullman"]')
+	for x in q(locals()):
+		print x
+	print
+	print
+	print
 
 	print "1. Get names of products that are ordered by at least one customer three different times."
-	q1 = '''
-products
-[
-	some o1 in <orders> satisfies
-	(
-		some o2 in <orders> satisfies
-		(
-			some o3 in <orders> satisfies
-			(
-				self == o1.product and self == o2.product and self == o3.product and
-				o1 != o2 and o2 != o3 and o3 != o1 and
-				o1.customer == o2.customer and o2.customer == o3.customer and
-				o3.customer == o1.customer
-			)
-		)
-	)
-]
-/name
-		'''
+	q = pyquery.compile('''
+			products
+			[
+				some o1 in <orders> satisfies
+				(
+					some o2 in <orders> satisfies
+					(
+						some o3 in <orders> satisfies
+						(
+							self == o1.product and self == o2.product and self == o3.product and
+							o1 != o2 and o2 != o3 and o3 != o1 and
+							o1.customer == o2.customer and o2.customer == o3.customer and
+							o3.customer == o1.customer
+						)
+					)
+				)
+			]
+			/name
+		''')
+	t = q(locals())
+	for x in t:
+		print x
+	print
+	print
+	print
 
 	print "2. Get product names that are ordered by at least three customers in the same city."
-	q2 = '''
-products
-[
-	some o1 in <orders> satisfies
-	(
-		some o2 in <orders[self != o1]> satisfies
-		(
-			some o3 in <orders[self != o1 and self != o2]> satisfies
-			(
-				self == o1.product and self == o2.product and self == o3.product and
-				o1.customer != o2.customer and o2.customer != o3.customer and
-				o3.customer != o1.customer and
-				o1.customer.city == o2.customer.city and
-				o2.customer.city == o3.customer.city and
-				o3.customer.city == o1.customer.city
-			)
-		)
-	)
-]
-/name
-		'''
+	q = pyquery.compile('''
+			products
+			[
+				some o1 in <orders> satisfies
+				(
+					some o2 in <orders[self != o1]> satisfies
+					(
+						some o3 in <orders[self != o1 and self != o2]> satisfies
+						(
+							self == o1.product and self == o2.product and self == o3.product and
+							o1.customer != o2.customer and o2.customer != o3.customer and
+							o3.customer != o1.customer and
+							o1.customer.city == o2.customer.city and
+							o2.customer.city == o3.customer.city and
+							o3.customer.city == o1.customer.city
+						)
+					)
+				)
+			]
+			/name
+		''')
+	for x in q(locals()):
+		print x
+	print
+	print
+	print
 
 	print '''3. Get product names that are ordered by at least one customer in each and every customer city listed in the database (universal quantification).'''
-	q3 = '''
-products
-[
-	every c1 in <customers> satisfies
-	(
-		some c2 in <customers> satisfies
-		(
-			some o in <orders> satisfies
-			(
-				c1.city == c2.city and c2 == o.customer and self == o.product
-			)
-		)
-	)
-]
-/name
-		'''
+	q = pyquery.compile('''
+			products
+			[
+				every c1 in <customers> satisfies
+				(
+					some c2 in <customers> satisfies
+					(
+						some o in <orders> satisfies
+						(
+							c1.city == c2.city and c2 == o.customer and self == o.product
+						)
+					)
+				)
+			]
+			/name
+		''')
+	for x in q(locals()):
+		print x
+	print
+	print
+	print
 
-	r = repl.REPL({'customers':customers, 'orders':orders, 'products':products, 'agents':agents},
-					{'query0':q0, 'query1':q1, 'query2':q2, 'query3':q3})
-	r.start()
+
+	print '''4. blah'''
+	q = pyquery.compile('''
+			orders
+		''')
+	for x in q(locals()):
+		print x
+	print
+	print
+	print
+

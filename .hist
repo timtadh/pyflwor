@@ -1,0 +1,61 @@
+query exec query1
+query exec query2
+query exec query3
+query exec query4
+query exec query3
+query exec query0
+query exec query2
+query exec query0
+query list
+objects
+query exec orders
+objects
+query query0
+query exec query0
+objects
+query exec query0
+query exec query
+query exec orders
+query exec query0
+query exec query1
+query exec query2
+query exec query3
+query exec orders
+query exec query1
+query exec query0
+query exec query2
+query exec query3
+query list
+query add test
+query exec test
+query
+query help
+query edit query0
+query list
+query rm query3
+query list
+query cp query2 copy_query2
+query list
+query help
+query list
+query add test
+query exec test
+query save_exec csv /home/hendersont/test.txt
+query save_exec csv /home/hendersont/test.txt test
+query edit test
+query exec test
+query edit test
+query exec test
+query save_exec csv /home/hendersont/test.txt test
+query save_exec text /home/hendersont/test.txt test
+query list
+query exec query3
+query exec query2
+query exec query1
+query help
+query clear
+query list
+query load ../pyquery-ofs/.queries
+query list
+query exec agg1
+query exec example1
