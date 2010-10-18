@@ -226,8 +226,10 @@ def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None):
 						cobjs.update({name:let(cobjs)})
 				if where_expr and not where_expr(cobjs):
 					continue
-				if len(return_expr) == 1:
+				if len(return_expr) == 1 and not isinstance(return_expr[0], tuple):
 					yield return_expr[0](cobjs)
+				elif isinstance(return_expr[0], tuple):
+					yield dict((name, f(cobjs)) for name,f in return_expr)
 				else:
 					yield tuple(x(cobjs) for x in return_expr)
 		return tuple(inner(objs))
