@@ -324,8 +324,12 @@ class Parser(object):
 		'Dcall : LSQUARE Value RSQUARE'
 		t[0] = symbols.Call([t[2]], lookup=True)
 
-	def p_QuantifiedExpr(self, t):
+	def p_QuantifiedExpr1(self, t):
 		'QuantifiedExpr : Quantifier NAME IN LANGLE Set RANGLE SATISFIES LPAREN Where RPAREN'
+		t[0] = symbols.quantifiedValue(t[1], t[2], t[5], t[9])
+
+	def p_QuantifiedExpr2(self, t):
+		'QuantifiedExpr : Quantifier NAME IN LCURLY FLWRexpr RCURLY SATISFIES LPAREN Where RPAREN'
 		t[0] = symbols.quantifiedValue(t[1], t[2], t[5], t[9])
 
 	def p_Quantifier1(self, t):
@@ -369,7 +373,7 @@ class Parser(object):
 		t[0] = symbols.setexprValue2(t[2], symbols.setexprOperator2('is not'), t[7])
 
 	def p_error(self, t):
-		raise Exception, "Syntax error at '%s', %s.%s" % (t,t.lineno,t.lexpos)
+		raise SyntaxError, "Syntax error at '%s', %s.%s" % (t,t.lineno,t.lexpos)
 
 
 if __name__ == '__main__':
