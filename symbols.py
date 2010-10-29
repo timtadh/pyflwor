@@ -11,6 +11,7 @@ Purpose: Objects and functions representing components of a query.
 
 from collections import deque
 from itertools import product
+from OrderedSet import OrderedSet
 
 class Attribute(object):
 
@@ -186,7 +187,7 @@ def queryValue(q):
 							if not where(cobjs): continue
 						if i+1 == len(attrs): yield v
 						else: add(queue, u, v, i)
-		return set(select(objs, attrs))
+		return OrderedSet(select(objs, attrs))
 	object.__setattr__(query, '__objquery__', True)
 	return query
 
@@ -196,8 +197,6 @@ def quantifiedValue(mode, name, s, satisfies):
 		if not nobjs: return False
 		if mode == 'every':
 			r = True
-			#import pdb
-			#pdb.set_trace()
 			for x in nobjs:
 				cobjs = dict(objs)
 				cobjs.update({name:x})
