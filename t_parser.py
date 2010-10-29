@@ -95,6 +95,71 @@ class TestLexer(unittest.TestCase):
 		pyquery.compile('hello[<a> superset <as>]')
 		pyquery.compile('hello[<a> proper subset <as>]')
 		pyquery.compile('hello[<a> proper superset <as>]')
+		pyquery.compile('hello[<a> is <as>]')
+		pyquery.compile('hello[<a> is not <as>]')
+
+	def test_setops(self):
+		pyquery.compile('asdf - asdf')
+		pyquery.compile('asdf & asdf')
+		pyquery.compile('asdf | asdf')
+		pyquery.compile('(asdf | asdf) & asdf - (asdf & asdf) - (asdf & (afsd | asdf))')
+		pyquery.compile('asdf/asdf - asdf/asd[erw]')
+
+	def test_flwr(self):
+		pyquery.compile('for x in <asfd> return x')
+		pyquery.compile('for x in <asfd>, y in <adsf> return x')
+		pyquery.compile('for x in {for x in <asdf> return x} return x')
+		pyquery.compile('for x in <asfd> where x == y return x')
+		pyquery.compile('for x in <asfd> let y = <x/asdf> return x')
+		pyquery.compile('for x in <asfd> let y = {for x in <asdf> return x} return x')
+		pyquery.compile('for x in <asfd> let y = <x/asdf>, x = <adf> return x')
+		pyquery.compile('for x in <asfd> let y = <x/asdf> let x = <adf> return x')
+		pyquery.compile('for x in <asfd>, z in <asdf> let y = <x/asdf> let x = <adf> return x')
+		pyquery.compile('''for x in <asfd>, z in <asdf>
+			let y = <x/asdf>
+			let x = <adf>
+			where every x in <y> satisfies (q)
+			return x''')
+		pyquery.compile('''for x in <asfd>, z in <asdf>
+			let y = <x/asdf>
+			let x = <adf>
+			where every x in <y> satisfies (q)
+			return x,y,z''')
+		pyquery.compile('''for x in <asfd>, z in <asdf>
+			let y = <x/asdf>
+			let x = <adf>
+			where every x in <y> satisfies (q)
+			return x,y.sdf.asd,z''')
+		pyquery.compile('''for x in <asfd>, z in <asdf>
+			let y = <x/asdf>
+			let x = <adf>
+			where every x in <y> satisfies (q)
+			return x,y.sdf.asd,z()()()[asdf][asfd](1,2,3)''')
+		pyquery.compile('''for x in <asfd>, z in <asdf>
+			let y = <x/asdf>
+			let x = <adf>
+			where every x in <y> satisfies (q)
+			return 'asdf':asdf''')
+		pyquery.compile('''for x in <asfd>, z in <asdf>
+			let y = <x/asdf>
+			let x = <adf>
+			where every x in <y> satisfies (q)
+			return 'asdf':asdf, "hello":"hello World!"''')
+		pyquery.compile('''for x in <asfd>, z in <asdf>
+			let y = <x/asdf>
+			let x = <adf>
+			where every x in <y> satisfies (q == z and (<y> is not <z>))
+			return 'asdf':asdf, "one":1, "2.0":2.0''')
+		pyquery.compile('''for x in <asfd>, z in <asdf>, y in <asdf/asdf>
+			let y = <x/asdf>
+			let x = <adf>
+			where every x in <y> satisfies (q == z and (<y> is not <z>))
+			return 'asdf':asdf, "one":1, "2.0":2.0''')
+		pyquery.compile('''for x in <asfd>, z in <asdf>, y in <asdf/asdf>
+			let y = <x/asdf>, y1 = <Afd>, y2 = <asdf>, y3 = <asdf>
+			let x = <adf>
+			where every x in <y> satisfies (q == z and (<y> is not <z>))
+			return 'asdf':asdf, "one":1, "2.0":2.0''')
 
 if __name__ == '__main__':
 	unittest.main()
