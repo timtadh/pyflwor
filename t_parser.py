@@ -87,5 +87,14 @@ class TestLexer(unittest.TestCase):
 		pyquery.compile('hello[some x in {for x in <asdf> return x} satisfies (x == y)]')
 		pyquery.compile('hello[some x in {for x in <asdf> return x} satisfies (x and not y(1,2))]')
 
+	def test_where_setcmp(self):
+		pyquery.compile('hello[a in <as>]')
+		pyquery.compile('hello[a not in <as>]')
+		pyquery.compile('hello[not a in <as>]')
+		pyquery.compile('hello[<a> subset <as>]')
+		pyquery.compile('hello[<a> superset <as>]')
+		pyquery.compile('hello[<a> proper subset <as>]')
+		pyquery.compile('hello[<a> proper superset <as>]')
+
 if __name__ == '__main__':
 	unittest.main()

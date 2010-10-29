@@ -358,7 +358,7 @@ class Parser(object):
 
 	def p_SetExpr5(self, t):
 		'SetExpr : LANGLE Set RANGLE PROPER SUBSET LANGLE Set RANGLE'
-		t[0] = symbols.setexprValue2(t[2], symbols.setexprOperat2or('proper subset'), t[7])
+		t[0] = symbols.setexprValue2(t[2], symbols.setexprOperator2('proper subset'), t[7])
 
 	def p_SetExpr6(self, t):
 		'SetExpr : LANGLE Set RANGLE PROPER SUPERSET LANGLE Set RANGLE'
