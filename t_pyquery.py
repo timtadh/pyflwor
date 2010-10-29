@@ -101,7 +101,63 @@ class TestPyQuery(unittest.TestCase):
 		self.assertEquals(exe('a[2.2 == float("2.2")]', d), oset([a]))
 		self.assertEquals(exe('a[2 == int(2.2)]', d), oset([a]))
 		self.assertEquals(exe('a["hello" == a]', d), oset([a]))
-		self.assertEquals(exe('a["hello" == a]', d), oset([a]))
+		self.assertEquals(exe('a["HELLO" == a.upper()]', d), oset([a]))
+
+	def test_func_where_values(self):
+		a = 'hello'
+		def f(): return 'hello'
+		def g(x,y,z): return x + y + z
+		def h(f,x): return f(x)
+		def i(x): return x**2
+		def j(f): return f
+		true = True
+		false = False
+		d = locals()
+		d.update(__builtins__.__dict__)
+		self.assertEquals(exe('a[f()]', d), oset([a]))
+		self.assertEquals(exe('a[f() == "hello"]', d), oset([a]))
+		self.assertEquals(exe('a[g(1,2,3) == 6]', d), oset([a]))
+		self.assertEquals(exe('a[h(i,3) == 9]', d), oset([a]))
+		self.assertEquals(exe('a[i(j(j)(j)(j)(h)(i,3)) == 81]', d), oset([a]))
+
+	def test_list_where_values(self):
+		a = 'hello'
+		l = [1,2,3,4,5,6,7,[1,2,3,4,5,6,7,[1,2,3,4,5,6,7,8]]]
+		d = locals()
+		d.update(__builtins__.__dict__)
+		self.assertEquals(exe('a[l[0] == 1]', d), oset([a]))
+		self.assertEquals(exe('a[l[1] == 2]', d), oset([a]))
+		self.assertEquals(exe('a[l[7][0] == 1]', d), oset([a]))
+		self.assertEquals(exe('a[l[7][1] == 2]', d), oset([a]))
+		self.assertEquals(exe('a[l[7][7][0] == 1]', d), oset([a]))
+		self.assertEquals(exe('a[l[7][7][1] == 2]', d), oset([a]))
+		self.assertEquals(exe('a[l[7][7][7] == 8]', d), oset([a]))
+
+	def test_dict_where_values(self):
+		a = 'hello'
+		l = {"one":1, "two":2, "next":{"one":1, "two":2, "next":{"one":1, "two":2}}}
+		d = locals()
+		d.update(__builtins__.__dict__)
+		self.assertEquals(exe('a[l["one"] == 1]', d), oset([a]))
+		self.assertEquals(exe('a[l["two"] == 2]', d), oset([a]))
+		self.assertEquals(exe('a[l["next"]["one"] == 1]', d), oset([a]))
+		self.assertEquals(exe('a[l["next"]["two"] == 2]', d), oset([a]))
+		self.assertEquals(exe('a[l["next"]["next"]["one"] == 1]', d), oset([a]))
+		self.assertEquals(exe('a[l["next"]["next"]["two"] == 2]', d), oset([a]))
+
+	def test_callable_where_values(self):
+		a = 'hello'
+		def f(): return 'hello'
+		def g(x,y,z): return x + y + z
+		def h(f,x): return f(x)
+		def i(x): return x**2
+		def j(f): return f
+		m = {"one":1, "two":2, "next":[1,2,3,4,5,6,7,j]}
+		true = True
+		false = False
+		d = locals()
+		d.update(__builtins__.__dict__)
+		self.assertEquals(exe('a[m["next"][7](j)(m["next"][7])(m["next"])[7](i)(m["two"]) == 4]', d), oset([a]))
 
 if __name__ == '__main__':
 	unittest.main()
