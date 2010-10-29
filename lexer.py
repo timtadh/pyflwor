@@ -86,32 +86,33 @@ class Lexer(object):
 		else: token.type = 'NAME'
 		return token
 
-	const_hex = '0[xX](' + H + ')+'
+	const_hex = '-?0[xX](' + H + ')+'
 	@Token(const_hex)
 	def t_CONST_HEX(self, token):
 		token.type = 'NUMBER'
 		token.value = int(token.value, 16)
 		return token
 
-	const_float1 = '(' + D + ')+' + '(' + E + ')' #{D}+{E}{FS}?
+	const_float1 = '-?(' + D + ')+' + '(' + E + ')' #{D}+{E}{FS}?
 	@Token(const_float1)
 	def t_CONST_FLOAT1(self, token):
 		token.type = 'NUMBER'
 		token.value = float(token.value)
 		return token
 
-	const_float2 = '(' + D + ')*\.(' + D + ')+(' + E + ')?' #{D}*"."{D}+({E})?{FS}?
+	const_float2 = '-?(' + D + ')*\.(' + D + ')+(' + E + ')?' #{D}*"."{D}+({E})?{FS}?
 	@Token(const_float2)
 	def t_CONST_FLOAT2(self, token):
 		token.type = 'NUMBER'
 		token.value = float(token.value)
 		return token
 
-	const_dec_oct = '(' + D + ')+'
+	const_dec_oct = '-?(' + D + ')+'
 	@Token(const_dec_oct)
 	def t_CONST_DEC_OCT(self, token):
 		token.type = 'NUMBER'
-		if len(token.value) > 1 and token.value[0] == '0':
+		if (len(token.value) > 1 and token.value[0] == '0'
+			or (token.value[0] == '-' and token.value[1] == '0')):
 			token.value = int(token.value, 8)
 		else:
 			token.value = int(token.value, 10)
