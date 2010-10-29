@@ -48,7 +48,7 @@ class REPL(object):
 	def querydict(self):
 		d = {'float':float, 'int':int, 'avg':avg, 'len':len}
 		d.update(self.objects)
-		return self.objects
+		return d
 
 	def edittext(self, text):
 		fd, path = tmpfile()
