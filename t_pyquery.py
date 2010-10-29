@@ -31,6 +31,31 @@ class TestPyQuery(unittest.TestCase):
 		o.x[0].y = A(answer)
 		d = {'hasattr':hasattr, 'o':o}
 		self.assertEquals(exe('o/x[hasattr(self,"y")]/y/q', d), oset([answer]))
+		self.assertEquals(exe('o/x', d), oset(o.x))
+
+	def test_cmpops(self):
+		class A(object):
+			def __init__(self, q):
+				self.q = q
+		a = A(5)
+		self.assertEquals(exe('a[self.q == 5]', locals()), oset([a]))
+		self.assertEquals(exe('a[self.q != 5]', locals()), oset([]))
+		self.assertEquals(exe('a[self.q >= 5]', locals()), oset([a]))
+		self.assertEquals(exe('a[self.q <= 5]', locals()), oset([a]))
+		self.assertEquals(exe('a[self.q > 5]', locals()), oset([]))
+		self.assertEquals(exe('a[self.q < 5]', locals()), oset([]))
+		self.assertEquals(exe('a[self.q == 7]', locals()), oset([]))
+		self.assertEquals(exe('a[self.q != 7]', locals()), oset([a]))
+		self.assertEquals(exe('a[self.q >= 7]', locals()), oset([]))
+		self.assertEquals(exe('a[self.q <= 7]', locals()), oset([a]))
+		self.assertEquals(exe('a[self.q > 7]', locals()), oset([]))
+		self.assertEquals(exe('a[self.q < 7]', locals()), oset([a]))
+		self.assertEquals(exe('a[self.q == 3]', locals()), oset([]))
+		self.assertEquals(exe('a[self.q != 3]', locals()), oset([a]))
+		self.assertEquals(exe('a[self.q >= 3]', locals()), oset([a]))
+		self.assertEquals(exe('a[self.q <= 3]', locals()), oset([]))
+		self.assertEquals(exe('a[self.q > 3]', locals()), oset([a]))
+		self.assertEquals(exe('a[self.q < 3]', locals()), oset([]))
 
 if __name__ == '__main__':
 	unittest.main()
