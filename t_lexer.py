@@ -92,6 +92,14 @@ class TestLexer(unittest.TestCase):
 		with comparable_tokens():
 			for t2 in tokens: self.assertEquals(clex.next(), t2)
 
+	def test_KEYWORDS(self):
+		for value,typ in lexer.reserved.iteritems():
+			clex = lexer.Lexer()
+			clex.input(value)
+			tokens = [token(typ,value,0,1)]
+			with comparable_tokens():
+				for t2 in tokens: self.assertEquals(clex.next(), t2)
+
 
 if __name__ == '__main__':
 	unittest.main()

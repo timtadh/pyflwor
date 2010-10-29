@@ -1,0 +1,61 @@
+query2=products
+[
+	some o1 in <orders> satisfies
+	(
+		some o2 in <orders[self != o1]> satisfies
+		(
+			some o3 in <orders[self != o1 and self != o2]> satisfies
+			(
+				self == o1.product and self == o2.product and self == o3.product and
+				o1.customer != o2.customer and o2.customer != o3.customer and
+				o3.customer != o1.customer and
+				o1.customer.city == o2.customer.city and
+				o2.customer.city == o3.customer.city and
+				o3.customer.city == o1.customer.city
+			)
+		)
+	)
+]
+/name
+------------
+query3=products
+[
+	every c1 in <customers> satisfies
+	(
+		some c2 in <customers> satisfies
+		(
+			some o in <orders> satisfies
+			(
+				c1.city == c2.city and c2 == o.customer and self == o.product
+			)
+		)
+	)
+]
+/name
+------------
+query0=orders[self.customer.name == "Steve" and self.agent.name == "Ullman"]
+------------
+query1=products
+[
+	some o1 in <orders> satisfies
+	(
+		some o2 in <orders> satisfies
+		(
+			some o3 in <orders> satisfies
+			(
+				self == o1.product and self == o2.product and self == o3.product and
+				o1 != o2 and o2 != o3 and o3 != o1 and
+				o1.customer == o2.customer and o2.customer == o3.customer and
+				o3.customer == o1.customer
+			)
+		)
+	)
+]
+/name
+------------
+test1=for a in <agents> 
+	let myo = <orders[self.agent == a]/product/name> 
+	let youro = <orders[self.agent != a]/product/name> 
+	return "Name":a.name, "City":a.city, "mine":len(myo), "yours":len(youro), 
+		"without-me":<youro-myo>, "without-you":<myo-youro>
+------------
