@@ -99,17 +99,29 @@ class Parser(object):
 		'WhereExpr : WHERE Where'
 		t[0] = t[2]
 
-	def p_ReturnExpr(self, t):
+	def p_ReturnExpr1(self, t):
 		'ReturnExpr : RETURN OutputTuple'
 		t[0] = t[2]
 
-	def p_OutputTuple(self, t):
+	def p_ReturnExpr2(self, t):
+		'ReturnExpr : RETURN OutputDict'
+		t[0] = t[2]
+
+	def p_OutputTuple1(self, t):
 		'OutputTuple : OutputTuple COMMA OutputValue'
 		t[0] = t[1] + [t[3]]
 
 	def p_OutputTuple2(self, t):
 		'OutputTuple : OutputValue'
 		t[0] = [t[1]]
+
+	def p_OutputDict1(self, t):
+		'OutputDict : OutputDict COMMA STRING COLON OutputValue'
+		t[0] = t[1] + [(t[3], t[5])]
+
+	def p_OutputDict2(self, t):
+		'OutputDict : STRING COLON OutputValue'
+		t[0] = [(t[1], t[3])]
 
 	def p_OutputValue1(self, t):
 		'OutputValue : Value'
@@ -377,7 +389,7 @@ if __name__ == '__main__':
 													where r > y
 													return y
 												}
-									return r, tuple
+									return "r":r, "tuple":tuple
 								''', lexer=Lexer())
 		class A(object): pass
 		a = A()
