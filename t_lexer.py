@@ -92,6 +92,28 @@ class TestLexer(unittest.TestCase):
 		with comparable_tokens():
 			for t2 in tokens: self.assertEquals(clex.next(), t2)
 
+	def test_KEYWORDS(self):
+		for value,typ in lexer.reserved.iteritems():
+			clex = lexer.Lexer()
+			clex.input(value)
+			tokens = [token(typ,value,0,1)]
+			with comparable_tokens():
+				for t2 in tokens: self.assertEquals(clex.next(), t2)
+
+	def test_chrs(self):
+		for typ,value in [(attr[2:],getattr(lexer.Lexer, attr))
+				for attr in dir(lexer.Lexer)
+				if attr[:2] == 't_' and
+				isinstance(getattr(lexer.Lexer, attr), str) and
+				attr[2:] != 'ignore']:
+			if value[0] == '\\': value = value[1:]
+			#print "%s => '%s'" % (typ, value)
+			clex = lexer.Lexer()
+			clex.input(value)
+			tokens = [token(typ,value,0,1)]
+			with comparable_tokens():
+				for t2 in tokens: self.assertEquals(clex.next(), t2)
+
 
 if __name__ == '__main__':
 	unittest.main()
