@@ -65,9 +65,16 @@ class Lexer(object):
 	t_INTERSECTION = r'&'
 
 
-	string_literal = r'\"[^"]*\"'
-	@Token(string_literal)
-	def t_STRING_LITERAL(self, token):
+	string_literal1 = r'\"[^"]*\"'
+	@Token(string_literal1)
+	def t_STRING_LITERAL1(self, token):
+		token.type = 'STRING'
+		token.value = token.value[1:-1]
+		return token;
+
+	string_literal2 = r"\'[^']*\'"
+	@Token(string_literal2)
+	def t_STRING_LITERAL2(self, token):
 		token.type = 'STRING'
 		token.value = token.value[1:-1]
 		return token;
