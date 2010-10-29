@@ -5,15 +5,15 @@ Contact: tim.tadh@hackthology.com
 Copyright (c) 2010 All Rights Reserved.
 Licensed under a BSD style license see the LICENSE file.
 
-File: t_lexer.py
-Purpose: Tests for the Lexer
+File: t_parser.py
+Purpose: Tests for the Parser
 '''
 
 import unittest, os, sys, base64, itertools, random, time
 import pyquery
 
 
-class TestLexer(unittest.TestCase):
+class TestParser(unittest.TestCase):
 
 	def test_hello(self):
 		pyquery.compile('hello')

@@ -66,29 +66,31 @@ class TestLexer(unittest.TestCase):
 
 	def test_HEX(self):
 		clex = lexer.Lexer()
-		clex.input("0xab")
-		tokens = [token("NUMBER", 0xab,0,1)]
+		clex.input("0xab -0xab")
+		tokens = [token("NUMBER", 0xab,0,1),token("NUMBER", -171,5,1)]
 		with comparable_tokens():
 			for t2 in tokens: self.assertEquals(clex.next(), t2)
 
 	def test_FLOAT(self):
 		clex = lexer.Lexer()
-		clex.input("1.2 .2 2.3e4")
-		tokens = [token("NUMBER", 1.2,0,1), token("NUMBER", .2,4,1),token("NUMBER", 2.3e4,7,1)]
+		clex.input("1.2 .2 2.3e4 -.2 -2.3e4")
+		tokens = [token("NUMBER", 1.2,0,1), token("NUMBER", .2,4,1),
+			token("NUMBER", 2.3e4,7,1), token("NUMBER", -.2,13,1),
+			token("NUMBER", -2.3e4,17,1)]
 		with comparable_tokens():
 			for t2 in tokens: self.assertEquals(clex.next(), t2)
 
 	def test_OCT(self):
 		clex = lexer.Lexer()
-		clex.input("073 073")
-		tokens = [token("NUMBER", 073,0,1), token("NUMBER", 59,4,1)]
+		clex.input("073 073 -073")
+		tokens = [token("NUMBER", 073,0,1), token("NUMBER", 59,4,1), token("NUMBER", -59,8,1)]
 		with comparable_tokens():
 			for t2 in tokens: self.assertEquals(clex.next(), t2)
 
 	def test_DEC(self):
 		clex = lexer.Lexer()
-		clex.input("73 730")
-		tokens = [token("NUMBER", 73,0,1), token("NUMBER", 730, 3,1)]
+		clex.input("73 730 -7")
+		tokens = [token("NUMBER", 73,0,1), token("NUMBER", 730, 3,1), token("NUMBER", -7, 7,1)]
 		with comparable_tokens():
 			for t2 in tokens: self.assertEquals(clex.next(), t2)
 
