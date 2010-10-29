@@ -13,7 +13,7 @@ import unittest, os, sys, base64, itertools, random, time
 import pyquery
 
 
-class TestLexer(unittest.TestCase):
+class TestParser(unittest.TestCase):
 
 	def test_hello(self):
 		pyquery.compile('hello')
