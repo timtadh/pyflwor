@@ -76,7 +76,9 @@ Like XPath and XQuery there are two ways to write queries in PyQuery: "path"
 expressions and "flwr" expressions. Path expressions have a similar syntax to
 XPath.
 
-### XML Example (for comparison):
+### Path Expressions
+
+#### XML Example (for comparison):
 
     <?xml version="1.0" encoding="ISO-8859-1"?>
     <bookstore>
@@ -90,7 +92,7 @@ XPath.
         </book>
     </bookstore>
 
-### XPath Queries:
+#### XPath Queries:
 
 1. all books
 
@@ -100,7 +102,7 @@ XPath.
 
         /bookstore/book[price>30.00]
 
-### Python Example
+#### Python Example
 
     class Book(object):
         def __init__(self, title, language, price):
@@ -120,7 +122,7 @@ XPath.
     bookstore.addbook(Book("Learning XML", "eng", 39.95))
 
 
-### PyQuery Queries:
+#### PyQuery Queries:
 
 1. all books
 
@@ -130,3 +132,105 @@ XPath.
 
         bookstore/books[self.price > 30.00]
 
+The where condition in Path expression allows you access any object in the
+namespace you passed into the query. It also names the current object under
+consideration (in the working example the Book) 'self.' You can access any
+attribute of self, you can even call functions and access items in lists and
+dicts.
+
+#### A Ridiculous Example
+
+    a = 'hello'
+    def f(x): return x**2
+    def g(f): return f
+    m = {"one":1, "two":2, "next":[1,2,3,4,5,6,7,g]}
+    true = True
+    false = False
+    d = locals()
+    d.update(__builtins__.__dict__)
+
+    query = 'a[m["next"][7](j)(m["next"][7])(m["next"])[7](f)(m["two"]) == 4]'
+    pyquery.execute(query, locals())
+    --------- returns ---------
+    OrderedSet(['hello'])
+
+You can use boolean operators as well:
+
+    a = 'hello'
+    true = True
+    false = False
+    pyquery.execute('a[true and (false or not false)]', locals())
+    --------- returns ---------
+    OrderedSet(['hello'])
+
+#### Other Where Expression Options
+
+The syntax presented covers the simplest parts of path expressions. The syntax
+elements not covered are more complex operators for the where clause. These
+elements include:
+
+1. Quantified Expressions
+
+        some x in <path_expr> satisfies (where_clause)
+        every x in <path_expr> satisfies (where_clause)
+
+    example:
+
+        a = 'hello'
+        l1 = [0,2,4,6,8,10]
+        l2 = [1,2,3,4,5,6]
+        def mod2(x):
+            return x % 2
+
+        pyquery.execute('a[every x in <l1> satisfies (mod2(x) == 0)]', locals())
+        --------- returns ---------
+        OrderedSet(['hello'])
+
+
+        pyquery.execute('a[every x in <l2> satisfies (mod2(x) == 0)]', locals())
+        --------- returns ---------
+        OrderedSet()
+
+        pyquery.execute('a[some x in <l2> satisfies (mod2(x) == 0)]', locals())
+        --------- returns ---------
+        OrderedSet(['hello'])
+
+
+2. Set Expressions
+
+        x in <path_expr>
+        x not in <path_expr>
+        <path_expr1> subset <path_expr2>
+        <path_expr1> superset <path_expr2>
+        <path_expr1> proper subset <path_expr2>
+        <path_expr1> proper superset <path_expr2>
+        <path_expr1> is <path_expr2>
+        <path_expr1> is not <path_expr2>
+
+3. Passing Sub-Queries to Functions
+
+    Sub-Queries (of either the path expression from or the flower form) can be
+    passed to functions:
+
+        def print_query(q):
+            for x in q:
+                print x
+        a = 'hello'
+        l1 = [0,2,4,6,8,10]
+
+        pyquery.execute('a[not print_query(<l1[self < 5]>)]', locals())
+        --------- returns ---------
+        0
+        2
+        4
+        OrderedSet(['hello'])
+
+### FLWR Expressions
+
+FLWR stands for: "For Let Where Return." These expression are similar to the
+XQuery Language. The basic syntax looks like this:
+
+    for NAME in PATH
+    [let NAME = (<path_expr>|{flwr_expr})]*
+    [where WHERE_CLAUSE]*
+    return VALUE, ...
