@@ -16,20 +16,20 @@ Table of Contents
 Introducton
 -----------
 
-PyQuery is an query language for querying python object collections. While
-Python has many interesting ways to persisting objects, it does not have (to my
+PyQuery is a query language for querying python object collections. While
+Python has many interesting ways of persisting objects, it does not have (to my
 knowledge) a query language. This language was inspired in part by OQL (Object
 Query Language), XPath2.0, and XQuery. It is still under rapid development so
 expect the language to change often. PyQuery works on any type of Python object.
-The only requirement being that the objects returned have to be hashable
-(as they are currently returned as set).
+The only requirement is that the objects returned have to be hashable, as they
+are currently returned as a set.
 
 
 Motivation
 ----------
 
 The motivation for this work occured while working on a software system with a
-unified namespace to address hetergenous data models. Some of the models were
+unified namespace to address heterogenous data models. Some of the models were
 relational, some were XML, and increasingly some were simply native python
 objects. To unify this namespace I am working on this language. However, I
 expect that since PyQuery works on any Python object collection it may be
@@ -135,8 +135,7 @@ XPath.
 The where condition in Path expression allows you access any object in the
 namespace you passed into the query. It also names the current object under
 consideration (in the working example the Book) 'self.' You can access any
-attribute of self, you can even call functions and access items in lists and
-dicts.
+attribute of self, call functions, and access items in lists and dicts.
 
 #### A Ridiculous Example
 
@@ -234,3 +233,5 @@ XQuery Language. The basic syntax looks like this:
     [let NAME = (<path_expr>|{flwr_expr})]*
     [where WHERE_CLAUSE]*
     return VALUE, ...
+
+
