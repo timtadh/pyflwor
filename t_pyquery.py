@@ -7,6 +7,7 @@ Licensed under a BSD style license see the LICENSE file.
 
 File: t_parser.py
 Purpose: System Tests
+NB: More tests need to be written, this is just the start.
 '''
 
 import unittest, os, sys, base64, itertools, random, time
