@@ -2,9 +2,12 @@
 PyQuery - The Python Object Query System
 ========================================
 
+
 By Tim Henderson - tim.tadh@hackthology.com
+
 Copyright 2010 Tim Henderson All Rights Reserved.
 PyQuery is available under a BSD style license. See the LICENSE file.
+
 
 Table of Contents
 -----------------
