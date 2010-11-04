@@ -3,6 +3,8 @@ PyQuery - The Python Object Query System
 ========================================
 
 By Tim Henderson - tim.tadh@hackthology.com
+Copyright 2010 Tim Henderson All Rights Reserved.
+PyQuery is available under a BSD style license. See the LICENSE file.
 
 Table of Contents
 -----------------
@@ -74,7 +76,8 @@ Writing PyQuery
 
 Like XPath and XQuery there are two ways to write queries in PyQuery: "path"
 expressions and "flwr" expressions. Path expressions have a similar syntax to
-XPath.
+XPath. This short guide does not cover all the syntax available in PyQuery but
+should give the reader a good place to start when writing PyQuery.
 
 ### Path Expressions
 
@@ -224,14 +227,387 @@ elements include:
         4
         OrderedSet(['hello'])
 
+### Set Operations on Path Expressions
+
+[todo]
+
 ### FLWR Expressions
 
 FLWR stands for: "For Let Where Return." These expression are similar to the
-XQuery Language. The basic syntax looks like this:
+XQuery Language.
 
-    for NAME in PATH
-    [let NAME = (<path_expr>|{flwr_expr})]*
+#### FLWR Expresion Syntax:
+
+    for NAME in PATH [, NAME in PATH]*
+    [let NAME = (<path_expr>|{flwr_expr}) [, NAME = (<path_expr>|{flwr_expr})]*]*
     [where WHERE_CLAUSE]*
-    return VALUE, ...
+    return ((VALUE [, VALUE]*)|(STRING:VALUE, [, STRING:VALUE]*))
 
+### For Statement
+
+The for statement takes a cartesian product of the results of the Path
+expressions.
+
+#### Cartesian Product Example:
+
+    A = [1,2,3,4]
+    B = [5,6,7,8]
+
+    for a in <A>, b in <B>
+    return a, b
+    --------- returns ---------
+    (
+        (1, 5),
+        (1, 6),
+        (1, 7),
+        (1, 8),
+        (2, 5),
+        (2, 6),
+        (2, 7),
+        (2, 8),
+        (3, 5),
+        (3, 6),
+        (3, 7),
+        (3, 8),
+        (4, 5),
+        (4, 6),
+        (4, 7),
+        (4, 8)
+    )
+
+### Return Statement
+
+The return statment can use either positional outputs or named values. In
+the previous example the return statement used positional. Here is the same
+example using named return values:
+
+#### Named Return Values
+
+    A = [1,2,3,4]
+    B = [5,6,7,8]
+
+    for a in <A>, b in <B>
+    return 'a':a, "b":b
+    --------- returns ---------
+    (
+        {'a': 1, 'b': 5},
+        {'a': 1, 'b': 6},
+        {'a': 1, 'b': 7},
+        {'a': 1, 'b': 8},
+        {'a': 2, 'b': 5},
+        {'a': 2, 'b': 6},
+        {'a': 2, 'b': 7},
+        {'a': 2, 'b': 8},
+        {'a': 3, 'b': 5},
+        {'a': 3, 'b': 6},
+        {'a': 3, 'b': 7},
+        {'a': 3, 'b': 8},
+        {'a': 4, 'b': 5},
+        {'a': 4, 'b': 6},
+        {'a': 4, 'b': 7},
+        {'a': 4, 'b': 8}
+    )
+
+The return statement is not limited to simple values. It can return anything
+which could be used as a value in a Where Clause as described above.
+
+#### Complex Return Values (Simple Example)
+
+    class A(object):
+        def __init__(self, a, b):
+            self.a = a
+            self.b = b
+        def __repr__(self):
+            return '<A %s, %s>' %(self.a, self.b)
+
+    objs = [A(1, A), A(2, A)]
+
+    for obj in <objs>
+    return 'current':obj.a, 'new':obj.b(obj.a, 'created')
+    --------- returns ---------
+    {'current': 1, 'new': <A 1, created>}
+    {'current': 2, 'new': <A 2, created>}
+
+
+### Aggregates Queries Using the Let Expression
+
+The let statement enables the user to write aggregation queries. For instance
+if you have a database of books what is the average price of those books?
+
+
+### Data Model for a Chain of Bookstores
+
+    class Book(object):
+        def __init__(self, title, language, price):
+            self.title = title
+            self.language = language
+            self.price = price
+
+    class Bookstore(object):
+        def __init__(self, name):
+            self.name = name
+            self.books = list()
+        def addbook(self, book):
+            self.books.append(book)
+
+    bookstore1 = Bookstore('Tim\'s Books')
+    bookstore1.addbook(Book("Harry Potter", "eng", 29.99))
+    bookstore1.addbook(Book("Learning XML", "eng", 39.95))
+    bookstore1.addbook(Book("Introduction to Algorithms", "eng", 78.99))
+    bookstore1.addbook(Book("Databases: The Complete Book", "eng", 64.99))
+
+    bookstore2 = Bookstore('Andy\'s Books')
+    bookstore2.addbook(Book("Twilight", "eng", 15.99))
+    bookstore2.addbook(Book("Learning Django", "eng", 39.95))
+    bookstore2.addbook(Book("Catcher in the Rye", "eng", 6.99))
+    bookstore2.addbook(Book("Halcyon Digest", "eng", 64.99))
+
+    stores = [bookstore1, bookstore2]
+
+### Select Titles of the Books For Each Bookstore
+
+    for bookstore in <stores>
+    let book_names = <bookstore/books/title>
+    return 'Bookstore':bookstore.name, 'Titles':book_names
+    --------- returns ---------
+    (
+        {
+            'Bookstore': "Tim's Books",
+            'Titles':
+                OrderedSet([
+                    'Harry Potter',
+                    'Learning XML',
+                    'Introduction to Algorithms',
+                    'Databases: The Complete Book'
+                ])
+        },
+        {
+            'Bookstore': "Andy's Books",
+            'Titles':
+                OrderedSet([
+                    'Twilight',
+                    'Learning Django',
+                    'Catcher in the Rye',
+                    'Halcyon Digest'
+                ])
+        }
+    )
+
+
+### Average Price of the Books in Each Bookstore
+
+NB: You must pass an average function (avg) into the namespace for this query
+    to function.
+
+    def avg(s): return sum(s)/len(s)
+
+    for bookstore in <stores>
+    let prices = <bookstore/books/price>
+    return 'Bookstore':bookstore.name, 'Avg Price':avg(prices)
+    --------- returns ---------
+
+    {'Bookstore': "Tim's Books", 'Avg Price': 53.480000000000004}
+    {'Bookstore': "Andy's Books", 'Avg Price': 31.98}
+
+As a final note: you can have multiple let statements in a single flwr expression.
+
+    for bookstore in <stores>
+    let book_names = <bookstore/books/title>
+    let prices = <bookstore/books/price>
+    return 'Bookstore':bookstore.name, 'Titles':book_names,
+        'Avg Price':avg(prices)
+    --------- returns ---------
+    (
+        {
+            'Bookstore': "Tim's Books",
+            'Avg Price': 53.480000000000004,
+            'Titles':
+                OrderedSet([
+                    'Harry Potter',
+                    'Learning XML',
+                    'Introduction to Algorithms',
+                    'Databases: The Complete Book'
+                ])
+        },
+        {
+            'Bookstore': "Andy's Books",
+            'Avg Price': 31.98,
+            'Titles':
+                OrderedSet([
+                    'Twilight',
+                    'Learning Django',
+                    'Catcher in the Rye',
+                    'Halcyon Digest'
+                ])
+        }
+    )
+
+### Where Statements
+
+Where statement internally share the same syntax as where clauses share in path
+expressions.
+
+### Where Statement
+
+    for bookstore in <stores>
+    let book_names = <bookstore/books/title>
+    let prices = <bookstore/books/price>
+    where avg(prices) < 45
+    return 'Bookstore':bookstore.name, 'Titles':book_names,
+        'Avg Price':avg(prices)
+    --------- returns ---------
+    (
+        {
+            'Bookstore': "Andy's Books",
+            'Avg Price': 31.98,
+            'Titles':
+                OrderedSet([
+                    'Twilight',
+                    'Learning Django',
+                    'Catcher in the Rye',
+                    'Halcyon Digest'
+                ])
+        },
+    )
+
+
+Formal Language Specification
+-----------------------------
+
+For Reference Some Named Regular Expresssions:
+
+    D = r'[0-9]'
+    L = r'[a-zA-Z_]'
+    H = r'[a-fA-F0-9]'
+    E = r'[Ee][+-]?(' + D + ')+'
+
+#### Tokens
+
+    'NAME' -> (L)((L)|(D))*
+    'NUMBER' -> -?(D)+
+              | -?0[xX](H)+
+              | -?(D)+(E)
+              | -?(D)*\.(D)+(E)?
+    'STRING' -> "[^"]*"
+              | '[^']*'
+    'SLASH' -> /
+    'EQEQ' -> ==
+    'EQ' -> =
+    'NQ' -> !=
+    'LE' -> <=
+    'GE' -> >=
+    'COMMA' -> ,
+    'DOT' -> .
+    'COLON' -> :
+    'LPAREN' -> (
+    'RPAREN' -> )
+    'LSQUARE' -> [
+    'RSQUARE' -> ]
+    'LANGLE' -> <
+    'RANGLE' -> >
+    'LCURLY' -> {
+    'RCURLY' -> }
+    'UNION' -> |
+    'INTERSECTION' -> &
+    'DIFFERENCE' -> -
+
+#### Reserved Words
+
+    some, every, in, not satisfies, and, or is, subset, superset, proper,
+    for, let, return, where
+
+#### Full Grammar
+
+
+    Start : Set
+    Start : FLWRexpr
+
+    AndExpr : AndExpr AND NotExpr
+    AndExpr : NotExpr
+    Attr : NAME
+    Attr : NAME Call
+    AttributeValue : AttributeValue DOT Attr
+    AttributeValue : Attr
+    BooleanExpr : CmpExpr
+    BooleanExpr : QuantifiedExpr
+    BooleanExpr : SetExpr
+    BooleanExpr : Value
+    BooleanExpr : LPAREN Where RPAREN
+    Call : Call Call_
+    Call : Call_
+    Call_ : Fcall
+    Call_ : Dcall
+    CmpExpr : Value CmpOp Value
+    CmpOp : EQEQ
+          | NQ
+          | LANGLE
+          | LE
+          | RANGLE
+          | GE
+    Collection : Query
+    Collection : LPAREN Set RPAREN
+    Dcall : LSQUARE Value RSQUARE
+    Entity : NAME
+    Entity : NAME LSQUARE Where RSQUARE
+    FLWRexpr : ForExpr ReturnExpr
+    FLWRexpr : ForExpr LetExpr ReturnExpr
+    FLWRexpr : ForExpr WhereExpr ReturnExpr
+    FLWRexpr : ForExpr LetExpr WhereExpr ReturnExpr
+    Fcall : LPAREN RPAREN
+    Fcall : LPAREN ParameterList RPAREN
+    ForDefinition : NAME IN LANGLE Set RANGLE
+    ForDefinition : NAME IN LCURLY FLWRexpr RCURLY
+    ForExpr : FOR ForList
+    ForList : ForList COMMA ForDefinition
+    ForList : ForDefinition
+    IntersectionExpr : IntersectionExpr INTERSECTION Collection
+    IntersectionExpr : Collection
+    LetDefinition : NAME EQ LANGLE Set RANGLE
+    LetDefinition : NAME EQ LCURLY FLWRexpr RCURLY
+    LetExpr : LetExpr LET LetList
+    LetExpr : LET LetList
+    LetList : LetList COMMA LetDefinition
+    LetList : LetDefinition
+    NotExpr : NOT BooleanExpr
+    NotExpr : BooleanExpr
+    OrExpr : OrExpr OR AndExpr
+    OrExpr : AndExpr
+    OutputDict : OutputDict COMMA STRING COLON OutputValue
+    OutputDict : STRING COLON OutputValue
+    OutputTuple : OutputTuple COMMA OutputValue
+    OutputTuple : OutputValue
+    OutputValue : Value
+    OutputValue : LANGLE Set RANGLE
+    OutputValue : LCURLY FLWRexpr RCURLY
+    Parameter : Value
+    Parameter : LANGLE Set RANGLE
+    Parameter : LCURLY FLWRexpr RCURLY
+    ParameterList : ParameterList COMMA Parameter
+    ParameterList : Parameter
+    QuantifiedExpr : Quantifier NAME IN LANGLE Set RANGLE SATISFIES LPAREN Where RPAREN
+    QuantifiedExpr : Quantifier NAME IN LCURLY FLWRexpr RCURLY SATISFIES LPAREN Where RPAREN
+    Quantifier : EVERY
+    Quantifier : SOME
+    Query_ : Query_ SLASH Entity
+    Query_ : Entity
+    Query : Query_
+    ReturnExpr : RETURN OutputTuple
+    ReturnExpr : RETURN OutputDict
+    Set : Set DIFFERENCE UnionExpr
+    Set : UnionExpr
+    SetExpr : Value IN LANGLE Set RANGLE
+    SetExpr : Value NOT IN LANGLE Set RANGLE
+    SetExpr : LANGLE Set RANGLE SUBSET LANGLE Set RANGLE
+    SetExpr : LANGLE Set RANGLE SUPERSET LANGLE Set RANGLE
+    SetExpr : LANGLE Set RANGLE PROPER SUBSET LANGLE Set RANGLE
+    SetExpr : LANGLE Set RANGLE PROPER SUPERSET LANGLE Set RANGLE
+    SetExpr : LANGLE Set RANGLE IS LANGLE Set RANGLE
+    SetExpr : LANGLE Set RANGLE IS NOT LANGLE Set RANGLE
+    UnionExpr : UnionExpr UNION IntersectionExpr
+    UnionExpr : IntersectionExpr
+    Value : NUMBER
+    Value : STRING
+    Value : AttributeValue
+    Where : OrExpr
+    WhereExpr : WHERE Where
 
