@@ -229,7 +229,16 @@ elements include:
 
 ### Set Operations on Path Expressions
 
-[todo]
+It is possible to construct higher order set based queries using path
+expressions. For instance it is possible to take the interesection, union,
+difference, or a combination there of between the results of two path expression.
+
+    l = [0,1,2,3,4,5,6,7,8,9]
+
+    pyquery.execute('l - l[self < 5]', locals())
+    --------- returns ---------
+    OrderedSet([5, 6, 7, 8, 9])
+
 
 ### FLWR Expressions
 
