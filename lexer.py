@@ -23,13 +23,17 @@ reserved = {'some':'SOME', 'every':'EVERY', 'in':'IN', 'not':'NOT', 'satisfies':
             'proper':'PROPER', 'is':'IS', 'for':'FOR', 'let':'LET', 'return':'RETURN',
             'where':'WHERE'}
 
+# Common Regex Parts
+
 D = r'[0-9]'
 L = r'[a-zA-Z_]'
 H = r'[a-fA-F0-9]'
 E = r'[Ee][+-]?(' + D + ')+'
 
-# Tokens
 
+## Normally PLY works at the module level. I perfer having it encapsulated as
+## a class. Thus the strange construction of this class in the new method allows
+## PLY to do its magic.
 class Lexer(object):
 
     def __new__(cls, **kwargs):
@@ -129,23 +133,7 @@ class Lexer(object):
         raise Exception, "Illegal character '%s'" % t
         t.lexer.skip(1)
 
-
-
-
 if __name__ == '__main__':
     lexer = Lexer()
     print lexer.input('.')
-    #print lexer.input('''Finding[Severity == 3.0 and (Catagory == "12" or Catagory == "17")]
-                        #/
-                        #Trace
-                            #[
-                                #every $node in Trace/Node
-                                #statisfies $node in Finding[Severity == 3.0]/Trace/Node
-                            #]''')
     print [x for x in lexer]
-    #while 1:
-        #try:
-            #s = raw_input('calc>>> ')
-        #except EOFError:
-            #break
-        #Parser().parse(s, lexer=Lexer())

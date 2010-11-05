@@ -13,10 +13,20 @@ from ply import yacc
 from lexer import tokens, Lexer
 import symbols
 
-# Parsing rules
+## The parser does not build an abstract syntax tree nor does it build
+## intermediate code, instead it composes functions and objects together. These
+## functions are defined in symbols.py file. The composed function returned
+## computes the query based on the object dictionary passed into it. This
+## dictionary (objs) is passed down through the functions (sometimes with
+## modification).
+
+## If you are confused about the syntax in this file I recommend reading the
+## documentation on the PLY website to see how this compiler compiler's syntax
+## works.
 class Parser(object):
 
     def __new__(cls, **kwargs):
+        ## Does magic to allow PLY to do its thing.
         self = super(Parser, cls).__new__(cls, **kwargs)
         self.names = dict()
         self.yacc = yacc.yacc(module=self, **kwargs)

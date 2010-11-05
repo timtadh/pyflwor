@@ -14,7 +14,18 @@ from itertools import product
 from OrderedSet import OrderedSet
 
 class Attribute(object):
+    '''
+    Represents an attribute. An attribute consists of a name and a
+    "callchain." The callchain represent one or more function or index lookups
+    being performed on the attribute.
 
+    eg.
+        x(1,2,3)[1]()
+
+    translates to:
+        self.name = 'x'
+        self.callchain = [Call([1,2,3]), Call([1], True), Call([])]
+    '''
     def __init__(self, name, callchain=None):
         self.name = name
         self.callchain = callchain
@@ -22,7 +33,12 @@ class Attribute(object):
     def __str__(self): return str(self.name) + "[" + str(self.callchain) + "]"
 
 class Call(object):
-
+    '''
+    Represent a 'Call' (for context see the documentation on the Attribute
+    class). A call consists of the parameters passed into the call (themselves
+    functions which takes the namespace (objs)) and whether not this is an item
+    lookup rather than a function call.
+    '''
     def __init__(self, params, lookup=False):
         self.params = params
         self.lookup = lookup
@@ -32,6 +48,9 @@ class Call(object):
         return "__call__" + str(tuple(self.params))
 
 class KeyValuePair(object):
+    '''
+    Represents a key,value pair for use while iterating over a dictionary.
+    '''
     def __init__(self, key, value):
         self.key = key
         self.value = value
@@ -39,7 +58,29 @@ class KeyValuePair(object):
     def __str__(self): return "<key:%s, value:%s>" % (self.key, self.value)
 
 def attributeValue(attribute_list, scalar=False, context='locals'):
+    '''
+    Transforms a AttributeValue into its actual value.
+
+    eg.
+        x.y.z().q[1].r
+        attribute_list = [Attribute('x'), Attribute('y'),
+            Attribute('z',[Call([])]),  Attribute('q', [Call([1], True)]),
+            Attribute('r')]
+
+    translates into the attribute lookups, function calls, and __getitem__ calls
+    necessary to produce a value.
+
+    if scalar == True:
+        it simply returns the value stored in attribute_list
+
+    context is no longer used and should be removed.
+    '''
     def expand(objs, obj, attr, x=None):
+        '''
+        Expands the the value of one attribute by looking the name up in the
+        objs dict and then performing and function calls and dictionary lookups
+        specified in the callchain.
+        '''
         if x == None: x = getattr(obj, attr.name)
         if attr.callchain:
             for call in attr.callchain:
@@ -56,6 +97,10 @@ def attributeValue(attribute_list, scalar=False, context='locals'):
                     x = x.__call__(*p)
         return x
     def value(objs):
+        '''
+        The computation function returned the user. Computes the actual value
+        of the the attribute expression when @objs is passed in.
+        '''
         if scalar: return attribute_list
         #if context == 'self': return objs[context]
         attr0 = attribute_list[0]
@@ -69,6 +114,9 @@ def attributeValue(attribute_list, scalar=False, context='locals'):
     return value
 
 def operator(op):
+    '''
+    Returns a function which performs comparision operations
+    '''
     if op == '==': return lambda x,y: x == y
     if op == '!=': return lambda x,y: x != y
     if op == '<=': return lambda x,y: x <= y
@@ -78,17 +126,26 @@ def operator(op):
     raise Exception, "operator %s not found" % op
 
 def setoperator(op):
+    '''
+    Returns a function which performs set operations
+    '''
     if op == '|': return lambda x,y: x | y
     if op == '&': return lambda x,y: x & y
     if op == '-': return lambda x,y: x - y
     raise Exception, "operator %s not found" % op
 
 def setexprOperator1(op):
+    '''
+    Returns a function which performs scalar in set operations
+    '''
     if op == 'in': return lambda x,y: x in y
     if op == 'not in': return lambda x,y: x not in y
     raise Exception, "operator %s not found" % op
 
 def setexprOperator2(op):
+    '''
+    Returns a function which performs set to set comparison operations
+    '''
     if op == 'is': return lambda x,y: x == y
     if op == 'is not': return lambda x,y: x != y
     if op == 'subset': return lambda x,y: x <= y
@@ -98,60 +155,103 @@ def setexprOperator2(op):
     raise Exception, "operator %s not found" % op
 
 def booleanOperator(op):
+    '''
+    Returns a function which performs basic boolean (and, or) operations
+    '''
     if op == 'and': return lambda x,y: x and y
     if op == 'or':  return lambda x,y: x or y
     raise Exception, "operator %s not found" % op
 
 def unaryOperator(op):
+    '''
+    Returns a function which performs unary (not) operation
+    '''
     if op == 'not': return lambda x: not x
     raise Exception, "operator %s not found" % op
 
 def comparisonValue(value1, op, value2):
+    '''
+    Returns a function which will calculate a where expression for a basic
+    comparison operation.
+    '''
     def where(objs):
         return op(value1(objs), value2(objs))
     return where
 
 def setValue(s1, op, s2):
+    '''
+    Returns a Query function for the result of set operations (difference, union
+    etc..)
+    '''
     def query(glbls):
         return op(s1(glbls), s2(glbls))
     object.__setattr__(query, '__objquery__', True)
     return query
 
 def setexprValue1(val, op, s):
+    '''
+    Returns a where function which returns the result of a value in set
+    operation
+    '''
     def where(objs):
         return op(val(objs), s(objs))
     return where
 
 def setexprValue2(s1, op, s2):
+    '''
+    Returns a where function which returns the result of a set op set operation
+    '''
     def where(objs):
         return op(s1(objs), s2(objs))
     return where
 
 def booleanexprValue(value1, op, value2):
+    '''
+    returns the function which computes the result of boolean (and or) operation
+    '''
     def where(objs):
         return op(value1(objs), value2(objs))
     return where
 
 def unaryexprValue(op, val):
+    '''
+    returns the function which computes the result of boolean not operation
+    '''
     def where(objs):
         return op(val(objs))
     return where
 
 def booleanValue(val):
+    '''
+    returns the function which booleanizes the result of the Value function
+    '''
     def where(objs):
         return bool(val(objs))
     return where
 
 def whereValue(val):
+    '''
+    returns the results of a Value function.
+    '''
     def where(objs):
         return val(objs)
     return where
 
+# note this function was written well before I wrote any other pare of the code
+# as a technology demo. I need to refactor some parts of it...
 def queryValue(q):
+    '''
+    Computes a path expression. The query (@q) is a list of attribute names and
+    associated where expressions. The function returned computes the result when
+    called.
+    '''
     attrs = q
     def query(objs):
         def select(objs, attrs):
+            '''a generator which computes the actual results'''
             def add(queue, u, v, i):
+                '''adds the object v to the queue. It looks like u
+                isn't necessary anymore. I should fix that...'''
                 args = (v, '_objquery__i', i+1)
                 try:
                     object.__setattr__(*args)
@@ -166,39 +266,49 @@ def queryValue(q):
                 u = queue.pop()
                 i = object.__getattribute__(u, '_objquery__i')
                 attrname, where = attrs[i]
-                if hasattr(u, attrname):
+                if hasattr(u, attrname): # the current object has the attr
                     v = getattr(u, attrname)
+                    #it is iterable
                     if not isinstance(v, basestring) and hasattr(v, '__iter__'):
                         for z in v:
+                            # add each child into the processing queue
                             if isinstance(v, dict):
                                 next = KeyValuePair(z, v[z])
                             else:
                                 next = z
+                            # but only if its where condition is satisfied
                             if where != None:
                                 cobjs = dict(objs)
                                 cobjs.update({'self':next})
                                 if not where(cobjs): continue
+                            # if this is the last attribute yield the obj
                             if i+1 == len(attrs): yield next
-                            else: add(queue, u, next, i)
-                    else:
+                            else: add(queue, u, next, i) # otherwise add to the queue
+                    else: #it is not iterable
                         if where != None:
                             cobjs = dict(objs)
                             cobjs.update({'self':v})
                             if not where(cobjs): continue
+                        # if this is the last attribute yield the obj
                         if i+1 == len(attrs): yield v
-                        else: add(queue, u, v, i)
+                        else: add(queue, u, v, i) # otherwise add to the queue
         return OrderedSet(select(objs, attrs))
     object.__setattr__(query, '__objquery__', True)
     return query
 
 def quantifiedValue(mode, name, s, satisfies):
+    '''
+    Processes the quantified expressions (some x in <> satisfie...) returns
+    the where function.
+    '''
     def where(objs):
-        nobjs = s(objs)
-        if not nobjs: return False
+        nobjs = s(objs) # runs the first part of the query (eg. the <path> expression)
+        if not nobjs: return False # if returns and empty set then return false
         if mode == 'every':
             r = True
             for x in nobjs:
-                cobjs = dict(objs)
+                cobjs = dict(objs) # we have to copy the objects to not squash
+                                   # the upper namespace
                 cobjs.update({name:x})
                 if not satisfies(cobjs):
                     r = False
@@ -214,8 +324,17 @@ def quantifiedValue(mode, name, s, satisfies):
     return where
 
 def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None):
+    '''
+    Returns the function to caculate the results of a flwr expression
+    '''
     def sequence(objs):
         def inner(objs):
+            ## take the cartesian product of the for expression
+            ## note you cannot do this:
+            ##   for x in <path>, y in <x>
+            ##   :sadface: some day I will fix this.
+            ##   however I will only do that when I implement and optimizer
+            ##   for PyQuery otherwise it just isn't worth it.
             obs = [[(seqs[0], obj) for obj in seqs[1](objs)] for seqs in for_expr]
             for items in product(*obs):
                 cobjs = dict(objs)
@@ -223,14 +342,14 @@ def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None):
                     cobjs.update({name:item})
                 if let_expr:
                     for name, let in let_expr:
-                        cobjs.update({name:let(cobjs)})
+                        cobjs.update({name:let(cobjs)}) # calculate the let expr
                 if where_expr and not where_expr(cobjs):
-                    continue
+                    continue # skip if the where fails
                 if len(return_expr) == 1 and not isinstance(return_expr[0], tuple):
-                    yield return_expr[0](cobjs)
-                elif isinstance(return_expr[0], tuple):
+                    yield return_expr[0](cobjs) # single unamed return
+                elif isinstance(return_expr[0], tuple): # it has named return values
                     yield dict((name, f(cobjs)) for name,f in return_expr)
-                else:
+                else: # multiple positional return values
                     yield tuple(x(cobjs) for x in return_expr)
         return tuple(inner(objs))
     object.__setattr__(sequence, '__objquery__', True)
