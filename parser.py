@@ -81,6 +81,10 @@ class Parser(object):
         'ForDefinition : NAME IN LCURLY FLWRexpr RCURLY'
         t[0] = (t[1], t[4])
 
+    def p_ForDefinition3(self, t):
+        'ForDefinition : NAME IN AttributeValue'
+        t[0] = (t[1], t[3])
+
     def p_LetExpr1(self, t):
         'LetExpr : LetExpr LET LetList'
         t[0] = t[1] + t[3]
