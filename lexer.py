@@ -14,6 +14,7 @@ from ply.lex import Token
 
 tokens = ('NUMBER', 'STRING', 'NAME', 'SOME', 'EVERY', 'IN', 'NOT', 'SATISFIES', 'AND', 'OR', 'IS',
             'SUBSET', 'SUPERSET', 'PROPER', 'FOR', 'LET', 'RETURN', 'WHERE',
+            'ORDER', 'BY', 'ASCD', 'DESC',
             'SLASH', 'EQEQ', 'EQ', 'NQ', 'LE', 'GE', 'COMMA',  'DOT', 'COLON',# 'AT',  #'DOLLAR',
             'UNION', 'INTERSECTION', 'DIFFERENCE',
             'LPAREN', 'RPAREN', 'LSQUARE', 'RSQUARE', 'LANGLE', 'RANGLE', 'LCURLY', 'RCURLY')
@@ -21,7 +22,7 @@ tokens = ('NUMBER', 'STRING', 'NAME', 'SOME', 'EVERY', 'IN', 'NOT', 'SATISFIES',
 reserved = {'some':'SOME', 'every':'EVERY', 'in':'IN', 'not':'NOT', 'satisfies':'SATISFIES',
             'and':'AND', 'or':'OR', 'subset':'SUBSET', 'superset':'SUPERSET',
             'proper':'PROPER', 'is':'IS', 'for':'FOR', 'let':'LET', 'return':'RETURN',
-            'where':'WHERE'}
+            'where':'WHERE', 'order':'ORDER', 'by':'BY', 'ascd':'ASCD', 'desc':'DESC'}
 
 # Common Regex Parts
 

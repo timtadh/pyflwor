@@ -170,5 +170,21 @@ class TestParser(unittest.TestCase):
             where every x in <y> satisfies (q == z and (<y> is not <z>))
             return 'asdf':asdf, "one":1, "2.0":2.0''')
 
+    def test_flwr_orderby(self):
+        pyquery.compile('for x in <asdf> order by "adsf" desc return "adsf":x')
+        pyquery.compile('''for x in <asfd>, z in <asdf>, y in sdaf.asdf(asdf, asdf)[1]
+            let y = <x/asdf>, y1 = <Afd>, y2 = <asdf>, y3 = <asdf>
+            let x = <adf>
+            where every x in <y> satisfies (q == z and (<y> is not <z>))
+            order by "asdf" desc
+            return 'asdf':asdf, "one":1, "2.0":2.0''')
+        pyquery.compile('for x in <asdf> order by 0 ascd return x')
+        pyquery.compile('''for x in <asfd>, z in <asdf>, y in sdaf.asdf(asdf, asdf)[1]
+            let y = <x/asdf>, y1 = <Afd>, y2 = <asdf>, y3 = <asdf>
+            let x = <adf>
+            where every x in <y> satisfies (q == z and (<y> is not <z>))
+            order by 1 ascd
+            return asdf, 1, 2.0''')
+
 if __name__ == '__main__':
     unittest.main()

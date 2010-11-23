@@ -166,5 +166,14 @@ class TestPyQuery(unittest.TestCase):
         d.update(__builtins__.__dict__)
         self.assertEquals(exe('for x in f() return x', d), (1,2,3))
 
+    def test_flwr_orderby(self):
+        def f(): return [1,3,2]
+        d = locals()
+        d.update(__builtins__.__dict__)
+        self.assertRaises(SyntaxError, exe, 'for x in f() order by "asdf" ascd return x', d)
+        self.assertRaises(SyntaxError, exe, 'for x in f() order by 0 ascd return "asdf":x', d)
+        self.assertEquals(exe('for x in f() order by 0 ascd return x', d), (1,2,3))
+        self.assertEquals(exe('for x in f() order by 0 desc return x', d), (3,2,1))
+
 if __name__ == '__main__':
     unittest.main()
