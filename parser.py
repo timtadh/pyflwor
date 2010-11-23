@@ -61,6 +61,22 @@ class Parser(object):
         'FLWRexpr : ForExpr LetExpr WhereExpr ReturnExpr'
         t[0] = symbols.flwrSequence(t[1], t[4], let_expr=t[2], where_expr=t[3])
 
+    def p_FLWRexpr5(self, t):
+        'FLWRexpr : ForExpr OrderByExpr ReturnExpr'
+        t[0] = symbols.flwrSequence(t[1], t[3], order_expr=t[2])
+
+    def p_FLWRexpr6(self, t):
+        'FLWRexpr : ForExpr LetExpr OrderByExpr ReturnExpr'
+        t[0] = symbols.flwrSequence(t[1], t[4], let_expr=t[2], order_expr=t[3])
+
+    def p_FLWRexpr7(self, t):
+        'FLWRexpr : ForExpr WhereExpr OrderByExpr ReturnExpr'
+        t[0] = symbols.flwrSequence(t[1], t[4], where_expr=t[2], order_expr=t[3])
+
+    def p_FLWRexpr8(self, t):
+        'FLWRexpr : ForExpr LetExpr WhereExpr OrderByExpr ReturnExpr'
+        t[0] = symbols.flwrSequence(t[1], t[5], let_expr=t[2], where_expr=t[3], order_expr=t[4])
+
     def p_ForExpr(self, t):
         'ForExpr : FOR ForList'
         t[0] = t[2]
@@ -112,6 +128,22 @@ class Parser(object):
     def p_WhereExpr(self, t):
         'WhereExpr : WHERE Where'
         t[0] = t[2]
+
+    def p_OrderByExpr1(self, t):
+        'OrderByExpr : ORDER BY NUMBER OrderDirection'
+        t[0] = (t[3], t[4])
+
+    def p_OrderByExpr2(self, t):
+        'OrderByExpr : ORDER BY STRING OrderDirection'
+        t[0] = (t[3], t[4])
+
+    def p_OrderDirection1(self, t):
+        'OrderDirection : ASCD'
+        t[0] = 'ASCD'
+
+    def p_OrderDirection2(self, t):
+        'OrderDirection : DESC'
+        t[0] = 'DESC'
 
     def p_ReturnExpr1(self, t):
         'ReturnExpr : RETURN OutputTuple'

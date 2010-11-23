@@ -323,10 +323,11 @@ def quantifiedValue(mode, name, s, satisfies):
         raise Exception, "mode '%s' is not 'every' or 'some'" % mode
     return where
 
-def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None):
+def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None, order_expr=None):
     '''
     Returns the function to caculate the results of a flwr expression
     '''
+    #print order_expr
     def sequence(objs):
         def inner(objs):
             ## take the cartesian product of the for expression
@@ -351,7 +352,26 @@ def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None):
                     yield dict((name, f(cobjs)) for name,f in return_expr)
                 else: # multiple positional return values
                     yield tuple(x(cobjs) for x in return_expr)
-        return tuple(inner(objs))
+        r = list(inner(objs))
+        if not r:
+            return tuple(r)
+        elif order_expr:
+            attr, direction = order_expr
+            if isinstance(attr, str):
+                if not isinstance(return_expr[0], tuple):
+                    raise SyntaxError, \
+                    "Using a name in the order by clause when not using named return values."
+            else:
+                if isinstance(return_expr[0], tuple):
+                    raise SyntaxError, \
+                    "Using a number in the order by clause when not using positional return values."
+            if len(return_expr) == 1 and not isinstance(return_expr[0], tuple):
+                keyfunc = lambda x: x
+            else:
+                keyfunc = lambda x: x[attr]
+            if direction == 'ASCD': r = sorted(r, key=keyfunc)
+            else: r = sorted(r, key=keyfunc, reverse=True)
+        return tuple(r)
     object.__setattr__(sequence, '__objquery__', True)
     return sequence
 
