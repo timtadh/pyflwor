@@ -329,4 +329,5 @@ class REPL(object):
         exit = False
         while not exit:
             line = getline('pyquery> ')
-            exit = self.exe(line)
+            if line is None: exit = self.exe('exit')
+            else: exit = self.exe(line)
