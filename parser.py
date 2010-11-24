@@ -125,6 +125,10 @@ class Parser(object):
         'LetDefinition : NAME EQ LCURLY FLWRexpr RCURLY'
         t[0] = (t[1], t[4])
 
+    def p_LetDefinition3(self, t):
+        'LetDefinition : NAME EQ AttributeValue'
+        t[0] = (t[1], symbols.attributeValue(t[3]))
+
     def p_WhereExpr(self, t):
         'WhereExpr : WHERE Where'
         t[0] = t[2]

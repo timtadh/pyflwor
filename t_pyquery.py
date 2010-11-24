@@ -161,10 +161,11 @@ class TestPyQuery(unittest.TestCase):
         self.assertEquals(exe('a[m["next"][7](j)(m["next"][7])(m["next"])[7](i)(m["two"]) == 4]', d), oset([a]))
 
     def test_flwr_attrvalue(self):
-        def f(): return [1,2,3]
+        def f(): return (1,2,3)
         d = locals()
         d.update(__builtins__.__dict__)
         self.assertEquals(exe('for x in f() return x', d), (1,2,3))
+        self.assertEquals(exe('for x in f() let y = f() return x, y', d), ((1,(1,2,3)), (2, (1,2,3)), (3, (1,2,3))))
 
     def test_flwr_orderby(self):
         def f(): return [1,3,2]
