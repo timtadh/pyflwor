@@ -13,7 +13,7 @@ from ply import lex
 from ply.lex import Token
 
 tokens = ('NUMBER', 'STRING', 'NAME', 'SOME', 'EVERY', 'IN', 'NOT', 'SATISFIES', 'AND', 'OR', 'IS',
-            'SUBSET', 'SUPERSET', 'PROPER', 'FOR', 'LET', 'RETURN', 'WHERE',
+            'SUBSET', 'SUPERSET', 'PROPER', 'FOR', 'LET', 'RETURN', 'WHERE', 'FUNCTION',
             'ORDER', 'BY', 'ASCD', 'DESC',
             'SLASH', 'EQEQ', 'EQ', 'NQ', 'LE', 'GE', 'COMMA',  'DOT', 'COLON',# 'AT',  #'DOLLAR',
             'UNION', 'INTERSECTION', 'DIFFERENCE',
@@ -22,7 +22,8 @@ tokens = ('NUMBER', 'STRING', 'NAME', 'SOME', 'EVERY', 'IN', 'NOT', 'SATISFIES',
 reserved = {'some':'SOME', 'every':'EVERY', 'in':'IN', 'not':'NOT', 'satisfies':'SATISFIES',
             'and':'AND', 'or':'OR', 'subset':'SUBSET', 'superset':'SUPERSET',
             'proper':'PROPER', 'is':'IS', 'for':'FOR', 'let':'LET', 'return':'RETURN',
-            'where':'WHERE', 'order':'ORDER', 'by':'BY', 'ascd':'ASCD', 'desc':'DESC'}
+            'where':'WHERE', 'order':'ORDER', 'by':'BY', 'ascd':'ASCD', 'desc':'DESC',
+            'function':'FUNCTION'}
 
 # Common Regex Parts
 

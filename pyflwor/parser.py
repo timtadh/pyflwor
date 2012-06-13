@@ -129,6 +129,34 @@ class Parser(object):
         'LetDefinition : NAME EQ AttributeValue'
         t[0] = (t[1], symbols.attributeValue(t[3]))
 
+    def p_LetDefinition4(self, t):
+        'LetDefinition : NAME EQ Function'
+        t[0] = (t[1], symbols.functionDefinition(*t[3]))
+
+    def p_Function1(self, t):
+        'Function : FUNCTION LPAREN RPAREN LCURLY FBody RCURLY'
+        t[0] = (tuple(), t[5])
+
+    def p_Function2(self, t):
+        'Function : FUNCTION LPAREN FParams RPAREN LCURLY FBody RCURLY'
+        t[0] = (tuple(t[3]), t[6])
+
+    def p_FParams1(self, t):
+        'FParams : FParams COMMA NAME'
+        t[0] = t[1] + [t[3]]
+
+    def p_FParams2(self, t):
+        'FParams : NAME'
+        t[0] = [t[1]]
+
+    def p_Fbody1(self, t):
+        'FBody : FLWRexpr'
+        t[0] = t[1]
+
+    def p_Fbody3(self, t):
+        'FBody : Value'
+        t[0] = t[1]
+
     def p_WhereExpr(self, t):
         'WhereExpr : WHERE Where'
         t[0] = t[2]

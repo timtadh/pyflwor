@@ -192,5 +192,19 @@ class TestParser(unittest.TestCase):
             order by 1 ascd
             return asdf, 1, 2.0''')
 
+    def test_flwr_function_noargs(self):
+        pyflwor.compile('''
+          for x in <asdf>
+          let f = function() { for y in <asdf> return y }
+          return f
+          ''')
+
+    def test_flwr_function_args(self):
+        pyflwor.compile('''
+          for x in <asdf>
+          let f = function(q) { for y in q return y }
+          return f
+          ''')
+
 if __name__ == '__main__':
     unittest.main()

@@ -378,3 +378,10 @@ def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None, order_ex
     object.__setattr__(sequence, '__objquery__', True)
     return sequence
 
+def functionDefinition(params, query):
+    def flwr_function(*args):
+        if len(args) != len(params):
+            raise RuntimeError, "Got wrong number of params expected %d got %d" % (len(params, len(args)))
+        namespace = dict(zip(params, args))
+        return query(namespace)
+    return flwr_function
