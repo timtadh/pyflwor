@@ -13,8 +13,10 @@ import os, sys
 import subprocess
 import cPickle as pickle
 from tempfile import mkstemp as tmpfile
-from getline import getline
+from getline import Getlines
 import pyflwor
+
+getline = Getlines('.queries').getline
 
 EDITOR = os.getenv('EDITOR')
 if not EDITOR: EDITOR = 'vi'
