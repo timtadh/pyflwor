@@ -49,6 +49,7 @@ class REPL(object):
 
     def querydict(self):
         d = {'float':float, 'int':int, 'avg':avg, 'len':len}
+        d.update(__builtins__)
         d.update(self.objects)
         return d
 
