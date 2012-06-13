@@ -1,3 +1,3 @@
--e git+https://github.com/timtadh/getline.git#egg=getline
+-egit+https://github.com/timtadh/getline.git#egg=getline
 nose
 ply

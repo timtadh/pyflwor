@@ -18,6 +18,7 @@ Table of Contents
 4. Writing PyFlwor
 5. Formal Language Specification
 
+
 Introducton
 -----------
 
@@ -50,6 +51,20 @@ or via clonin the repository and using the setup file:
     cd pyflwor
     python setup.py install
 
+to run the tests:
+
+    cd pyflwor
+    nosetests
+
+Alternately, one may wish to automate the dependency install via the reqs.txt
+file. In this case you should install as follows:
+    
+    git clone https://github.com/timtadh/pyflwor.git
+    cd pyflwor
+    IFS=$'\n' ; for req in `cat reqs.txt` ; do echo $req ; pip install $req ; done
+    python setup.py install
+
+
 Motivation
 ----------
 
@@ -59,6 +74,7 @@ relational, some were XML, and increasingly some were simply native python
 objects. To unify this namespace I am working on this language. However, I
 expect that since PyFlwor works on any Python object collection it may be
 generally useful to the Python community.
+
 
 Usage Example
 -------------
