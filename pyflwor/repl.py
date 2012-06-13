@@ -16,7 +16,7 @@ from tempfile import mkstemp as tmpfile
 from getline import Getlines
 import pyflwor
 
-getline = Getlines('.queries').getline
+getline = Getlines('.getline-history').getline
 
 EDITOR = os.getenv('EDITOR')
 if not EDITOR: EDITOR = 'vi'
