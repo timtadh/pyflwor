@@ -1,12 +1,12 @@
 '''
-PyQuery - The Python Object Query System
+pyflwor - The Python Object Query System
 Author: Tim Henderson
 Contact: tim.tadh@hackthology.com
 Copyright (c) 2010 All Rights Reserved.
 Licensed under a BSD style license see the LICENSE file.
 
 File: examples.py
-Purpose: Example queries for PyQuery.
+Purpose: Example queries for pyflwor.
 '''
 
 import itertools
@@ -87,7 +87,7 @@ orders = [
     ]
 
 if __name__ == '__main__':
-    import pyquery
+    import pyflwor
     print "all orders"
     for x in orders:
         print x
@@ -97,7 +97,7 @@ if __name__ == '__main__':
 
 
     print "Orders where customer.name = Steve and agent.name = Ullman"
-    q = pyquery.compile('orders[self.customer.name == "Steve" and self.agent.name == "Ullman"]')
+    q = pyflwor.compile('orders[self.customer.name == "Steve" and self.agent.name == "Ullman"]')
     for x in q(locals()):
         print x
     print
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     print
 
     print "1. Get names of products that are ordered by at least one customer three different times."
-    q = pyquery.compile('''
+    q = pyflwor.compile('''
             products
             [
                 some o1 in <orders> satisfies
@@ -132,7 +132,7 @@ if __name__ == '__main__':
     print
 
     print "2. Get product names that are ordered by at least three customers in the same city."
-    q = pyquery.compile('''
+    q = pyflwor.compile('''
             products
             [
                 some o1 in <orders> satisfies
@@ -160,7 +160,7 @@ if __name__ == '__main__':
     print
 
     print '''3. Get product names that are ordered by at least one customer in each and every customer city listed in the database (universal quantification).'''
-    q = pyquery.compile('''
+    q = pyflwor.compile('''
             products
             [
                 every c1 in <customers> satisfies

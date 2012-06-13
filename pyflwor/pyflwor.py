@@ -5,8 +5,8 @@ Contact: tim.tadh@hackthology.com
 Copyright (c) 2010 All Rights Reserved.
 Licensed under a BSD style license see the LICENSE file.
 
-File: pyquery.py
-Purpose: The public API for PyQuery.
+File: pyflwor.py
+Purpose: The public API for PyFlwor.
 '''
 
 from parser import Parser

@@ -1,12 +1,12 @@
 '''
-PyQuery - The Python Object Query System
+pyflwor - The Python Object Query System
 Author: Tim Henderson
 Contact: tim.tadh@hackthology.com
 Copyright (c) 2010 All Rights Reserved.
 Licensed under a BSD style license see the LICENSE file.
 
 File: repl.py
-Purpose: REPL for PyQuery
+Purpose: REPL for pyflwor
 '''
 
 import os, sys
@@ -14,7 +14,7 @@ import subprocess
 import cPickle as pickle
 from tempfile import mkstemp as tmpfile
 from getline import getline
-import pyquery
+import pyflwor
 
 EDITOR = os.getenv('EDITOR')
 if not EDITOR: EDITOR = 'vi'
@@ -41,7 +41,7 @@ class REPL(object):
         if queries:
             for name in queries:
                 query = queries[name]
-                q = pyquery.compile(query)
+                q = pyflwor.compile(query)
                 self.queries.update({name.strip():(query,q)})
         self.histfile = '.hist'
 
@@ -99,7 +99,7 @@ class REPL(object):
                     q = self.queries[query][1]
                     query = self.queries[query][0]
                 else:
-                    q = pyquery.compile(query)
+                    q = pyflwor.compile(query)
 
                 results = q(self.querydict())
                 if format in _formats:
@@ -136,7 +136,7 @@ class REPL(object):
                     q = self.queries[args][1]
                 else:
                     print args
-                    q = pyquery.compile(args)
+                    q = pyflwor.compile(args)
                 for r in q(self.querydict()):
                     #if hasattr(r, '__iter__'):
                         #print tuple(str(item) for item in r)
@@ -151,7 +151,7 @@ class REPL(object):
                 if name not in self.queries:
                     raise Exception, "Query %s not defined" % s
                 query = self.edittext(self.queries[name][0])
-                q = pyquery.compile(query)
+                q = pyflwor.compile(query)
                 self.queries.update({name.strip():(query,q)})
             def rm(cmds, args):
                 '''usage: query rm str
@@ -180,7 +180,7 @@ class REPL(object):
                 variable EDITOR.'''
                 name = args
                 query = self.edittext('')
-                q = pyquery.compile(query)
+                q = pyflwor.compile(query)
                 self.queries.update({name.strip():(query,q)})
             def clear(cmds):
                 '''usage: query clear
@@ -208,7 +208,7 @@ class REPL(object):
                     line = line.strip()
                     if not line: continue
                     name, query = line.split('=', 1)
-                    q = pyquery.compile(query)
+                    q = pyflwor.compile(query)
                     self.queries.update({name.strip():(query.strip(),q)})
                 f.close()
             def _list(cmds):
@@ -328,6 +328,6 @@ class REPL(object):
     def start(self):
         exit = False
         while not exit:
-            line = getline('pyquery> ')
+            line = getline('pyflwor> ')
             if line is None: exit = self.exe('exit')
             else: exit = self.exe(line)
