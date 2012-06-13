@@ -388,3 +388,9 @@ def functionDefinition(params, query):
             return query(objs)
         return function
     return flwr_function
+
+def ifExpr(condition, then, otherwise):
+    def if_expr(objs):
+        if condition(objs): return then(objs)
+        else: return otherwise(objs)
+    return if_expr

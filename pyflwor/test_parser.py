@@ -206,5 +206,10 @@ class TestParser(unittest.TestCase):
           return f
           ''')
 
+    def test_if(self):
+        pyflwor.compile('''
+          for x in <asdf> return if (0) then 1 else 0
+          ''')
+
 if __name__ == '__main__':
     unittest.main()

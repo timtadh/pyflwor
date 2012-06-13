@@ -213,5 +213,17 @@ class TestPyQuery(unittest.TestCase):
           ))
         )
 
+
+    def test_ifExpr(self):
+        a = 'hello'
+        l = [1,2,3,4,5,6,7,[1,2,3,4,5,6,7,[1,2,3,4,5,6,7,8]]]
+        q = True
+        d = locals()
+        try: d.update(__builtins__.__dict__)
+        except AttributeError: d.update(__builtins__)
+        self.assertEquals(exe('''
+          for x in <a> return if (q) then 1 else 0
+          ''', d), oset([int(q)]))
+
 if __name__ == '__main__':
     unittest.main()

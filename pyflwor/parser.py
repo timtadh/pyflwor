@@ -334,9 +334,25 @@ class Parser(object):
         'Value : STRING'
         t[0] = symbols.attributeValue(t[1], scalar=True)
 
+    def p_Value3(self, t):
+        'Value : IF LPAREN Where RPAREN THEN IfBody ELSE IfBody'
+        t[0] = symbols.ifExpr(t[3], t[6], t[8])
+
     def p_Value4(self, t):
         'Value : AttributeValue'
         t[0] = symbols.attributeValue(t[1])
+
+    def p_IfBody1(self, t):
+        'IfBody : Value'
+        t[0] = t[1]
+
+    def p_IfBody2(self, t):
+        'IfBody : LANGLE Set RANGLE'
+        t[0] = t[2]
+
+    def p_IfBody3(self, t):
+        'IfBody : LCURLY FLWRexpr RCURLY'
+        t[0] = t[2]
 
     def p_AttributeValue1(self, t):
         'AttributeValue : AttributeValue DOT Attr'
