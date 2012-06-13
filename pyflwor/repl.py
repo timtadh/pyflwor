@@ -154,8 +154,8 @@ class REPL(object):
                 if name not in self.queries:
                     raise Exception, "Query %s not defined" % name
                 query = self.edittext(self.queries[name][0])
-                q = pyflwor.compile(query)
                 self.queries.update({name.strip():(query,q)})
+                q = pyflwor.compile(query)
             def rm(cmds, args):
                 '''usage: query rm str
                     .    str = name of a saved query
