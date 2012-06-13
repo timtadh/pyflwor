@@ -12,7 +12,7 @@ PyFlwor is available under a BSD style license. See the LICENSE file.
 Table of Contents
 -----------------
 
-1. Introduction
+1. Introduction and Installation
 2. Motivation
 3. Usage Example
 4. Writing PyFlwor
@@ -29,6 +29,26 @@ expect the language to change often. PyFlwor works on any type of Python object.
 The only requirement is that the objects returned have to be hashable, as they
 are currently returned as a set.
 
+### Installation
+
+To install `pyflwor` using pip first install the dependencies:
+
+    pip install ply nose
+
+nose is only required if you want to run the tests. You can also optionally
+install `getline` if you want to use the included repl library:
+
+    pip install -e git+https://github.com/timtadh/getline.git#egg=getline
+
+finally you can directly install `pyflwor` using pip with:
+
+    pip install -e git+https://github.com/timtadh/pyflwor.git#egg=pyflwor
+
+or via clonin the repository and using the setup file:
+
+    git clone https://github.com/timtadh/pyflwor.git
+    cd pyflwor
+    python setup.py install
 
 Motivation
 ----------
