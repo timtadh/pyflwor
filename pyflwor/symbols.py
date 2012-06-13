@@ -383,9 +383,9 @@ def functionDefinition(params, query):
         def function(*args):
             if len(args) != len(params):
                 raise RuntimeError, "Got wrong number of params expected %d got %d" % (len(params), len(args))
-            namespace = dict(zip(params, args))
-            objs.update(namespace)
-            return query(objs)
+            namespace = dict(objs)
+            namespace.update(zip(params, args))
+            return query(namespace)
         return function
     return flwr_function
 
