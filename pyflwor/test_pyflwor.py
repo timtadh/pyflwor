@@ -95,7 +95,7 @@ class TestPyQuery(unittest.TestCase):
         true = True
         false = False
         d = locals()
-        try: d.update(__builtins__.__dict__) 
+        try: d.update(__builtins__.__dict__)
         except AttributeError: d.update(__builtins__)
         self.assertEquals(exe('a[1 == 1]', d), oset([a]))
         self.assertEquals(exe('a[-1 == -1]', d), oset([a]))
@@ -115,7 +115,7 @@ class TestPyQuery(unittest.TestCase):
         true = True
         false = False
         d = locals()
-        try: d.update(__builtins__.__dict__) 
+        try: d.update(__builtins__.__dict__)
         except AttributeError: d.update(__builtins__)
         self.assertEquals(exe('a[f()]', d), oset([a]))
         self.assertEquals(exe('a[f() == "hello"]', d), oset([a]))
@@ -127,7 +127,7 @@ class TestPyQuery(unittest.TestCase):
         a = 'hello'
         l = [1,2,3,4,5,6,7,[1,2,3,4,5,6,7,[1,2,3,4,5,6,7,8]]]
         d = locals()
-        try: d.update(__builtins__.__dict__) 
+        try: d.update(__builtins__.__dict__)
         except AttributeError: d.update(__builtins__)
         self.assertEquals(exe('a[l[0] == 1]', d), oset([a]))
         self.assertEquals(exe('a[l[1] == 2]', d), oset([a]))
@@ -141,7 +141,7 @@ class TestPyQuery(unittest.TestCase):
         a = 'hello'
         l = {"one":1, "two":2, "next":{"one":1, "two":2, "next":{"one":1, "two":2}}}
         d = locals()
-        try: d.update(__builtins__.__dict__) 
+        try: d.update(__builtins__.__dict__)
         except AttributeError: d.update(__builtins__)
         self.assertEquals(exe('a[l["one"] == 1]', d), oset([a]))
         self.assertEquals(exe('a[l["two"] == 2]', d), oset([a]))
@@ -161,14 +161,14 @@ class TestPyQuery(unittest.TestCase):
         true = True
         false = False
         d = locals()
-        try: d.update(__builtins__.__dict__) 
+        try: d.update(__builtins__.__dict__)
         except AttributeError: d.update(__builtins__)
         self.assertEquals(exe('a[m["next"][7](j)(m["next"][7])(m["next"])[7](i)(m["two"]) == 4]', d), oset([a]))
 
     def test_flwr_attrvalue(self):
         def f(): return (1,2,3)
         d = locals()
-        try: d.update(__builtins__.__dict__) 
+        try: d.update(__builtins__.__dict__)
         except AttributeError: d.update(__builtins__)
         self.assertEquals(exe('for x in f() return x', d), (1,2,3))
         self.assertEquals(exe('for x in f() let y = f() return x, y', d), ((1,(1,2,3)), (2, (1,2,3)), (3, (1,2,3))))
@@ -176,7 +176,7 @@ class TestPyQuery(unittest.TestCase):
     def test_flwr_orderby(self):
         def f(): return [1,3,2]
         d = locals()
-        try: d.update(__builtins__.__dict__) 
+        try: d.update(__builtins__.__dict__)
         except AttributeError: d.update(__builtins__)
         self.assertRaises(SyntaxError, exe, 'for x in f() order by "asdf" ascd return x', d)
         self.assertRaises(SyntaxError, exe, 'for x in f() order by 0 ascd return "asdf":x', d)
