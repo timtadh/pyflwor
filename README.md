@@ -1,12 +1,12 @@
 
-PyQuery - The Python Object Query System
+PyFlwor - The Python Object Query System
 ========================================
 
 
 By Tim Henderson - tim.tadh@hackthology.com
 
 Copyright 2010 Tim Henderson All Rights Reserved.
-PyQuery is available under a BSD style license. See the LICENSE file.
+PyFlwor is available under a BSD style license. See the LICENSE file.
 
 
 Table of Contents
@@ -15,17 +15,17 @@ Table of Contents
 1. Introduction
 2. Motivation
 3. Usage Example
-4. Writing PyQuery
+4. Writing PyFlwor
 5. Formal Language Specification
 
 Introducton
 -----------
 
-PyQuery is a query language for querying python object collections. While
+PyFlwor is a query language for querying python object collections. While
 Python has many interesting ways of persisting objects, it does not have (to my
 knowledge) a query language. This language was inspired in part by OQL (Object
 Query Language), XPath2.0, and XQuery. It is still under rapid development so
-expect the language to change often. PyQuery works on any type of Python object.
+expect the language to change often. PyFlwor works on any type of Python object.
 The only requirement is that the objects returned have to be hashable, as they
 are currently returned as a set.
 
@@ -37,20 +37,20 @@ The motivation for this work occured while working on a software system with a
 unified namespace to address heterogenous data models. Some of the models were
 relational, some were XML, and increasingly some were simply native python
 objects. To unify this namespace I am working on this language. However, I
-expect that since PyQuery works on any Python object collection it may be
+expect that since PyFlwor works on any Python object collection it may be
 generally useful to the Python community.
 
 Usage Example
 -------------
 
-    import pyquery
+    import pyflwor
 
     class Obj(object):
         def __init__(self, attr, attr2):
             self.attr = attr
             self.attr2 = attr2
 
-    q = pyquery.compile('''
+    q = pyflwor.compile('''
         for obj in <objects>
         where obj.attr > 5
         return 'number':obj.attr, 'string':obj.attr2
@@ -74,13 +74,13 @@ Usage Example
     )
 
 
-Writing PyQuery
+Writing PyFlwor
 ---------------
 
-Like XPath and XQuery there are two ways to write queries in PyQuery: "path"
+Like XPath and XQuery there are two ways to write queries in PyFlwor: "path"
 expressions and "flwr" expressions. Path expressions have a similar syntax to
-XPath. This short guide does not cover all the syntax available in PyQuery but
-should give the reader a good place to start when writing PyQuery.
+XPath. This short guide does not cover all the syntax available in PyFlwor but
+should give the reader a good place to start when writing PyFlwor.
 
 ### Path Expressions
 
@@ -128,7 +128,7 @@ should give the reader a good place to start when writing PyQuery.
     bookstore.addbook(Book("Learning XML", "eng", 39.95))
 
 
-#### PyQuery Queries:
+#### PyFlwor Queries:
 
 1. all books
 
@@ -155,7 +155,7 @@ attribute of self, call functions, and access items in lists and dicts.
     d.update(__builtins__.__dict__)
 
     query = 'a[m["next"][7](j)(m["next"][7])(m["next"])[7](f)(m["two"]) == 4]'
-    pyquery.execute(query, locals())
+    pyflwor.execute(query, locals())
     --------- returns ---------
     OrderedSet(['hello'])
 
@@ -164,7 +164,7 @@ You can use boolean operators as well:
     a = 'hello'
     true = True
     false = False
-    pyquery.execute('a[true and (false or not false)]', locals())
+    pyflwor.execute('a[true and (false or not false)]', locals())
     --------- returns ---------
     OrderedSet(['hello'])
 
@@ -187,16 +187,16 @@ elements include:
         def mod2(x):
             return x % 2
 
-        pyquery.execute('a[every x in <l1> satisfies (mod2(x) == 0)]', locals())
+        pyflwor.execute('a[every x in <l1> satisfies (mod2(x) == 0)]', locals())
         --------- returns ---------
         OrderedSet(['hello'])
 
 
-        pyquery.execute('a[every x in <l2> satisfies (mod2(x) == 0)]', locals())
+        pyflwor.execute('a[every x in <l2> satisfies (mod2(x) == 0)]', locals())
         --------- returns ---------
         OrderedSet()
 
-        pyquery.execute('a[some x in <l2> satisfies (mod2(x) == 0)]', locals())
+        pyflwor.execute('a[some x in <l2> satisfies (mod2(x) == 0)]', locals())
         --------- returns ---------
         OrderedSet(['hello'])
 
@@ -223,7 +223,7 @@ elements include:
         a = 'hello'
         l1 = [0,2,4,6,8,10]
 
-        pyquery.execute('a[not print_query(<l1[self < 5]>)]', locals())
+        pyflwor.execute('a[not print_query(<l1[self < 5]>)]', locals())
         --------- returns ---------
         0
         2
@@ -238,7 +238,7 @@ difference, or a combination there of between the results of two path expression
 
     l = [0,1,2,3,4,5,6,7,8,9]
 
-    pyquery.execute('l - l[self < 5]', locals())
+    pyflwor.execute('l - l[self < 5]', locals())
     --------- returns ---------
     OrderedSet([5, 6, 7, 8, 9])
 
