@@ -75,6 +75,7 @@ def attributeValue(attribute_list, scalar=False, context='locals'):
 
     context is no longer used and should be removed.
     '''
+
     def expand(objs, obj, attr, x=None):
         '''
         Expands the the value of one attribute by looking the name up in the
@@ -96,6 +97,7 @@ def attributeValue(attribute_list, scalar=False, context='locals'):
                 else:
                     x = x.__call__(*p)
         return x
+
     def value(objs):
         '''
         The computation function returned the user. Computes the actual value
@@ -111,6 +113,7 @@ def attributeValue(attribute_list, scalar=False, context='locals'):
             else:
                 raise Exception, "object %s did not have attr %s" % (str(obj), attr.name)
         return obj
+
     return value
 
 def operator(op):
