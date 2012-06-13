@@ -151,11 +151,12 @@ class REPL(object):
                     Edit a saved query using the editor defined in
                     the enviroment as $EDITOR'''
                 name = args
+                name = name.strip()
                 if name not in self.queries:
                     raise Exception, "Query %s not defined" % name
                 query = self.edittext(self.queries[name][0])
-                self.queries.update({name.strip():(query,q)})
                 q = pyflwor.compile(query)
+                self.queries.update({name:(query,q)})
             def rm(cmds, args):
                 '''usage: query rm str
                     .    str = name of a saved query
