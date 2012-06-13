@@ -151,7 +151,7 @@ class REPL(object):
                     the enviroment as $EDITOR'''
                 name = args
                 if name not in self.queries:
-                    raise Exception, "Query %s not defined" % s
+                    raise Exception, "Query %s not defined" % name
                 query = self.edittext(self.queries[name][0])
                 q = pyflwor.compile(query)
                 self.queries.update({name.strip():(query,q)})
