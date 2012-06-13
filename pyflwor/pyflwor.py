@@ -25,3 +25,4 @@ def execute(query, namespace):
     particular query many times, use compile to get a query function.
     '''
     return compile(query)(namespace)
+

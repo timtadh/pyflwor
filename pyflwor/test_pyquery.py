@@ -12,14 +12,14 @@ NB: More tests need to be written, this is just the start.
 
 import unittest, os, sys, base64, itertools, random, time
 from OrderedSet import OrderedSet as oset
-import pyquery
+import pyflwor
 
-exe = pyquery.execute
+exe = pyflwor.execute
 class TestPyQuery(unittest.TestCase):
 
     def test_hello(self):
         hello = 'hello world!'
-        q = pyquery.compile('hello')
+        q = pyflwor.compile('hello')
         self.assertEquals(q(locals()), oset([hello]))
 
     def test_iterdown(self):
