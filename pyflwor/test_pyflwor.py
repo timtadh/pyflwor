@@ -183,5 +183,35 @@ class TestPyQuery(unittest.TestCase):
         self.assertEquals(exe('for x in f() order by 0 ascd return x', d), (1,2,3))
         self.assertEquals(exe('for x in f() order by 0 desc return x', d), (3,2,1))
 
+    def test_function_def(self):
+        a = 'hello'
+        l = [1,2,3,4,5,6,7,[1,2,3,4,5,6,7,[1,2,3,4,5,6,7,8]]]
+        d = locals()
+        try: d.update(__builtins__.__dict__)
+        except AttributeError: d.update(__builtins__)
+        self.assertEquals(exe('''
+          for i in l
+          let f = function() { 125 }
+          return f()
+        ''', d), (125, 125, 125, 125, 125, 125, 125, 125))
+        self.assertEquals(exe('''
+          for i in l
+            let f = function(q) {
+              for _ in <a>
+              where isinstance(q, list)
+              return {
+                for j in q
+                return f(j)
+              }
+            }
+          return f(i)
+        ''', d),
+          ((), (), (), (), (), (), (),
+            (((), (), (), (), (), (), (),
+              (((), (), (), (), (), (), (), ()),)
+            ),
+          ))
+        )
+
 if __name__ == '__main__':
     unittest.main()
