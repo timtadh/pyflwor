@@ -241,6 +241,14 @@ def whereValue(val):
         return val(objs)
     return where
 
+def dictValue(pairs):
+    '''
+    returns the results of a Value function.
+    '''
+    def dictval(objs):
+        return dict((name(objs), value(objs)) for name, value in pairs)
+    return dictval
+
 # note this function was written well before I wrote any other pare of the code
 # as a technology demo. I need to refactor some parts of it...
 def queryValue(q):
@@ -366,11 +374,14 @@ def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None, order_ex
                     if not flatten:
                         yield return_expr[0](cobjs) # single unamed return
                     else:
-                        ret = return_expr[0](cobjs)
-                        for i in _flatten_func(ret):
+                        for i in _flatten_func(return_expr[0](cobjs)):
                             yield i
                 elif isinstance(return_expr[0], tuple): # it has named return values
-                    yield dict((name, f(cobjs)) for name,f in return_expr)
+                    if not flatten:
+                        yield dict((name, f(cobjs)) for name,f in return_expr)
+                    else:
+                        for i in _flatten_func(return_expr[0](cobjs)):
+                            yield i
                 else: # multiple positional return values
                     yield tuple(x(cobjs) for x in return_expr)
         r = list(inner(objs))

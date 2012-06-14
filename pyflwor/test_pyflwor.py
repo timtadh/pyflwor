@@ -257,6 +257,16 @@ class TestPyQuery(unittest.TestCase):
             }
             return flatten f(i)
           ''', d), (1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8))
+        self.assertEquals(exe('''
+            for i in l
+            let f = function(l) {
+              if (isinstance(l, list))
+              then {for j in l return f(j)}
+              else {a:l}
+            }
+            return flatten f(i)
+          ''', d), tuple({a:i}
+            for i in (1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8)))
 
 if __name__ == '__main__':
     unittest.main()

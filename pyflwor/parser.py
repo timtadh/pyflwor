@@ -346,6 +346,22 @@ class Parser(object):
         'Value : AttributeValue'
         t[0] = symbols.attributeValue(t[1])
 
+    def p_Value5(self, t):
+        'Value : LCURLY NameValPairs RCURLY'
+        t[0] = symbols.dictValue(t[2])
+
+    def p_NameValPairs1(self, t):
+        'NameValPairs : NameValPairs COMMA NameValPair'
+        t[0] = t[1] + [t[3]]
+
+    def p_NameValPairs2(self, t):
+        'NameValPairs : NameValPair'
+        t[0] = [t[1]]
+
+    def p_NameValPair(self, t):
+        'NameValPair : Value COLON Value'
+        t[0] = (t[1], t[3])
+
     def p_IfBody1(self, t):
         'IfBody : Value'
         t[0] = t[1]
