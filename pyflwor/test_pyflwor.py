@@ -225,5 +225,20 @@ class TestPyQuery(unittest.TestCase):
           for x in <a> return if (q) then 1 else 0
           ''', d), oset([int(q)]))
 
+    def test_ifExpr_short_circuit(self):
+        a = 'hello'
+        l = [1,2,3,4,5,6,7,[1,2,3,4,5,6,7,[1,2,3,4,5,6,7,8]]]
+        true = True
+        false = False
+        d = locals()
+        try: d.update(__builtins__.__dict__)
+        except AttributeError: d.update(__builtins__)
+        self.assertEquals(exe('''
+          for x in <a> return if (true or X) then 1 else 0
+          ''', d), (1,))
+        self.assertEquals(exe('''
+          for x in <a> return if (false and X) then 1 else 0
+          ''', d), (0,))
+
 if __name__ == '__main__':
     unittest.main()

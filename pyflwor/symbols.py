@@ -161,8 +161,8 @@ def booleanOperator(op):
     '''
     Returns a function which performs basic boolean (and, or) operations
     '''
-    if op == 'and': return lambda x,y: x and y
-    if op == 'or':  return lambda x,y: x or y
+    if op == 'and': return lambda x,y,objs: x(objs) and y(objs)
+    if op == 'or':  return lambda x,y,objs: x(objs) or y(objs)
     raise Exception, "operator %s not found" % op
 
 def unaryOperator(op):
@@ -213,7 +213,7 @@ def booleanexprValue(value1, op, value2):
     returns the function which computes the result of boolean (and or) operation
     '''
     def where(objs):
-        return op(value1(objs), value2(objs))
+        return op(value1, value2, objs)
     return where
 
 def unaryexprValue(op, val):
