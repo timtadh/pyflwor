@@ -326,11 +326,13 @@ def quantifiedValue(mode, name, s, satisfies):
         raise Exception, "mode '%s' is not 'every' or 'some'" % mode
     return where
 
-def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None, order_expr=None):
+def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None, order_expr=None, flatten=False):
     '''
     Returns the function to caculate the results of a flwr expression
     '''
     #print order_expr
+    if flatten:
+        assert len(return_expr) == 1 and not isinstance(return_expr[0], tuple)
     def sequence(objs):
         def inner(objs):
             ## take the cartesian product of the for expression
@@ -350,7 +352,14 @@ def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None, order_ex
                 if where_expr and not where_expr(cobjs):
                     continue # skip if the where fails
                 if len(return_expr) == 1 and not isinstance(return_expr[0], tuple):
-                    yield return_expr[0](cobjs) # single unamed return
+                    if not flatten:
+                        yield return_expr[0](cobjs) # single unamed return
+                    else:
+                        ret = return_expr[0](cobjs)
+                        if not hasattr(ret, '__iter__'): yield ret
+                        else:
+                            for i in ret:
+                                yield i
                 elif isinstance(return_expr[0], tuple): # it has named return values
                     yield dict((name, f(cobjs)) for name,f in return_expr)
                 else: # multiple positional return values

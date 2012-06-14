@@ -237,8 +237,21 @@ class TestPyQuery(unittest.TestCase):
           for x in <a> return if (true or X) then 1 else 0
           ''', d), (1,))
         self.assertEquals(exe('''
-          for x in <a> return if (false and X) then 1 else 0
+          for x in <a> return if (false and false.x) then 1 else 0
           ''', d), (0,))
+
+    def test_flattened_return(self):
+        a = 'hello'
+        l = [1,2,3,4,5,6,7,[1,2,3,4,5,6,7,[1,2,3,4,5,6,7,8]]]
+        true = True
+        false = False
+        d = locals()
+        try: d.update(__builtins__.__dict__)
+        except AttributeError: d.update(__builtins__)
+        self.assertEquals(exe('''
+            for i in l
+            return flatten i
+          ''', d), (1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, [1, 2, 3, 4, 5, 6, 7, 8]))
 
 if __name__ == '__main__':
     unittest.main()
