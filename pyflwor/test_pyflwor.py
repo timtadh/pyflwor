@@ -251,7 +251,7 @@ class TestPyQuery(unittest.TestCase):
         self.assertEquals(exe('''
             for i in l
             return flatten i
-          ''', d), (1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, [1, 2, 3, 4, 5, 6, 7, 8]))
+          ''', d), (1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8))
 
 if __name__ == '__main__':
     unittest.main()
