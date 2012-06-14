@@ -280,5 +280,17 @@ class TestPyQuery(unittest.TestCase):
           return None
           ''', d), oset([None]))
 
+    def test_construct_class(self):
+        class A(object): pass
+        l = [1,2,3,4,5,6,7,[1,2,3,4,5,6,7,[1,2,3,4,5,6,7,8]]]
+        q = None
+        d = locals()
+        try: d.update(__builtins__.__dict__)
+        except AttributeError: d.update(__builtins__)
+        self.assertTrue(exe('''
+          for x in <q>
+          return A(1)
+          ''', d))
+
 if __name__ == '__main__':
     unittest.main()
