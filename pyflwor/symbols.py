@@ -335,13 +335,16 @@ def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None, order_ex
     if flatten:
         assert len(return_expr) == 1 and not isinstance(return_expr[0], tuple)
     def sequence(objs):
-        def _flatten_func(iterable):
-            for i in iterable:
-                if isinstance(i, collections.Iterable) and not isinstance(i, basestring):
-                    for j in _flatten_func(i):
-                        yield j
-                else:
-                    yield i
+        def _flatten_func(tup):
+            if not isinstance(tup, tuple):
+                yield tup
+            else:
+                for i in tup:
+                    if isinstance(i, tuple):
+                        for j in _flatten_func(i):
+                            yield j
+                    else:
+                        yield i
         def inner(objs):
             ## take the cartesian product of the for expression
             ## note you cannot do this:
@@ -364,10 +367,8 @@ def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None, order_ex
                         yield return_expr[0](cobjs) # single unamed return
                     else:
                         ret = return_expr[0](cobjs)
-                        if not hasattr(ret, '__iter__'): yield ret
-                        else:
-                            for i in _flatten_func(ret):
-                                yield i
+                        for i in _flatten_func(ret):
+                            yield i
                 elif isinstance(return_expr[0], tuple): # it has named return values
                     yield dict((name, f(cobjs)) for name,f in return_expr)
                 else: # multiple positional return values

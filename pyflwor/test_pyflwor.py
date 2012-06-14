@@ -250,7 +250,12 @@ class TestPyQuery(unittest.TestCase):
         except AttributeError: d.update(__builtins__)
         self.assertEquals(exe('''
             for i in l
-            return flatten i
+            let f = function(l) {
+              if (isinstance(l, list))
+              then {for j in l return f(j)}
+              else l
+            }
+            return flatten f(i)
           ''', d), (1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8))
 
 if __name__ == '__main__':
