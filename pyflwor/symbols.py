@@ -77,13 +77,12 @@ def attributeValue(attribute_list, scalar=False, context='locals'):
     context is no longer used and should be removed.
     '''
 
-    def expand(objs, obj, attr, x=None):
+    def expand(objs, obj, attr, x):
         '''
         Expands the the value of one attribute by looking the name up in the
         objs dict and then performing and function calls and dictionary lookups
         specified in the callchain.
         '''
-        if x == None: x = getattr(obj, attr.name)
         if attr.callchain:
             for call in attr.callchain:
                 p = list()
@@ -110,7 +109,7 @@ def attributeValue(attribute_list, scalar=False, context='locals'):
         obj = expand(objs, objs, attr0, objs[attr0.name])
         for attr in attribute_list[1:]:
             if hasattr(obj, attr.name):
-                obj = expand(objs, obj, attr)
+                obj = expand(objs, obj, attr, getattr(obj, attr.name))
             else:
                 raise Exception, "object %s did not have attr %s" % (str(obj), attr.name)
         return obj

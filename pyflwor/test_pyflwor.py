@@ -268,5 +268,17 @@ class TestPyQuery(unittest.TestCase):
           ''', d), tuple({a:i}
             for i in (1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8)))
 
+    def test_None(self):
+        a = 'hello'
+        l = [1,2,3,4,5,6,7,[1,2,3,4,5,6,7,[1,2,3,4,5,6,7,8]]]
+        q = None
+        d = locals()
+        try: d.update(__builtins__.__dict__)
+        except AttributeError: d.update(__builtins__)
+        self.assertEquals(exe('''
+          for x in l
+          return None
+          ''', d), oset([None]))
+
 if __name__ == '__main__':
     unittest.main()
