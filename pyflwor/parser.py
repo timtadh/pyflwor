@@ -363,8 +363,8 @@ class Parser(object):
         t[0] = symbols.attributeValue(t[1], scalar=True)
 
     def p_Value3(self, t):
-        'Value : IF LPAREN Where RPAREN THEN IfBody ELSE IfBody'
-        t[0] = symbols.ifExpr(t[3], t[6], t[8])
+        'Value : IF Where THEN IfBody ELSE IfBody'
+        t[0] = symbols.ifExpr(t[2], t[4], t[6])
 
     def p_Value4(self, t):
         'Value : AttributeValue'
