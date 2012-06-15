@@ -90,15 +90,15 @@ class TestParser(unittest.TestCase):
         pyflwor.compile('hello[some x in {for x in <asdf> return x} satisfies (x and not y(1,2))]')
 
     def test_where_setcmp(self):
-        pyflwor.compile('hello[a in <as>]')
-        pyflwor.compile('hello[a not in <as>]')
-        pyflwor.compile('hello[not a in <as>]')
-        pyflwor.compile('hello[<a> subset <as>]')
-        pyflwor.compile('hello[<a> superset <as>]')
-        pyflwor.compile('hello[<a> proper subset <as>]')
-        pyflwor.compile('hello[<a> proper superset <as>]')
-        pyflwor.compile('hello[<a> is <as>]')
-        pyflwor.compile('hello[<a> is not <as>]')
+        pyflwor.compile('hello[a in <qs>]')
+        pyflwor.compile('hello[a not in <qs>]')
+        pyflwor.compile('hello[not a in <qs>]')
+        pyflwor.compile('hello[<a> subset <qs>]')
+        pyflwor.compile('hello[<a> superset <qq>]')
+        pyflwor.compile('hello[<a> proper subset <aq>]')
+        pyflwor.compile('hello[<a> proper superset <aq>]')
+        pyflwor.compile('hello[<a> is <qs>]')
+        pyflwor.compile('hello[<a> is not <qs>]')
 
     def test_setops(self):
         pyflwor.compile('asdf - asdf')

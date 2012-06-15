@@ -197,6 +197,22 @@ class Parser(object):
         'ReturnExpr : RETURN FLATTEN OutputValue'
         t[0] = ([t[3]], True)
 
+    def p_ReturnExpr4(self, t):
+        'ReturnExpr : REDUCE OutputTuple AS Value WITH ReduceFunction'
+        assert False
+
+    def p_ReturnExpr5(self, t):
+        'ReturnExpr : REDUCE OutputDict AS Value WITH ReduceFunction'
+        assert False
+
+    def p_ReduceFunction1(self, t):
+        'ReduceFunction : NAME'
+        assert False
+
+    def p_ReduceFunction2(self, t):
+        'ReduceFunction : Function'
+        assert False
+
     def p_OutputTuple1(self, t):
         'OutputTuple : OutputTuple COMMA OutputValue'
         t[0] = t[1] + [t[3]]

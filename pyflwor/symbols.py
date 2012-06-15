@@ -334,13 +334,19 @@ def quantifiedValue(mode, name, s, satisfies):
         raise Exception, "mode '%s' is not 'every' or 'some'" % mode
     return where
 
-def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, order_expr=None, flatten=False):
+def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, order_expr=None, flatten=False, reduce=False):
     '''
     Returns the function to caculate the results of a flwr expression
     '''
     #print order_expr
     if flatten:
         assert len(return_expr) == 1 and not isinstance(return_expr[0], tuple)
+    if reduce:
+        target = return_expr['as']
+        reduce_function = return_expr['with']
+        return_expr = return_expr['value']
+        print target, reduce_function, return_expr
+        assert False
     def sequence(objs):
         def _flatten_func(tup):
             if not isinstance(tup, tuple):
