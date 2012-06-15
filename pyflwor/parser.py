@@ -47,43 +47,43 @@ class Parser(object):
 
     def p_FLWRexpr1(self, t):
         'FLWRexpr : ForExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[2][0], for_expr=t[1], flatten=t[2][1])
+        t[0] = symbols.flwrSequence(t[2][0], for_expr=t[1], flatten=t[2][1], reduce_return=t[2][2])
 
     def p_FLWRexpr2(self, t):
         'FLWRexpr : ForExpr LetExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[3][0], for_expr=t[1], flatten=t[3][1], let_expr=t[2])
+        t[0] = symbols.flwrSequence(t[3][0], for_expr=t[1], flatten=t[3][1], reduce_return=t[3][2], let_expr=t[2])
 
     def p_FLWRexpr3(self, t):
         'FLWRexpr : ForExpr WhereExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[3][0], for_expr=t[1], flatten=t[3][1], where_expr=t[2])
+        t[0] = symbols.flwrSequence(t[3][0], for_expr=t[1], flatten=t[3][1], reduce_return=t[3][2], where_expr=t[2])
 
     def p_FLWRexpr4(self, t):
         'FLWRexpr : ForExpr LetExpr WhereExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[4][0], for_expr=t[1], flatten=t[4][1], let_expr=t[2], where_expr=t[3])
+        t[0] = symbols.flwrSequence(t[4][0], for_expr=t[1], flatten=t[4][1], reduce_return=t[4][2], let_expr=t[2], where_expr=t[3])
 
     def p_FLWRexpr5(self, t):
         'FLWRexpr : ForExpr OrderByExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[3][0], for_expr=t[1], flatten=t[3][1], order_expr=t[2])
+        t[0] = symbols.flwrSequence(t[3][0], for_expr=t[1], flatten=t[3][1], reduce_return=t[3][2], order_expr=t[2])
 
     def p_FLWRexpr6(self, t):
         'FLWRexpr : ForExpr LetExpr OrderByExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[4][0], for_expr=t[1], flatten=t[4][1], let_expr=t[2], order_expr=t[3])
+        t[0] = symbols.flwrSequence(t[4][0], for_expr=t[1], flatten=t[4][1], reduce_return=t[4][2], let_expr=t[2], order_expr=t[3])
 
     def p_FLWRexpr7(self, t):
         'FLWRexpr : ForExpr WhereExpr OrderByExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[4][0], for_expr=t[1], flatten=t[4][1], where_expr=t[2], order_expr=t[3])
+        t[0] = symbols.flwrSequence(t[4][0], for_expr=t[1], flatten=t[4][1], reduce_return=t[4][2], where_expr=t[2], order_expr=t[3])
 
     def p_FLWRexpr8(self, t):
         'FLWRexpr : ForExpr LetExpr WhereExpr OrderByExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[5][0], for_expr=t[1], flatten=t[5][1], let_expr=t[2], where_expr=t[3], order_expr=t[4])
+        t[0] = symbols.flwrSequence(t[5][0], for_expr=t[1], flatten=t[5][1], reduce_return=t[5][2], let_expr=t[2], where_expr=t[3], order_expr=t[4])
 
     def p_FLWRexpr9(self, t):
         'FLWRexpr : ReturnExpr'
-        t[0] = symbols.flwrSequence(t[1][0], flatten=t[1][1])
+        t[0] = symbols.flwrSequence(t[1][0], flatten=t[1][1], reduce_return=t[1][2])
 
     def p_FLWRexpr10(self, t):
         'FLWRexpr : LetExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[2][0], flatten=t[2][1], let_expr=t[1])
+        t[0] = symbols.flwrSequence(t[2][0], flatten=t[2][1], reduce_return=t[2][2], let_expr=t[1])
 
     def p_ForExpr(self, t):
         'ForExpr : FOR ForList'
@@ -187,31 +187,31 @@ class Parser(object):
 
     def p_ReturnExpr1(self, t):
         'ReturnExpr : RETURN OutputTuple'
-        t[0] = (t[2], False)
+        t[0] = (t[2], False, False)
 
     def p_ReturnExpr2(self, t):
         'ReturnExpr : RETURN OutputDict'
-        t[0] = (t[2], False)
+        t[0] = (t[2], False, False)
 
     def p_ReturnExpr3(self, t):
         'ReturnExpr : RETURN FLATTEN OutputValue'
-        t[0] = ([t[3]], True)
+        t[0] = ([t[3]], True, False)
 
     def p_ReturnExpr4(self, t):
         'ReturnExpr : REDUCE OutputTuple AS Value WITH ReduceFunction'
-        assert False
+        t[0] = ({'value':t[2], 'as':t[4], 'with':t[6]}, False, True)
 
     def p_ReturnExpr5(self, t):
         'ReturnExpr : REDUCE OutputDict AS Value WITH ReduceFunction'
-        assert False
+        t[0] = ({'value':t[2], 'as':t[4], 'with':t[6]}, False, True)
 
     def p_ReduceFunction1(self, t):
-        'ReduceFunction : NAME'
-        assert False
+        'ReduceFunction : AttributeValue'
+        t[0] = symbols.attributeValue(t[1])
 
     def p_ReduceFunction2(self, t):
         'ReduceFunction : Function'
-        assert False
+        t[0] = symbols.functionDefinition(*t[1])
 
     def p_OutputTuple1(self, t):
         'OutputTuple : OutputTuple COMMA OutputValue'

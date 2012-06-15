@@ -211,5 +211,13 @@ class TestParser(unittest.TestCase):
           for x in <asdf> return if (0) then 1 else 0
           ''')
 
+    def test_reduce(self):
+        pyflwor.compile('''
+          for x in <asdf> 
+          reduce x.tree as x.attr with function(prev, next) {
+            if prev == None then next else prev.combine(next)
+          }
+          ''')
+
 if __name__ == '__main__':
     unittest.main()

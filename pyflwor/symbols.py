@@ -334,19 +334,17 @@ def quantifiedValue(mode, name, s, satisfies):
         raise Exception, "mode '%s' is not 'every' or 'some'" % mode
     return where
 
-def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, order_expr=None, flatten=False, reduce=False):
+def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, order_expr=None, flatten=False, reduce_return=False):
     '''
     Returns the function to caculate the results of a flwr expression
     '''
     #print order_expr
     if flatten:
         assert len(return_expr) == 1 and not isinstance(return_expr[0], tuple)
-    if reduce:
+    if reduce_return:
         target = return_expr['as']
         reduce_function = return_expr['with']
         return_expr = return_expr['value']
-        print target, reduce_function, return_expr
-        assert False
     def sequence(objs):
         def _flatten_func(tup):
             if not isinstance(tup, tuple):
@@ -358,6 +356,9 @@ def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, ord
                             yield j
                     else:
                         yield i
+        def _build_yield(cobjs, value):
+            if not reduce_return: return value
+            else: return {'value':value, 'as':target(cobjs), 'with':reduce_function(objs)}
         def inner(objs):
             ## take the cartesian product of the for expression
             ## note you cannot do this:
@@ -387,38 +388,43 @@ def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, ord
                     continue # skip if the where fails
                 if len(return_expr) == 1 and not isinstance(return_expr[0], tuple):
                     if not flatten:
-                        yield return_expr[0](cobjs) # single unamed return
+                        yield _build_yield(cobjs, return_expr[0](cobjs)) # single unamed return
                     else:
                         for i in _flatten_func(return_expr[0](cobjs)):
-                            yield i
+                            yield _build_yield(cobjs, i)
                 elif isinstance(return_expr[0], tuple): # it has named return values
-                    if not flatten:
-                        yield dict((name, f(cobjs)) for name,f in return_expr)
-                    else:
-                        for i in _flatten_func(return_expr[0](cobjs)):
-                            yield i
+                    yield _build_yield(cobjs, dict((name, f(cobjs)) for name,f in return_expr))
                 else: # multiple positional return values
-                    yield tuple(x(cobjs) for x in return_expr)
-        r = list(inner(objs))
-        if not r:
+                    yield _build_yield(cobjs, tuple(x(cobjs) for x in return_expr))
+        if reduce_return:
+            retdict = dict()
+            for value in inner(objs):
+                _as = value['as']
+                _rf = value['with']
+                _value = value['value']
+                retdict[_as] = _rf(retdict.get(_as, None), _value)
+            return retdict
+        else:
+            r = list(inner(objs))
+            if not r:
+                return tuple(r)
+            elif order_expr:
+                attr, direction = order_expr
+                if isinstance(attr, str):
+                    if not isinstance(return_expr[0], tuple):
+                        raise SyntaxError, \
+                        "Using a name in the order by clause when not using named return values."
+                else:
+                    if isinstance(return_expr[0], tuple):
+                        raise SyntaxError, \
+                        "Using a number in the order by clause when not using positional return values."
+                if len(return_expr) == 1 and not isinstance(return_expr[0], tuple):
+                    keyfunc = lambda x: x
+                else:
+                    keyfunc = lambda x: x[attr]
+                if direction == 'ASCD': r = sorted(r, key=keyfunc)
+                else: r = sorted(r, key=keyfunc, reverse=True)
             return tuple(r)
-        elif order_expr:
-            attr, direction = order_expr
-            if isinstance(attr, str):
-                if not isinstance(return_expr[0], tuple):
-                    raise SyntaxError, \
-                    "Using a name in the order by clause when not using named return values."
-            else:
-                if isinstance(return_expr[0], tuple):
-                    raise SyntaxError, \
-                    "Using a number in the order by clause when not using positional return values."
-            if len(return_expr) == 1 and not isinstance(return_expr[0], tuple):
-                keyfunc = lambda x: x
-            else:
-                keyfunc = lambda x: x[attr]
-            if direction == 'ASCD': r = sorted(r, key=keyfunc)
-            else: r = sorted(r, key=keyfunc, reverse=True)
-        return tuple(r)
     object.__setattr__(sequence, '__objquery__', True)
     return sequence
 
