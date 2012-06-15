@@ -374,6 +374,10 @@ class Parser(object):
         'Value : LCURLY NameValPairs RCURLY'
         t[0] = symbols.dictValue(t[2])
 
+    def p_Value6(self, t):
+        'Value : LSQUARE ValueList RSQUARE'
+        t[0] = symbols.listValue(t[2])
+
     def p_NameValPairs1(self, t):
         'NameValPairs : NameValPairs COMMA NameValPair'
         t[0] = t[1] + [t[3]]
@@ -385,6 +389,14 @@ class Parser(object):
     def p_NameValPair(self, t):
         'NameValPair : Value COLON Value'
         t[0] = (t[1], t[3])
+
+    def p_ValueList1(self, t):
+        'ValueList : ValueList COMMA Value'
+        t[0] = t[1] + [t[3]]
+
+    def p_ValueList2(self, t):
+        'ValueList : Value'
+        t[0] = [t[1]]
 
     def p_IfBody1(self, t):
         'IfBody : Value'

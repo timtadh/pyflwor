@@ -242,11 +242,19 @@ def whereValue(val):
 
 def dictValue(pairs):
     '''
-    returns the results of a Value function.
+    creates a dictionary from the passed pairs after evaluation.
     '''
     def dictval(objs):
         return dict((name(objs), value(objs)) for name, value in pairs)
     return dictval
+
+def listValue(values):
+    '''
+    creates a list from the pass objs after evaluation.
+    '''
+    def listval(objs):
+        return list(value(objs) for value in values)
+    return listval
 
 # note this function was written well before I wrote any other pare of the code
 # as a technology demo. I need to refactor some parts of it...

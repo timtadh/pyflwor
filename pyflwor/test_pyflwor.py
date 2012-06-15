@@ -314,5 +314,16 @@ class TestPyQuery(unittest.TestCase):
             }
           ''', d), {1:1,2:1,3:3,4:3,5:2,6:2,7:2})
 
+    def test_list_literal(self):
+        d = locals()
+        try: d.update(__builtins__.__dict__)
+        except AttributeError: d.update(__builtins__)
+        self.assertEquals(exe('''
+            for n in [1,2,3,4,5,6,7,3,4,5,6,7,3,4]
+            reduce n as n with function(prev, next) {
+                if prev == None then 1 else prev.__add__(1)
+            }
+          ''', d), {1:1,2:1,3:3,4:3,5:2,6:2,7:2})
+
 if __name__ == '__main__':
     unittest.main()
