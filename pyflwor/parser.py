@@ -77,6 +77,14 @@ class Parser(object):
         'FLWRexpr : ForExpr LetExpr WhereExpr OrderByExpr ReturnExpr'
         t[0] = symbols.flwrSequence(t[5][0], for_expr=t[1], flatten=t[5][1], let_expr=t[2], where_expr=t[3], order_expr=t[4])
 
+    def p_FLWRexpr9(self, t):
+        'FLWRexpr : ReturnExpr'
+        t[0] = symbols.flwrSequence(t[1][0], flatten=t[1][1])
+
+    def p_FLWRexpr10(self, t):
+        'FLWRexpr : LetExpr ReturnExpr'
+        t[0] = symbols.flwrSequence(t[2][0], flatten=t[2][1], let_expr=t[1])
+
     def p_ForExpr(self, t):
         'ForExpr : FOR ForList'
         t[0] = t[2]
