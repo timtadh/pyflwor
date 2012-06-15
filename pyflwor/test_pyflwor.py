@@ -13,6 +13,7 @@ NB: More tests need to be written, this is just the start.
 import unittest, os, sys, base64, itertools, random, time
 from OrderedSet import OrderedSet as oset
 import pyflwor
+import symbols
 
 exe = pyflwor.execute
 class TestPyQuery(unittest.TestCase):
@@ -279,6 +280,16 @@ class TestPyQuery(unittest.TestCase):
           for x in l
           return None
           ''', d), oset([None]))
+
+    def test_no_for(self):
+        a = 'hello'
+        l = [1,2,3,4,5,6,7,[1,2,3,4,5,6,7,[1,2,3,4,5,6,7,8]]]
+        q = None
+        d = locals()
+        try: d.update(__builtins__.__dict__)
+        except AttributeError: d.update(__builtins__)
+        flwr = symbols.flwrSequence([symbols.attributeValue('hello', scalar=True)])
+        self.assertEquals(flwr(d), ('hello',))
 
 if __name__ == '__main__':
     unittest.main()

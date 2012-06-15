@@ -47,35 +47,35 @@ class Parser(object):
 
     def p_FLWRexpr1(self, t):
         'FLWRexpr : ForExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[1], t[2][0], flatten=t[2][1])
+        t[0] = symbols.flwrSequence(t[2][0], for_expr=t[1], flatten=t[2][1])
 
     def p_FLWRexpr2(self, t):
         'FLWRexpr : ForExpr LetExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[1], t[3][0], flatten=t[3][1], let_expr=t[2])
+        t[0] = symbols.flwrSequence(t[3][0], for_expr=t[1], flatten=t[3][1], let_expr=t[2])
 
     def p_FLWRexpr3(self, t):
         'FLWRexpr : ForExpr WhereExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[1], t[3][0], flatten=t[3][1], where_expr=t[2])
+        t[0] = symbols.flwrSequence(t[3][0], for_expr=t[1], flatten=t[3][1], where_expr=t[2])
 
     def p_FLWRexpr4(self, t):
         'FLWRexpr : ForExpr LetExpr WhereExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[1], t[4][0], flatten=t[4][1], let_expr=t[2], where_expr=t[3])
+        t[0] = symbols.flwrSequence(t[4][0], for_expr=t[1], flatten=t[4][1], let_expr=t[2], where_expr=t[3])
 
     def p_FLWRexpr5(self, t):
         'FLWRexpr : ForExpr OrderByExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[1], t[3][0], flatten=t[3][1], order_expr=t[2])
+        t[0] = symbols.flwrSequence(t[3][0], for_expr=t[1], flatten=t[3][1], order_expr=t[2])
 
     def p_FLWRexpr6(self, t):
         'FLWRexpr : ForExpr LetExpr OrderByExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[1], t[4][0], flatten=t[4][1], let_expr=t[2], order_expr=t[3])
+        t[0] = symbols.flwrSequence(t[4][0], for_expr=t[1], flatten=t[4][1], let_expr=t[2], order_expr=t[3])
 
     def p_FLWRexpr7(self, t):
         'FLWRexpr : ForExpr WhereExpr OrderByExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[1], t[4][0], flatten=t[4][1], where_expr=t[2], order_expr=t[3])
+        t[0] = symbols.flwrSequence(t[4][0], for_expr=t[1], flatten=t[4][1], where_expr=t[2], order_expr=t[3])
 
     def p_FLWRexpr8(self, t):
         'FLWRexpr : ForExpr LetExpr WhereExpr OrderByExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[1], t[5][0], flatten=t[5][1], let_expr=t[2], where_expr=t[3], order_expr=t[4])
+        t[0] = symbols.flwrSequence(t[5][0], for_expr=t[1], flatten=t[5][1], let_expr=t[2], where_expr=t[3], order_expr=t[4])
 
     def p_ForExpr(self, t):
         'ForExpr : FOR ForList'

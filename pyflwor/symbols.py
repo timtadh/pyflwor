@@ -334,7 +334,7 @@ def quantifiedValue(mode, name, s, satisfies):
         raise Exception, "mode '%s' is not 'every' or 'some'" % mode
     return where
 
-def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None, order_expr=None, flatten=False):
+def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, order_expr=None, flatten=False):
     '''
     Returns the function to caculate the results of a flwr expression
     '''
@@ -359,11 +359,21 @@ def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None, order_ex
             ##   :sadface: some day I will fix this.
             ##   however I will only do that when I implement and optimizer
             ##   for PyQuery otherwise it just isn't worth it.
-            obs = [[(seqs[0], obj) for obj in seqs[1](objs)] for seqs in for_expr]
+            if for_expr is not None:
+                obs = [
+                    [(seqs[0], obj) for obj in seqs[1](objs)] 
+                    for seqs in for_expr]
+            else:
+                ## The goal is to get the for loop to run once. this syntax does
+                ## it. We may not have a for_expr but we want everything else
+                ## to execute normally.
+                obs = [[None]]
             for items in product(*obs):
                 cobjs = dict(objs)
-                for name, item in items:
-                    cobjs.update({name:item})
+                if for_expr is not None:  ## we can only execute this if we
+                                          ## actually have a for_expr though.
+                    for name, item in items:
+                        cobjs.update({name:item})
                 if let_expr:
                     for name, let in let_expr:
                         cobjs.update({name:let(cobjs)}) # calculate the let expr
