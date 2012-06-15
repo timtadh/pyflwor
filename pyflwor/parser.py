@@ -162,7 +162,7 @@ class Parser(object):
         t[0] = t[1]
 
     def p_Fbody3(self, t):
-        'FBody : Value'
+        'FBody : ArithExpr'
         t[0] = t[1]
 
     def p_WhereExpr(self, t):
@@ -230,7 +230,7 @@ class Parser(object):
         t[0] = [(t[1], t[3])]
 
     def p_OutputValue1(self, t):
-        'OutputValue : Value'
+        'OutputValue : ArithExpr'
         t[0] = t[1]
 
     def p_OutputValue2(self, t):
@@ -242,7 +242,7 @@ class Parser(object):
         t[0] = t[2]
 
     def p_Set1(self, t):
-        'Set : Set DIFFERENCE UnionExpr'
+        'Set : Set DASH UnionExpr'
         t[0] = symbols.setValue(t[1], symbols.setoperator(t[2]), t[3])
 
     def p_Set2(self, t):
@@ -334,7 +334,7 @@ class Parser(object):
         t[0] = t[1]
 
     def p_BooleanExpr4(self, t):
-        'BooleanExpr : Value'
+        'BooleanExpr : ArithExpr'
         t[0] = symbols.booleanValue(t[1])
 
     def p_BooleanExpr5(self, t):
@@ -342,7 +342,7 @@ class Parser(object):
         t[0] = t[2]
 
     def p_CmpExpr(self, t):
-        'CmpExpr : Value CmpOp Value'
+        'CmpExpr : ArithExpr CmpOp ArithExpr'
         t[0] = symbols.comparisonValue(t[1], t[2], t[3])
 
     def p_CmpOp(self, t):
@@ -353,6 +353,42 @@ class Parser(object):
                 | RANGLE
                 | GE'''
         t[0] = symbols.operator(t[1])
+
+    def p_ArithExpr1(self, t):
+        'ArithExpr : ArithExpr PLUS MulDiv'
+        #t[0] = Node('+').addkid(t[1]).addkid(t[3])
+        assert False
+
+    def p_ArithExpr2(self, t):
+        'ArithExpr : ArithExpr DASH MulDiv'
+        #t[0] = Node('-').addkid(t[1]).addkid(t[3])
+        assert False
+
+    def p_ArithExpr3(self, t):
+        'ArithExpr : MulDiv'
+        t[0] = t[1]
+
+    def p_MulDiv1(self, t):
+        'MulDiv : MulDiv STAR Atomic'
+        #t[0] = Node('*').addkid(t[1]).addkid(t[3])
+        assert False
+
+    def p_MulDiv2(self, t):
+        'MulDiv : MulDiv SLASH Atomic'
+        #t[0] = Node('/').addkid(t[1]).addkid(t[3])
+        assert False
+
+    def p_MulDiv3(self, t):
+        'MulDiv : Atomic'
+        t[0] = t[1]
+
+    def p_Atomic1(self, t):
+        'Atomic : Value'
+        t[0] = t[1]
+
+    def p_Atomic2(self, t):
+        'Atomic : LPAREN ArithExpr RPAREN'
+        t[0] = t[2]
 
     def p_Value1(self, t):
         'Value : NUMBER'
@@ -387,19 +423,19 @@ class Parser(object):
         t[0] = [t[1]]
 
     def p_NameValPair(self, t):
-        'NameValPair : Value COLON Value'
+        'NameValPair : ArithExpr COLON ArithExpr'
         t[0] = (t[1], t[3])
 
     def p_ValueList1(self, t):
-        'ValueList : ValueList COMMA Value'
+        'ValueList : ValueList COMMA ArithExpr'
         t[0] = t[1] + [t[3]]
 
     def p_ValueList2(self, t):
-        'ValueList : Value'
+        'ValueList : ArithExpr'
         t[0] = [t[1]]
 
     def p_IfBody1(self, t):
-        'IfBody : Value'
+        'IfBody : ArithExpr'
         t[0] = t[1]
 
     def p_IfBody2(self, t):
@@ -427,7 +463,7 @@ class Parser(object):
         t[0] = [t[1]]
 
     def p_Parameter1(self, t):
-        'Parameter : Value'
+        'Parameter : ArithExpr'
         t[0] = t[1]
 
     def p_Parameter2(self, t):
@@ -471,7 +507,7 @@ class Parser(object):
         t[0] = symbols.Call(t[2])
 
     def p_Dcall(self, t):
-        'Dcall : LSQUARE Value RSQUARE'
+        'Dcall : LSQUARE ArithExpr RSQUARE'
         t[0] = symbols.Call([t[2]], lookup=True)
 
     def p_QuantifiedExpr1(self, t):
@@ -491,11 +527,11 @@ class Parser(object):
         t[0] = t[1]
 
     def p_SetExpr1(self, t):
-        'SetExpr : Value IN LANGLE Set RANGLE'
+        'SetExpr : ArithExpr IN LANGLE Set RANGLE'
         t[0] = symbols.setexprValue1(t[1], symbols.setexprOperator1('in'), t[4])
 
     def p_SetExpr2(self, t):
-        'SetExpr : Value NOT IN LANGLE Set RANGLE'
+        'SetExpr : ArithExpr NOT IN LANGLE Set RANGLE'
         t[0] = symbols.setexprValue1(t[1], symbols.setexprOperator1('not in'), t[5])
 
     def p_SetExpr3(self, t):
