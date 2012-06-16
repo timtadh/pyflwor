@@ -17,7 +17,7 @@ tokens = ('NUMBER', 'STRING', 'NAME', 'SOME', 'EVERY', 'IN', 'NOT', 'SATISFIES',
             'FUNCTION', 'IF', 'THEN', 'ELSE', 'FLATTEN', 'REDUCE', 'AS', 'WITH',
             'ORDER', 'BY', 'ASCD', 'DESC', 'STAR', 'DASH', 'PLUS',
             'SLASH', 'EQEQ', 'EQ', 'NQ', 'LE', 'GE', 'COMMA',  'DOT', 'COLON',# 'AT',  #'DOLLAR',
-            'UNION', 'INTERSECTION', 'DIFFERENCE',
+            'UNION', 'INTERSECTION',
             'LPAREN', 'RPAREN', 'LSQUARE', 'RSQUARE', 'LANGLE', 'RANGLE', 'LCURLY', 'RCURLY')
 
 reserved = {'some':'SOME', 'every':'EVERY', 'in':'IN', 'not':'NOT', 'satisfies':'SATISFIES',
@@ -97,28 +97,28 @@ class Lexer(object):
         else: token.type = 'NAME'
         return token
 
-    const_hex = '-?0[xX](' + H + ')+'
+    const_hex = '0[xX](' + H + ')+'
     @Token(const_hex)
     def t_CONST_HEX(self, token):
         token.type = 'NUMBER'
         token.value = int(token.value, 16)
         return token
 
-    const_float1 = '-?(' + D + ')+' + '(' + E + ')' #{D}+{E}{FS}?
+    const_float1 = '(' + D + ')+' + '(' + E + ')' #{D}+{E}{FS}?
     @Token(const_float1)
     def t_CONST_FLOAT1(self, token):
         token.type = 'NUMBER'
         token.value = float(token.value)
         return token
 
-    const_float2 = '-?(' + D + ')*\.(' + D + ')+(' + E + ')?' #{D}*"."{D}+({E})?{FS}?
+    const_float2 = '(' + D + ')*\.(' + D + ')+(' + E + ')?' #{D}*"."{D}+({E})?{FS}?
     @Token(const_float2)
     def t_CONST_FLOAT2(self, token):
         token.type = 'NUMBER'
         token.value = float(token.value)
         return token
 
-    const_dec_oct = '-?(' + D + ')+'
+    const_dec_oct = '(' + D + ')+'
     @Token(const_dec_oct)
     def t_CONST_DEC_OCT(self, token):
         token.type = 'NUMBER'

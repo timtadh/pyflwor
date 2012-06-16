@@ -128,6 +128,16 @@ def operator(op):
     if op == '>': return lambda x,y: x > y
     raise Exception, "operator %s not found" % op
 
+def arith_operator(op):
+    '''
+    Returns a function which performs arithmetic operations
+    '''
+    if op == '+': return lambda x,y: x + y
+    if op == '-': return lambda x,y: x - y
+    if op == '*': return lambda x,y: x * y
+    if op == '/': return lambda x,y: x / y
+    raise Exception, "operator %s not found" % op
+
 def setoperator(op):
     '''
     Returns a function which performs set operations
@@ -180,6 +190,15 @@ def comparisonValue(value1, op, value2):
     def where(objs):
         return op(value1(objs), value2(objs))
     return where
+
+def arithValue(value1, op, value2):
+    '''
+    Returns a function which will calculate a where expression for a basic
+    arithmetic operation.
+    '''
+    def arith_value(objs):
+        return op(value1(objs), value2(objs))
+    return arith_value
 
 def setValue(s1, op, s2):
     '''

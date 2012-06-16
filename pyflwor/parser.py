@@ -35,6 +35,7 @@ class Parser(object):
     tokens = tokens
     precedence = (
         ('right', 'RSQUARE'),
+        ('right', 'DASH', 'PLUS', 'SLASH', 'STAR'),
     )
 
     def p_Start1(self, t):
@@ -354,33 +355,44 @@ class Parser(object):
                 | GE'''
         t[0] = symbols.operator(t[1])
 
-    def p_ArithExpr1(self, t):
-        'ArithExpr : ArithExpr PLUS MulDiv'
+    def p_ArithExpr(self, t):
+        'ArithExpr : AddSub'
+        t[0] = t[1]
+
+    def p_AddSub1(self, t):
+        'AddSub : AddSub PLUS MulDiv'
         #t[0] = Node('+').addkid(t[1]).addkid(t[3])
-        assert False
+        t[0] = symbols.arithValue(t[1], symbols.arith_operator(t[2]), t[3])
 
-    def p_ArithExpr2(self, t):
-        'ArithExpr : ArithExpr DASH MulDiv'
+    def p_AddSub2(self, t):
+        'AddSub : AddSub DASH MulDiv'
         #t[0] = Node('-').addkid(t[1]).addkid(t[3])
-        assert False
+        t[0] = symbols.arithValue(t[1], symbols.arith_operator(t[2]), t[3])
 
-    def p_ArithExpr3(self, t):
-        'ArithExpr : MulDiv'
+    def p_AddSub3(self, t):
+        'AddSub : MulDiv'
         t[0] = t[1]
 
     def p_MulDiv1(self, t):
-        'MulDiv : MulDiv STAR Atomic'
+        'MulDiv : MulDiv STAR ArithUnary'
         #t[0] = Node('*').addkid(t[1]).addkid(t[3])
-        assert False
+        t[0] = symbols.arithValue(t[1], symbols.arith_operator(t[2]), t[3])
 
     def p_MulDiv2(self, t):
-        'MulDiv : MulDiv SLASH Atomic'
-        #t[0] = Node('/').addkid(t[1]).addkid(t[3])
-        assert False
+        'MulDiv : MulDiv SLASH ArithUnary'
+        t[0] = symbols.arithValue(t[1], symbols.arith_operator(t[2]), t[3])
 
     def p_MulDiv3(self, t):
-        'MulDiv : Atomic'
+        'MulDiv : ArithUnary'
         t[0] = t[1]
+        
+    def p_ArithUnary1(self, t):
+        'ArithUnary : Atomic'
+        t[0] = t[1]
+    
+    def p_ArithUnary2(self, t):
+        'ArithUnary : DASH Atomic'
+        t[0] = symbols.arithValue(symbols.attributeValue(-1.0, scalar=True), symbols.arith_operator('*'), t[2])
 
     def p_Atomic1(self, t):
         'Atomic : Value'
