@@ -189,6 +189,7 @@ def comparisonValue(value1, op, value2):
     '''
     def where(objs):
         return op(value1(objs), value2(objs))
+    object.__setattr__(where, '__objquery__', True)
     return where
 
 def arithValue(value1, op, value2):
@@ -198,6 +199,7 @@ def arithValue(value1, op, value2):
     '''
     def arith_value(objs):
         return op(value1(objs), value2(objs))
+    object.__setattr__(arith_value, '__objquery__', True)
     return arith_value
 
 def setValue(s1, op, s2):
@@ -217,6 +219,7 @@ def setexprValue1(val, op, s):
     '''
     def where(objs):
         return op(val(objs), s(objs))
+    object.__setattr__(where, '__objquery__', True)
     return where
 
 def setexprValue2(s1, op, s2):
@@ -225,6 +228,7 @@ def setexprValue2(s1, op, s2):
     '''
     def where(objs):
         return op(s1(objs), s2(objs))
+    object.__setattr__(where, '__objquery__', True)
     return where
 
 def booleanexprValue(value1, op, value2):
@@ -233,6 +237,7 @@ def booleanexprValue(value1, op, value2):
     '''
     def where(objs):
         return op(value1, value2, objs)
+    object.__setattr__(where, '__objquery__', True)
     return where
 
 def unaryexprValue(op, val):
@@ -241,6 +246,7 @@ def unaryexprValue(op, val):
     '''
     def where(objs):
         return op(val(objs))
+    object.__setattr__(where, '__objquery__', True)
     return where
 
 def booleanValue(val):
@@ -249,6 +255,7 @@ def booleanValue(val):
     '''
     def where(objs):
         return bool(val(objs))
+    object.__setattr__(where, '__objquery__', True)
     return where
 
 def whereValue(val):
@@ -257,6 +264,7 @@ def whereValue(val):
     '''
     def where(objs):
         return val(objs)
+    object.__setattr__(where, '__objquery__', True)
     return where
 
 def dictValue(pairs):
@@ -265,6 +273,7 @@ def dictValue(pairs):
     '''
     def dictval(objs):
         return dict((name(objs), value(objs)) for name, value in pairs)
+    object.__setattr__(dictval, '__objquery__', True)
     return dictval
 
 def listValue(values):
@@ -273,6 +282,7 @@ def listValue(values):
     '''
     def listval(objs):
         return list(value(objs) for value in values)
+    object.__setattr__(listval, '__objquery__', True)
     return listval
 
 # note this function was written well before I wrote any other pare of the code
