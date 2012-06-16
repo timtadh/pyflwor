@@ -135,8 +135,8 @@ class Parser(object):
         t[0] = (t[1], t[4])
 
     def p_LetDefinition3(self, t):
-        'LetDefinition : NAME EQ AttributeValue'
-        t[0] = (t[1], symbols.attributeValue(t[3]))
+        'LetDefinition : NAME EQ ArithExpr'
+        t[0] = (t[1], t[3])
 
     def p_LetDefinition4(self, t):
         'LetDefinition : NAME EQ Function'
