@@ -385,11 +385,11 @@ class Parser(object):
     def p_MulDiv3(self, t):
         'MulDiv : ArithUnary'
         t[0] = t[1]
-        
+
     def p_ArithUnary1(self, t):
         'ArithUnary : Atomic'
         t[0] = t[1]
-    
+
     def p_ArithUnary2(self, t):
         'ArithUnary : DASH Atomic'
         t[0] = symbols.arithValue(symbols.attributeValue(-1.0, scalar=True), symbols.arith_operator('*'), t[2])
@@ -537,6 +537,14 @@ class Parser(object):
     def p_Quantifier2(self, t):
         'Quantifier : SOME'
         t[0] = t[1]
+
+    def p_SetExpr__1(self, t):
+        'SetExpr : ArithExpr IN AttributeValue'
+        t[0] = symbols.setexprValue1(t[1], symbols.setexprOperator1('in'), symbols.attributeValue(t[3]))
+
+    def p_SetExpr__2(self, t):
+        'SetExpr : ArithExpr NOT IN AttributeValue'
+        t[0] = symbols.setexprValue1(t[1], symbols.setexprOperator1('not in'), symbols.attributeValue(t[4]))
 
     def p_SetExpr1(self, t):
         'SetExpr : ArithExpr IN LANGLE Set RANGLE'
