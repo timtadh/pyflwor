@@ -13,6 +13,7 @@ NB: More tests need to be written, this is just the start.
 import unittest, os, sys, base64, itertools, random, time
 from OrderedSet import OrderedSet as oset
 import pyflwor
+import symbols
 
 exe = pyflwor.execute
 class TestPyQuery(unittest.TestCase):
@@ -289,8 +290,75 @@ class TestPyQuery(unittest.TestCase):
         except AttributeError: d.update(__builtins__)
         self.assertTrue(exe('''
           for x in <q>
-          return A(1)
+          return A()
           ''', d))
+
+    def test_no_for(self):
+        a = 'hello'
+        l = [1,2,3,4,5,6,7,[1,2,3,4,5,6,7,[1,2,3,4,5,6,7,8]]]
+        q = None
+        d = locals()
+        try: d.update(__builtins__.__dict__)
+        except AttributeError: d.update(__builtins__)
+        flwr = symbols.flwrSequence([symbols.attributeValue('hello', scalar=True)])
+        self.assertEquals(flwr(d), ('hello',))
+        self.assertEquals(exe('''
+            return l
+          ''', d), (l,))
+        self.assertEquals(exe('''
+            let f = function(l) {
+              if (isinstance(l, list))
+              then {for j in l return f(j)}
+              else l
+            }
+            return flatten f(l)
+          ''', d), (1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7, 8))
+
+    def test_count(self):
+        l = [1,2,3,4,5,6,7,3,4,5,6,7,3,4]
+        d = locals()
+        try: d.update(__builtins__.__dict__)
+        except AttributeError: d.update(__builtins__)
+        self.assertEquals(exe('''
+            for n in l
+            reduce n as n with function(prev, next) {
+                if prev == None then 1 else prev + 1
+            }
+          ''', d), {1:1,2:1,3:3,4:3,5:2,6:2,7:2})
+
+    def test_list_literal(self):
+        d = locals()
+        try: d.update(__builtins__.__dict__)
+        except AttributeError: d.update(__builtins__)
+        self.assertEquals(exe('''
+            for n in [1,2,3,4,5,6,7,3,4,5,6,7,3,4]
+            reduce n as n with function(prev, next) {
+                if prev == None then 1 else prev + 1
+            }
+          ''', d), {1:1,2:1,3:3,4:3,5:2,6:2,7:2})
+
+    def test_arithmetic(self):
+        d = locals()
+        try: d.update(__builtins__.__dict__)
+        except AttributeError: d.update(__builtins__)
+        self.assertEquals(exe('''
+            for n in [
+                4.0*3.0/2.0,
+                4.0/3.0*2.0,
+                (3.0+9.0)*4.0/8.0,
+                ((9.0-3.0)+(5.0-3.0))/2.0 + 2.0,
+                5.0 * 4.0 / 2.0 - 10.0 + 5.0 - 2.0 + 3.0,
+                5.0 / 4.0 * 2.0 + 10.0 - 5.0 * 2.0 / 3.0
+            ]
+            return n
+          ''', d), (
+                4.0*3.0/2.0,
+                4.0/3.0*2.0,
+                (3.0+9.0)*4.0/8.0,
+                ((9.0-3.0)+(5.0-3.0))/2.0 + 2.0,
+                5.0 * 4.0 / 2.0 - 10.0 + 5.0 - 2.0 + 3.0,
+                5.0 / 4.0 * 2.0 + 10.0 - 5.0 * 2.0 / 3.0
+          ))
 
 if __name__ == '__main__':
     unittest.main()

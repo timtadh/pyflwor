@@ -128,6 +128,16 @@ def operator(op):
     if op == '>': return lambda x,y: x > y
     raise Exception, "operator %s not found" % op
 
+def arith_operator(op):
+    '''
+    Returns a function which performs arithmetic operations
+    '''
+    if op == '+': return lambda x,y: x + y
+    if op == '-': return lambda x,y: x - y
+    if op == '*': return lambda x,y: x * y
+    if op == '/': return lambda x,y: x / y
+    raise Exception, "operator %s not found" % op
+
 def setoperator(op):
     '''
     Returns a function which performs set operations
@@ -179,7 +189,18 @@ def comparisonValue(value1, op, value2):
     '''
     def where(objs):
         return op(value1(objs), value2(objs))
+    object.__setattr__(where, '__objquery__', True)
     return where
+
+def arithValue(value1, op, value2):
+    '''
+    Returns a function which will calculate a where expression for a basic
+    arithmetic operation.
+    '''
+    def arith_value(objs):
+        return op(value1(objs), value2(objs))
+    object.__setattr__(arith_value, '__objquery__', True)
+    return arith_value
 
 def setValue(s1, op, s2):
     '''
@@ -198,6 +219,7 @@ def setexprValue1(val, op, s):
     '''
     def where(objs):
         return op(val(objs), s(objs))
+    object.__setattr__(where, '__objquery__', True)
     return where
 
 def setexprValue2(s1, op, s2):
@@ -206,6 +228,7 @@ def setexprValue2(s1, op, s2):
     '''
     def where(objs):
         return op(s1(objs), s2(objs))
+    object.__setattr__(where, '__objquery__', True)
     return where
 
 def booleanexprValue(value1, op, value2):
@@ -214,6 +237,7 @@ def booleanexprValue(value1, op, value2):
     '''
     def where(objs):
         return op(value1, value2, objs)
+    object.__setattr__(where, '__objquery__', True)
     return where
 
 def unaryexprValue(op, val):
@@ -222,6 +246,7 @@ def unaryexprValue(op, val):
     '''
     def where(objs):
         return op(val(objs))
+    object.__setattr__(where, '__objquery__', True)
     return where
 
 def booleanValue(val):
@@ -230,6 +255,7 @@ def booleanValue(val):
     '''
     def where(objs):
         return bool(val(objs))
+    object.__setattr__(where, '__objquery__', True)
     return where
 
 def whereValue(val):
@@ -238,15 +264,26 @@ def whereValue(val):
     '''
     def where(objs):
         return val(objs)
+    object.__setattr__(where, '__objquery__', True)
     return where
 
 def dictValue(pairs):
     '''
-    returns the results of a Value function.
+    creates a dictionary from the passed pairs after evaluation.
     '''
     def dictval(objs):
         return dict((name(objs), value(objs)) for name, value in pairs)
+    object.__setattr__(dictval, '__objquery__', True)
     return dictval
+
+def listValue(values):
+    '''
+    creates a list from the pass objs after evaluation.
+    '''
+    def listval(objs):
+        return list(value(objs) for value in values)
+    object.__setattr__(listval, '__objquery__', True)
+    return listval
 
 # note this function was written well before I wrote any other pare of the code
 # as a technology demo. I need to refactor some parts of it...
@@ -334,13 +371,17 @@ def quantifiedValue(mode, name, s, satisfies):
         raise Exception, "mode '%s' is not 'every' or 'some'" % mode
     return where
 
-def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None, order_expr=None, flatten=False):
+def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, order_expr=None, flatten=False, reduce_return=False):
     '''
     Returns the function to caculate the results of a flwr expression
     '''
     #print order_expr
     if flatten:
         assert len(return_expr) == 1 and not isinstance(return_expr[0], tuple)
+    if reduce_return:
+        target = return_expr['as']
+        reduce_function = return_expr['with']
+        return_expr = return_expr['value']
     def sequence(objs):
         def _flatten_func(tup):
             if not isinstance(tup, tuple):
@@ -352,6 +393,9 @@ def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None, order_ex
                             yield j
                     else:
                         yield i
+        def _build_yield(cobjs, value):
+            if not reduce_return: return value
+            else: return {'value':value, 'as':target(cobjs), 'with':reduce_function(objs)}
         def inner(objs):
             ## take the cartesian product of the for expression
             ## note you cannot do this:
@@ -359,11 +403,21 @@ def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None, order_ex
             ##   :sadface: some day I will fix this.
             ##   however I will only do that when I implement and optimizer
             ##   for PyQuery otherwise it just isn't worth it.
-            obs = [[(seqs[0], obj) for obj in seqs[1](objs)] for seqs in for_expr]
+            if for_expr is not None:
+                obs = [
+                    [(seqs[0], obj) for obj in seqs[1](objs)] 
+                    for seqs in for_expr]
+            else:
+                ## The goal is to get the for loop to run once. this syntax does
+                ## it. We may not have a for_expr but we want everything else
+                ## to execute normally.
+                obs = [[None]]
             for items in product(*obs):
                 cobjs = dict(objs)
-                for name, item in items:
-                    cobjs.update({name:item})
+                if for_expr is not None:  ## we can only execute this if we
+                                          ## actually have a for_expr though.
+                    for name, item in items:
+                        cobjs.update({name:item})
                 if let_expr:
                     for name, let in let_expr:
                         cobjs.update({name:let(cobjs)}) # calculate the let expr
@@ -371,38 +425,43 @@ def flwrSequence(for_expr, return_expr, let_expr=None, where_expr=None, order_ex
                     continue # skip if the where fails
                 if len(return_expr) == 1 and not isinstance(return_expr[0], tuple):
                     if not flatten:
-                        yield return_expr[0](cobjs) # single unamed return
+                        yield _build_yield(cobjs, return_expr[0](cobjs)) # single unamed return
                     else:
                         for i in _flatten_func(return_expr[0](cobjs)):
-                            yield i
+                            yield _build_yield(cobjs, i)
                 elif isinstance(return_expr[0], tuple): # it has named return values
-                    if not flatten:
-                        yield dict((name, f(cobjs)) for name,f in return_expr)
-                    else:
-                        for i in _flatten_func(return_expr[0](cobjs)):
-                            yield i
+                    yield _build_yield(cobjs, dict((name, f(cobjs)) for name,f in return_expr))
                 else: # multiple positional return values
-                    yield tuple(x(cobjs) for x in return_expr)
-        r = list(inner(objs))
-        if not r:
+                    yield _build_yield(cobjs, tuple(x(cobjs) for x in return_expr))
+        if reduce_return:
+            retdict = dict()
+            for value in inner(objs):
+                _as = value['as']
+                _rf = value['with']
+                _value = value['value']
+                retdict[_as] = _rf(retdict.get(_as, None), _value)
+            return retdict
+        else:
+            r = list(inner(objs))
+            if not r:
+                return tuple(r)
+            elif order_expr:
+                attr, direction = order_expr
+                if isinstance(attr, str):
+                    if not isinstance(return_expr[0], tuple):
+                        raise SyntaxError, \
+                        "Using a name in the order by clause when not using named return values."
+                else:
+                    if isinstance(return_expr[0], tuple):
+                        raise SyntaxError, \
+                        "Using a number in the order by clause when not using positional return values."
+                if len(return_expr) == 1 and not isinstance(return_expr[0], tuple):
+                    keyfunc = lambda x: x
+                else:
+                    keyfunc = lambda x: x[attr]
+                if direction == 'ASCD': r = sorted(r, key=keyfunc)
+                else: r = sorted(r, key=keyfunc, reverse=True)
             return tuple(r)
-        elif order_expr:
-            attr, direction = order_expr
-            if isinstance(attr, str):
-                if not isinstance(return_expr[0], tuple):
-                    raise SyntaxError, \
-                    "Using a name in the order by clause when not using named return values."
-            else:
-                if isinstance(return_expr[0], tuple):
-                    raise SyntaxError, \
-                    "Using a number in the order by clause when not using positional return values."
-            if len(return_expr) == 1 and not isinstance(return_expr[0], tuple):
-                keyfunc = lambda x: x
-            else:
-                keyfunc = lambda x: x[attr]
-            if direction == 'ASCD': r = sorted(r, key=keyfunc)
-            else: r = sorted(r, key=keyfunc, reverse=True)
-        return tuple(r)
     object.__setattr__(sequence, '__objquery__', True)
     return sequence
 

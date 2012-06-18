@@ -140,11 +140,15 @@ class REPL(object):
                 else:
                     print args
                     q = pyflwor.compile(args)
-                for r in q(self.querydict()):
+                results = q(self.querydict()) 
+                for r in results:
                     #if hasattr(r, '__iter__'):
                         #print tuple(str(item) for item in r)
                     #else:
-                    print r
+                    if isinstance(results, dict):
+                        print r, results[r]
+                    else:
+                        print r
             def edit(cmds, args):
                 '''usage: query edit str
                     .    str = name of a saved query

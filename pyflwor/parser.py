@@ -35,6 +35,7 @@ class Parser(object):
     tokens = tokens
     precedence = (
         ('right', 'RSQUARE'),
+        ('right', 'DASH', 'PLUS', 'SLASH', 'STAR'),
     )
 
     def p_Start1(self, t):
@@ -47,35 +48,43 @@ class Parser(object):
 
     def p_FLWRexpr1(self, t):
         'FLWRexpr : ForExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[1], t[2][0], flatten=t[2][1])
+        t[0] = symbols.flwrSequence(t[2][0], for_expr=t[1], flatten=t[2][1], reduce_return=t[2][2])
 
     def p_FLWRexpr2(self, t):
         'FLWRexpr : ForExpr LetExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[1], t[3][0], flatten=t[3][1], let_expr=t[2])
+        t[0] = symbols.flwrSequence(t[3][0], for_expr=t[1], flatten=t[3][1], reduce_return=t[3][2], let_expr=t[2])
 
     def p_FLWRexpr3(self, t):
         'FLWRexpr : ForExpr WhereExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[1], t[3][0], flatten=t[3][1], where_expr=t[2])
+        t[0] = symbols.flwrSequence(t[3][0], for_expr=t[1], flatten=t[3][1], reduce_return=t[3][2], where_expr=t[2])
 
     def p_FLWRexpr4(self, t):
         'FLWRexpr : ForExpr LetExpr WhereExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[1], t[4][0], flatten=t[4][1], let_expr=t[2], where_expr=t[3])
+        t[0] = symbols.flwrSequence(t[4][0], for_expr=t[1], flatten=t[4][1], reduce_return=t[4][2], let_expr=t[2], where_expr=t[3])
 
     def p_FLWRexpr5(self, t):
         'FLWRexpr : ForExpr OrderByExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[1], t[3][0], flatten=t[3][1], order_expr=t[2])
+        t[0] = symbols.flwrSequence(t[3][0], for_expr=t[1], flatten=t[3][1], reduce_return=t[3][2], order_expr=t[2])
 
     def p_FLWRexpr6(self, t):
         'FLWRexpr : ForExpr LetExpr OrderByExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[1], t[4][0], flatten=t[4][1], let_expr=t[2], order_expr=t[3])
+        t[0] = symbols.flwrSequence(t[4][0], for_expr=t[1], flatten=t[4][1], reduce_return=t[4][2], let_expr=t[2], order_expr=t[3])
 
     def p_FLWRexpr7(self, t):
         'FLWRexpr : ForExpr WhereExpr OrderByExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[1], t[4][0], flatten=t[4][1], where_expr=t[2], order_expr=t[3])
+        t[0] = symbols.flwrSequence(t[4][0], for_expr=t[1], flatten=t[4][1], reduce_return=t[4][2], where_expr=t[2], order_expr=t[3])
 
     def p_FLWRexpr8(self, t):
         'FLWRexpr : ForExpr LetExpr WhereExpr OrderByExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[1], t[5][0], flatten=t[5][1], let_expr=t[2], where_expr=t[3], order_expr=t[4])
+        t[0] = symbols.flwrSequence(t[5][0], for_expr=t[1], flatten=t[5][1], reduce_return=t[5][2], let_expr=t[2], where_expr=t[3], order_expr=t[4])
+
+    def p_FLWRexpr9(self, t):
+        'FLWRexpr : ReturnExpr'
+        t[0] = symbols.flwrSequence(t[1][0], flatten=t[1][1], reduce_return=t[1][2])
+
+    def p_FLWRexpr10(self, t):
+        'FLWRexpr : LetExpr ReturnExpr'
+        t[0] = symbols.flwrSequence(t[2][0], flatten=t[2][1], reduce_return=t[2][2], let_expr=t[1])
 
     def p_ForExpr(self, t):
         'ForExpr : FOR ForList'
@@ -98,8 +107,8 @@ class Parser(object):
         t[0] = (t[1], t[4])
 
     def p_ForDefinition3(self, t):
-        'ForDefinition : NAME IN AttributeValue'
-        t[0] = (t[1], symbols.attributeValue(t[3]))
+        'ForDefinition : NAME IN Value'
+        t[0] = (t[1], t[3])
 
     def p_LetExpr1(self, t):
         'LetExpr : LetExpr LET LetList'
@@ -126,8 +135,8 @@ class Parser(object):
         t[0] = (t[1], t[4])
 
     def p_LetDefinition3(self, t):
-        'LetDefinition : NAME EQ AttributeValue'
-        t[0] = (t[1], symbols.attributeValue(t[3]))
+        'LetDefinition : NAME EQ ArithExpr'
+        t[0] = (t[1], t[3])
 
     def p_LetDefinition4(self, t):
         'LetDefinition : NAME EQ Function'
@@ -154,7 +163,7 @@ class Parser(object):
         t[0] = t[1]
 
     def p_Fbody3(self, t):
-        'FBody : Value'
+        'FBody : ArithExpr'
         t[0] = t[1]
 
     def p_WhereExpr(self, t):
@@ -179,15 +188,31 @@ class Parser(object):
 
     def p_ReturnExpr1(self, t):
         'ReturnExpr : RETURN OutputTuple'
-        t[0] = (t[2], False)
+        t[0] = (t[2], False, False)
 
     def p_ReturnExpr2(self, t):
         'ReturnExpr : RETURN OutputDict'
-        t[0] = (t[2], False)
+        t[0] = (t[2], False, False)
 
     def p_ReturnExpr3(self, t):
         'ReturnExpr : RETURN FLATTEN OutputValue'
-        t[0] = ([t[3]], True)
+        t[0] = ([t[3]], True, False)
+
+    def p_ReturnExpr4(self, t):
+        'ReturnExpr : REDUCE OutputTuple AS Value WITH ReduceFunction'
+        t[0] = ({'value':t[2], 'as':t[4], 'with':t[6]}, False, True)
+
+    def p_ReturnExpr5(self, t):
+        'ReturnExpr : REDUCE OutputDict AS Value WITH ReduceFunction'
+        t[0] = ({'value':t[2], 'as':t[4], 'with':t[6]}, False, True)
+
+    def p_ReduceFunction1(self, t):
+        'ReduceFunction : AttributeValue'
+        t[0] = symbols.attributeValue(t[1])
+
+    def p_ReduceFunction2(self, t):
+        'ReduceFunction : Function'
+        t[0] = symbols.functionDefinition(*t[1])
 
     def p_OutputTuple1(self, t):
         'OutputTuple : OutputTuple COMMA OutputValue'
@@ -206,7 +231,7 @@ class Parser(object):
         t[0] = [(t[1], t[3])]
 
     def p_OutputValue1(self, t):
-        'OutputValue : Value'
+        'OutputValue : ArithExpr'
         t[0] = t[1]
 
     def p_OutputValue2(self, t):
@@ -218,7 +243,7 @@ class Parser(object):
         t[0] = t[2]
 
     def p_Set1(self, t):
-        'Set : Set DIFFERENCE UnionExpr'
+        'Set : Set DASH UnionExpr'
         t[0] = symbols.setValue(t[1], symbols.setoperator(t[2]), t[3])
 
     def p_Set2(self, t):
@@ -310,7 +335,7 @@ class Parser(object):
         t[0] = t[1]
 
     def p_BooleanExpr4(self, t):
-        'BooleanExpr : Value'
+        'BooleanExpr : ArithExpr'
         t[0] = symbols.booleanValue(t[1])
 
     def p_BooleanExpr5(self, t):
@@ -318,7 +343,7 @@ class Parser(object):
         t[0] = t[2]
 
     def p_CmpExpr(self, t):
-        'CmpExpr : Value CmpOp Value'
+        'CmpExpr : ArithExpr CmpOp ArithExpr'
         t[0] = symbols.comparisonValue(t[1], t[2], t[3])
 
     def p_CmpOp(self, t):
@@ -330,6 +355,53 @@ class Parser(object):
                 | GE'''
         t[0] = symbols.operator(t[1])
 
+    def p_ArithExpr(self, t):
+        'ArithExpr : AddSub'
+        t[0] = t[1]
+
+    def p_AddSub1(self, t):
+        'AddSub : AddSub PLUS MulDiv'
+        #t[0] = Node('+').addkid(t[1]).addkid(t[3])
+        t[0] = symbols.arithValue(t[1], symbols.arith_operator(t[2]), t[3])
+
+    def p_AddSub2(self, t):
+        'AddSub : AddSub DASH MulDiv'
+        #t[0] = Node('-').addkid(t[1]).addkid(t[3])
+        t[0] = symbols.arithValue(t[1], symbols.arith_operator(t[2]), t[3])
+
+    def p_AddSub3(self, t):
+        'AddSub : MulDiv'
+        t[0] = t[1]
+
+    def p_MulDiv1(self, t):
+        'MulDiv : MulDiv STAR ArithUnary'
+        #t[0] = Node('*').addkid(t[1]).addkid(t[3])
+        t[0] = symbols.arithValue(t[1], symbols.arith_operator(t[2]), t[3])
+
+    def p_MulDiv2(self, t):
+        'MulDiv : MulDiv SLASH ArithUnary'
+        t[0] = symbols.arithValue(t[1], symbols.arith_operator(t[2]), t[3])
+
+    def p_MulDiv3(self, t):
+        'MulDiv : ArithUnary'
+        t[0] = t[1]
+        
+    def p_ArithUnary1(self, t):
+        'ArithUnary : Atomic'
+        t[0] = t[1]
+    
+    def p_ArithUnary2(self, t):
+        'ArithUnary : DASH Atomic'
+        t[0] = symbols.arithValue(symbols.attributeValue(-1.0, scalar=True), symbols.arith_operator('*'), t[2])
+
+    def p_Atomic1(self, t):
+        'Atomic : Value'
+        t[0] = t[1]
+
+    def p_Atomic2(self, t):
+        'Atomic : LPAREN ArithExpr RPAREN'
+        t[0] = t[2]
+
     def p_Value1(self, t):
         'Value : NUMBER'
         t[0] = symbols.attributeValue(t[1], scalar=True)
@@ -339,8 +411,8 @@ class Parser(object):
         t[0] = symbols.attributeValue(t[1], scalar=True)
 
     def p_Value3(self, t):
-        'Value : IF LPAREN Where RPAREN THEN IfBody ELSE IfBody'
-        t[0] = symbols.ifExpr(t[3], t[6], t[8])
+        'Value : IF Where THEN IfBody ELSE IfBody'
+        t[0] = symbols.ifExpr(t[2], t[4], t[6])
 
     def p_Value4(self, t):
         'Value : AttributeValue'
@@ -349,6 +421,10 @@ class Parser(object):
     def p_Value5(self, t):
         'Value : LCURLY NameValPairs RCURLY'
         t[0] = symbols.dictValue(t[2])
+
+    def p_Value6(self, t):
+        'Value : LSQUARE ValueList RSQUARE'
+        t[0] = symbols.listValue(t[2])
 
     def p_NameValPairs1(self, t):
         'NameValPairs : NameValPairs COMMA NameValPair'
@@ -359,11 +435,19 @@ class Parser(object):
         t[0] = [t[1]]
 
     def p_NameValPair(self, t):
-        'NameValPair : Value COLON Value'
+        'NameValPair : ArithExpr COLON ArithExpr'
         t[0] = (t[1], t[3])
 
+    def p_ValueList1(self, t):
+        'ValueList : ValueList COMMA ArithExpr'
+        t[0] = t[1] + [t[3]]
+
+    def p_ValueList2(self, t):
+        'ValueList : ArithExpr'
+        t[0] = [t[1]]
+
     def p_IfBody1(self, t):
-        'IfBody : Value'
+        'IfBody : ArithExpr'
         t[0] = t[1]
 
     def p_IfBody2(self, t):
@@ -391,7 +475,7 @@ class Parser(object):
         t[0] = [t[1]]
 
     def p_Parameter1(self, t):
-        'Parameter : Value'
+        'Parameter : ArithExpr'
         t[0] = t[1]
 
     def p_Parameter2(self, t):
@@ -435,7 +519,7 @@ class Parser(object):
         t[0] = symbols.Call(t[2])
 
     def p_Dcall(self, t):
-        'Dcall : LSQUARE Value RSQUARE'
+        'Dcall : LSQUARE ArithExpr RSQUARE'
         t[0] = symbols.Call([t[2]], lookup=True)
 
     def p_QuantifiedExpr1(self, t):
@@ -455,11 +539,11 @@ class Parser(object):
         t[0] = t[1]
 
     def p_SetExpr1(self, t):
-        'SetExpr : Value IN LANGLE Set RANGLE'
+        'SetExpr : ArithExpr IN LANGLE Set RANGLE'
         t[0] = symbols.setexprValue1(t[1], symbols.setexprOperator1('in'), t[4])
 
     def p_SetExpr2(self, t):
-        'SetExpr : Value NOT IN LANGLE Set RANGLE'
+        'SetExpr : ArithExpr NOT IN LANGLE Set RANGLE'
         t[0] = symbols.setexprValue1(t[1], symbols.setexprOperator1('not in'), t[5])
 
     def p_SetExpr3(self, t):
