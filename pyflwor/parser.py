@@ -48,43 +48,43 @@ class Parser(object):
 
     def p_FLWRexpr1(self, t):
         'FLWRexpr : ForExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[2][0], for_expr=t[1], flatten=t[2][1], reduce_return=t[2][2])
+        t[0] = symbols.flwrSequence(t[2][0], for_expr=t[1], flatten=t[2][1], collecting=t[2][2])
 
     def p_FLWRexpr2(self, t):
         'FLWRexpr : ForExpr LetExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[3][0], for_expr=t[1], flatten=t[3][1], reduce_return=t[3][2], let_expr=t[2])
+        t[0] = symbols.flwrSequence(t[3][0], for_expr=t[1], flatten=t[3][1], collecting=t[3][2], let_expr=t[2])
 
     def p_FLWRexpr3(self, t):
         'FLWRexpr : ForExpr WhereExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[3][0], for_expr=t[1], flatten=t[3][1], reduce_return=t[3][2], where_expr=t[2])
+        t[0] = symbols.flwrSequence(t[3][0], for_expr=t[1], flatten=t[3][1], collecting=t[3][2], where_expr=t[2])
 
     def p_FLWRexpr4(self, t):
         'FLWRexpr : ForExpr LetExpr WhereExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[4][0], for_expr=t[1], flatten=t[4][1], reduce_return=t[4][2], let_expr=t[2], where_expr=t[3])
+        t[0] = symbols.flwrSequence(t[4][0], for_expr=t[1], flatten=t[4][1], collecting=t[4][2], let_expr=t[2], where_expr=t[3])
 
     def p_FLWRexpr5(self, t):
         'FLWRexpr : ForExpr OrderByExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[3][0], for_expr=t[1], flatten=t[3][1], reduce_return=t[3][2], order_expr=t[2])
+        t[0] = symbols.flwrSequence(t[3][0], for_expr=t[1], flatten=t[3][1], collecting=t[3][2], order_expr=t[2])
 
     def p_FLWRexpr6(self, t):
         'FLWRexpr : ForExpr LetExpr OrderByExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[4][0], for_expr=t[1], flatten=t[4][1], reduce_return=t[4][2], let_expr=t[2], order_expr=t[3])
+        t[0] = symbols.flwrSequence(t[4][0], for_expr=t[1], flatten=t[4][1], collecting=t[4][2], let_expr=t[2], order_expr=t[3])
 
     def p_FLWRexpr7(self, t):
         'FLWRexpr : ForExpr WhereExpr OrderByExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[4][0], for_expr=t[1], flatten=t[4][1], reduce_return=t[4][2], where_expr=t[2], order_expr=t[3])
+        t[0] = symbols.flwrSequence(t[4][0], for_expr=t[1], flatten=t[4][1], collecting=t[4][2], where_expr=t[2], order_expr=t[3])
 
     def p_FLWRexpr8(self, t):
         'FLWRexpr : ForExpr LetExpr WhereExpr OrderByExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[5][0], for_expr=t[1], flatten=t[5][1], reduce_return=t[5][2], let_expr=t[2], where_expr=t[3], order_expr=t[4])
+        t[0] = symbols.flwrSequence(t[5][0], for_expr=t[1], flatten=t[5][1], collecting=t[5][2], let_expr=t[2], where_expr=t[3], order_expr=t[4])
 
     def p_FLWRexpr9(self, t):
         'FLWRexpr : ReturnExpr'
-        t[0] = symbols.flwrSequence(t[1][0], flatten=t[1][1], reduce_return=t[1][2])
+        t[0] = symbols.flwrSequence(t[1][0], flatten=t[1][1], collecting=t[1][2])
 
     def p_FLWRexpr10(self, t):
         'FLWRexpr : LetExpr ReturnExpr'
-        t[0] = symbols.flwrSequence(t[2][0], flatten=t[2][1], reduce_return=t[2][2], let_expr=t[1])
+        t[0] = symbols.flwrSequence(t[2][0], flatten=t[2][1], collecting=t[2][2], let_expr=t[1])
 
     def p_ForExpr(self, t):
         'ForExpr : FOR ForList'
@@ -199,19 +199,31 @@ class Parser(object):
         t[0] = ([t[3]], True, False)
 
     def p_ReturnExpr4(self, t):
-        'ReturnExpr : COLLECT OutputTuple AS Value WITH ReduceFunction'
-        t[0] = ({'value':t[2], 'as':t[4], 'with':t[6]}, False, True)
+        'ReturnExpr : CollectList'
+        t[0] = (t[1], False, True)
 
-    def p_ReturnExpr5(self, t):
-        'ReturnExpr : COLLECT OutputDict AS Value WITH ReduceFunction'
-        t[0] = ({'value':t[2], 'as':t[4], 'with':t[6]}, False, True)
+    def p_CollectList1(self, t):
+        'CollectList : CollectList Collect'
+        t[0] = t[1] + [t[2]]
 
-    def p_ReduceFunction1(self, t):
-        'ReduceFunction : AttributeValue'
+    def p_CollectList2(self, t):
+        'CollectList : Collect'
+        t[0] = [t[1]]
+
+    def p_Collect1(self, t):
+        'Collect : COLLECT OutputTuple AS Value WITH CollectFunction'
+        t[0] = {'value':t[2], 'as':t[4], 'with':t[6]}
+
+    def p_Collect2(self, t):
+        'Collect : COLLECT OutputDict AS Value WITH CollectFunction'
+        t[0] = {'value':t[2], 'as':t[4], 'with':t[6]}
+
+    def p_CollectFunction1(self, t):
+        'CollectFunction : AttributeValue'
         t[0] = symbols.attributeValue(t[1])
 
-    def p_ReduceFunction2(self, t):
-        'ReduceFunction : Function'
+    def p_CollectFunction2(self, t):
+        'CollectFunction : Function'
         t[0] = symbols.functionDefinition(*t[1])
 
     def p_OutputTuple1(self, t):

@@ -371,17 +371,18 @@ def quantifiedValue(mode, name, s, satisfies):
         raise Exception, "mode '%s' is not 'every' or 'some'" % mode
     return where
 
-def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, order_expr=None, flatten=False, reduce_return=False):
+def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, order_expr=None, flatten=False, collecting=False):
     '''
     Returns the function to caculate the results of a flwr expression
     '''
     #print order_expr
     if flatten:
         assert len(return_expr) == 1 and not isinstance(return_expr[0], tuple)
-    if reduce_return:
-        target = return_expr['as']
-        reduce_function = return_expr['with']
-        return_expr = return_expr['value']
+        assert not collecting
+    #if collecting:
+        #target = return_expr['as']
+        #reduce_function = return_expr['with']
+        #return_expr = return_expr['value']
     def sequence(objs):
         def _flatten_func(tup):
             if not isinstance(tup, tuple):
@@ -393,9 +394,24 @@ def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, ord
                             yield j
                     else:
                         yield i
-        def _build_yield(cobjs, value):
-            if not reduce_return: return value
-            else: return {'value':value, 'as':target(cobjs), 'with':reduce_function(objs)}
+        def _build_yield(cobjs):
+            def _build_return(obj):
+                if len(obj) == 1 and not isinstance(obj[0], tuple):
+                    return obj[0](cobjs)
+                elif isinstance(obj[0], tuple): # it has named return values
+                    return dict((name, f(cobjs)) for name,f in obj)
+                else: # multiple positional return values
+                    return tuple(f(cobjs) for f in obj)
+            if not collecting: 
+                return _build_return(return_expr)
+            collectors = list()
+            for collector in return_expr:
+                collectors.append({
+                  'value':_build_return(collector['value']),
+                  'as':collector['as'](cobjs),
+                  'with':collector['with'](objs)
+                })
+            return collectors
         def inner(objs):
             ## take the cartesian product of the for expression
             ## note you cannot do this:
@@ -423,24 +439,21 @@ def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, ord
                         cobjs.update({name:let(cobjs)}) # calculate the let expr
                 if where_expr and not where_expr(cobjs):
                     continue # skip if the where fails
-                if len(return_expr) == 1 and not isinstance(return_expr[0], tuple):
-                    if not flatten:
-                        yield _build_yield(cobjs, return_expr[0](cobjs)) # single unamed return
-                    else:
-                        for i in _flatten_func(return_expr[0](cobjs)):
-                            yield _build_yield(cobjs, i)
-                elif isinstance(return_expr[0], tuple): # it has named return values
-                    yield _build_yield(cobjs, dict((name, f(cobjs)) for name,f in return_expr))
-                else: # multiple positional return values
-                    yield _build_yield(cobjs, tuple(x(cobjs) for x in return_expr))
-        if reduce_return:
-            retdict = dict()
-            for value in inner(objs):
-                _as = value['as']
-                _rf = value['with']
-                _value = value['value']
-                retdict[_as] = _rf(retdict.get(_as, None), _value)
-            return retdict
+                if not flatten:
+                    yield _build_yield(cobjs) # single unamed return
+                else:
+                    for i in _flatten_func(return_expr[0](cobjs)):
+                        yield i
+        if collecting:
+            rets = [dict() for _ in xrange(len(return_expr))]
+            for collectors in inner(objs):
+                for i, collector in enumerate(collectors):
+                    _as = collector['as']
+                    _rf = collector['with']
+                    _value = collector['value']
+                    rets[i][_as] = _rf(rets[i].get(_as, None), _value)
+            if len(rets) == 1: return rets[0]
+            return rets
         else:
             r = list(inner(objs))
             if not r:
