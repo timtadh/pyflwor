@@ -129,6 +129,13 @@ class Lexer(object):
             token.value = int(token.value, 10)
         return token
 
+    @Token(r'(/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/)|(//.*)')
+    def t_COMMENT(self, token):
+        #print token.lexer.lineno, len(token.value.split('\n')), token.value.split('\n')
+        lines = len(token.value.split('\n')) - 1
+        if lines < 0: lines = 0
+        token.lexer.lineno += lines
+
     @Token(r'\n+')
     def t_newline(self, t):
         t.lexer.lineno += t.value.count("\n")
