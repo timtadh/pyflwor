@@ -309,7 +309,7 @@ class TestPyQuery(unittest.TestCase):
         except AttributeError: d.update(__builtins__)
         self.assertEquals(exe('''
             for n in l
-            reduce n as n with function(prev, next) {
+            collect n as n with function(prev, next) {
                 if prev == None then 1 else prev + 1
             }
           ''', d), {1:1,2:1,3:3,4:3,5:2,6:2,7:2})
@@ -320,7 +320,7 @@ class TestPyQuery(unittest.TestCase):
         except AttributeError: d.update(__builtins__)
         self.assertEquals(exe('''
             for n in [1,2,3,4,5,6,7,3,4,5,6,7,3,4]
-            reduce n as n with function(prev, next) {
+            collect n as n with function(prev, next) {
                 if prev == None then 1 else prev + 1
             }
           ''', d), {1:1,2:1,3:3,4:3,5:2,6:2,7:2})

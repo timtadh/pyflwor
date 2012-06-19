@@ -214,7 +214,7 @@ class TestParser(unittest.TestCase):
     def test_reduce(self):
         pyflwor.compile('''
           for x in <asdf> 
-          reduce x.tree as x.attr with function(prev, next) {
+          collect x.tree as x.attr with function(prev, next) {
             if prev == None then next else prev.combine(next)
           }
           ''')

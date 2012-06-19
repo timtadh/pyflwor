@@ -199,11 +199,11 @@ class Parser(object):
         t[0] = ([t[3]], True, False)
 
     def p_ReturnExpr4(self, t):
-        'ReturnExpr : REDUCE OutputTuple AS Value WITH ReduceFunction'
+        'ReturnExpr : COLLECT OutputTuple AS Value WITH ReduceFunction'
         t[0] = ({'value':t[2], 'as':t[4], 'with':t[6]}, False, True)
 
     def p_ReturnExpr5(self, t):
-        'ReturnExpr : REDUCE OutputDict AS Value WITH ReduceFunction'
+        'ReturnExpr : COLLECT OutputDict AS Value WITH ReduceFunction'
         t[0] = ({'value':t[2], 'as':t[4], 'with':t[6]}, False, True)
 
     def p_ReduceFunction1(self, t):
