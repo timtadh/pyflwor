@@ -373,6 +373,23 @@ class TestPyQuery(unittest.TestCase):
             }
           ''', d), {1:1,2:1,3:3,4:3,5:2,6:2,7:2})
 
+    def test_multi_collect(self):
+        l = [1,2,3,4,5,6,7,3,4,5,6,7,3,4]
+        d = locals()
+        try: d.update(__builtins__.__dict__)
+        except AttributeError: d.update(__builtins__)
+        self.assertEquals(exe('''
+            for n in l
+            let counter = function(prev, next) {
+                if prev == None then 1 else prev + 1
+            }
+            where 1 in l and 12 not in l
+            collect n as n with counter
+            collect n as (int(n)/int(2)) with counter
+          ''', d), (
+            {1: 1, 2: 1, 3: 3, 4: 3, 5: 2, 6: 2, 7: 2}, 
+            {0: 1, 1: 4, 2: 5, 3: 4}))
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -211,11 +211,11 @@ class Parser(object):
         t[0] = [t[1]]
 
     def p_Collect1(self, t):
-        'Collect : COLLECT OutputTuple AS Value WITH CollectFunction'
+        'Collect : COLLECT OutputTuple AS ArithExpr WITH CollectFunction'
         t[0] = {'value':t[2], 'as':t[4], 'with':t[6]}
 
     def p_Collect2(self, t):
-        'Collect : COLLECT OutputDict AS Value WITH CollectFunction'
+        'Collect : COLLECT OutputDict AS ArithExpr WITH CollectFunction'
         t[0] = {'value':t[2], 'as':t[4], 'with':t[6]}
 
     def p_CollectFunction1(self, t):

@@ -409,7 +409,7 @@ def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, ord
                 collectors.append({
                   'value':_build_return(collector['value']),
                   'as':collector['as'](cobjs),
-                  'with':collector['with'](objs)
+                  'with':collector['with'](cobjs)
                 })
             return collectors
         def inner(objs):
@@ -445,7 +445,7 @@ def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, ord
                     for i in _flatten_func(return_expr[0](cobjs)):
                         yield i
         if collecting:
-            rets = [dict() for _ in xrange(len(return_expr))]
+            rets = tuple(dict() for _ in xrange(len(return_expr)))
             for collectors in inner(objs):
                 for i, collector in enumerate(collectors):
                     _as = collector['as']
