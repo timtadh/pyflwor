@@ -11,13 +11,14 @@ Purpose: The public API for PyFlwor.
 
 from parser import Parser
 from lexer import Lexer
+import re
 
 def compile(query):
     '''
     Compiles a query string into a python function that takes one parameter, the execution namespace.
     The compiled function is re-usable. For information on the grammar see X.
     '''
-    return Parser().parse(query.replace('\\\\', '\\'), lexer=Lexer())
+    return Parser().parse(query.decode('string_escape'), lexer=Lexer())
 
 def execute(query, namespace):
     '''
