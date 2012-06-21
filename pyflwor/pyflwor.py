@@ -17,7 +17,7 @@ def compile(query):
     Compiles a query string into a python function that takes one parameter, the execution namespace.
     The compiled function is re-usable. For information on the grammar see X.
     '''
-    return Parser().parse(query, lexer=Lexer())
+    return Parser().parse(query.replace('\\\\', '\\'), lexer=Lexer())
 
 def execute(query, namespace):
     '''

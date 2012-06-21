@@ -59,10 +59,15 @@ class TestLexer(unittest.TestCase):
 
     def test_STRING(self):
         clex = lexer.Lexer()
-        clex.input("'asdf' \"asdf\"")
-        tokens = [token("STRING", 'asdf',0,1), token("STRING", 'asdf',7,1)]
+        clex.input("'asdf' \"asdf\" '\n'")
+        tokens = [
+                  token("STRING", 'asdf',0,1),
+                  token("STRING", 'asdf',7,1),
+                  token("STRING", '\n',  14,1),
+                 ]
         with comparable_tokens():
-            for i,t1 in enumerate(clex): self.assertEquals(t1, tokens[i])
+            for i,t1 in enumerate(clex):
+              self.assertEquals(t1, tokens[i])
 
     def test_HEX(self):
         clex = lexer.Lexer()
