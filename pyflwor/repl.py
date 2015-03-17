@@ -8,13 +8,21 @@ Licensed under a BSD style license see the LICENSE file.
 File: repl.py
 Purpose: REPL for pyflwor
 '''
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
+from past.utils import old_div
 
 import os, sys
 import subprocess
-import cPickle as pickle
+import pickle as pickle
 from tempfile import mkstemp as tmpfile
 from getline import Getlines
-import pyflwor
+from . import pyflwor
 
 getline = Getlines('.getline-history').getline
 
@@ -29,7 +37,7 @@ def _transform(s):
 
 def avg(s):
     if not len(s): return 0.0
-    return sum(s)/float(len(s))
+    return old_div(sum(s),float(len(s)))
 
 _formats = ['text', 'csv']
 
@@ -37,7 +45,7 @@ class REPL(object):
 
     def __init__(self, objects, queries=None):
         if not objects:
-            raise Exception, "objects was empty, you must supply a query context (ie. objects to query...)"
+            raise Exception("objects was empty, you must supply a query context (ie. objects to query...)")
         self.objects = objects
         self.queries = dict()
         if queries:
@@ -64,7 +72,7 @@ class REPL(object):
         f.close()
         os.unlink(path)
         if not s:
-            raise Exception, "Must enter a query into the editor and save the file."
+            raise Exception("Must enter a query into the editor and save the file.")
         return s.strip()
 
     def exe(self, prompt):
@@ -88,7 +96,7 @@ class REPL(object):
                     - The other formats avaliable are 'text', and 'csv'
                     - For a full list of formats type "formats"'''
                 if args.count(' ') < 2:
-                    raise Exception, "Must supply both format, file location and a query."
+                    raise Exception("Must supply both format, file location and a query.")
                 format, path, query = args.split(' ', 2)
                 if '_' in format:
                     i = format.index('_')
@@ -128,7 +136,7 @@ class REPL(object):
                             f.write('\n')
                     f.close()
                 else:
-                    raise Exception, "Format '%s' not supported" % format
+                    raise Exception("Format '%s' not supported" % format)
             def _exec(cmds, args):
                 '''usage: query exec str
                     .    str = Either the query text
@@ -138,7 +146,7 @@ class REPL(object):
                 if args in self.queries:
                     q = self.queries[args][1]
                 else:
-                    print args
+                    print(args)
                     q = pyflwor.compile(args)
                 results = q(self.querydict()) 
                 for r in results:
@@ -146,9 +154,9 @@ class REPL(object):
                         #print tuple(str(item) for item in r)
                     #else:
                     if isinstance(results, dict):
-                        print r, results[r]
+                        print(r, results[r])
                     else:
-                        print r
+                        print(r)
             def edit(cmds, args):
                 '''usage: query edit str
                     .    str = name of a saved query
@@ -161,7 +169,7 @@ class REPL(object):
                 name = args
                 name = name.strip()
                 if name not in self.queries:
-                    raise Exception, "Query %s not defined" % name
+                    raise Exception("Query %s not defined" % name)
                 query = self.edittext(self.queries[name][0])
                 self.queries.update({name:(query,badquery(query))})
                 q = pyflwor.compile(query)
@@ -172,7 +180,7 @@ class REPL(object):
                     Remove a saved query'''
                 name = args
                 if name not in self.queries:
-                    raise Exception, "Query %s not defined" % s
+                    raise Exception("Query %s not defined" % s)
                 del self.queries[name]
             def cp(cmds, args):
                 '''usage: query cp fromname toname
@@ -180,10 +188,10 @@ class REPL(object):
                     .    tonane = name of the copied query
                     Remove a saved query'''
                 if args.count(' ') != 1:
-                    raise Exception, "Must have the form: queries cp fromname toname"
+                    raise Exception("Must have the form: queries cp fromname toname")
                 fromname, toname = args.split(' ')
                 if fromname not in self.queries:
-                    raise Exception, "Query %s not defined" % s
+                    raise Exception("Query %s not defined" % s)
                 self.queries[toname] = self.queries[fromname]
             def add(cmds, args):
                 '''usage: query add name
@@ -228,17 +236,17 @@ class REPL(object):
                 '''usage: query list
                 List stored queries.'''
                 if not self.queries:
-                    print 'No stored queries'
-                keys = self.queries.keys()
+                    print('No stored queries')
+                keys = list(self.queries.keys())
                 keys.sort()
                 for name in keys:
-                    print name, ':'
+                    print(name, ':')
                     for line in self.queries[name][0].split('\n'):
                         if not line: continue
-                        print ' '*4, line
+                        print(' '*4, line)
             cmds = dict(locals())
             cmds = dict((_transform(var), cmds[var])
-                    for var in query.func_code.co_varnames
+                    for var in query.__code__.co_varnames
                     if var in cmds and type(cmds[var]) == type(query))
             cmds['help'] = _help
             return self.proc_command(cmds, args)
@@ -246,16 +254,16 @@ class REPL(object):
             '''usage objects
             List all the loaded objects'''
             objs = self.querydict()
-            keys = objs.keys()
+            keys = list(objs.keys())
             keys.sort()
             for obj in keys:
-                print obj, objs[obj]
-                print
+                print(obj, objs[obj])
+                print()
         def formats(cmds):
             '''usage: formats
             Lists the available formats for serialization'''
             for format in _formats:
-                print format
+                print(format)
         def _dir(cmds, args):
             '''Run dir() on the given arg'''
             o = type('base' , (object,), self.objects)
@@ -263,8 +271,8 @@ class REPL(object):
                 if hasattr(o, x):
                     o = getattr(o, x)
                 else:
-                    raise Exception, "'%s' could not be resolved" % args
-            print dir(o)
+                    raise Exception("'%s' could not be resolved" % args)
+            print(dir(o))
         def man(cmds, args):
             '''Get the docs on the given arg'''
             o = type('base' , (object,), self.objects)
@@ -272,30 +280,30 @@ class REPL(object):
                 if hasattr(o, x):
                     o = getattr(o, x)
                 else:
-                    raise Exception, "'%s' could not be resolved" % args
+                    raise Exception("'%s' could not be resolved" % args)
             help(o)
         def _help(cmds, opt=None):
             '''Prints this message'''
             if opt in cmds:
                 v = cmds[opt]
-                print opt
+                print(opt)
                 for line in v.__doc__.split('\n'):
                     line = line.strip()
                     if not line: continue
-                    print ' '*4, line
+                    print(' '*4, line)
                 return
             if opt:
-                raise Exception, "Command %s not found." % opt
-            keys = cmds.keys()
+                raise Exception("Command %s not found." % opt)
+            keys = list(cmds.keys())
             keys.sort()
             for k in keys:
                 v = cmds[k]
                 if type(v) != type(_help): continue
-                print k
+                print(k)
                 for line in v.__doc__.split('\n'):
                     line = line.strip()
                     if not line: continue
-                    print ' '*4, line
+                    print(' '*4, line)
         def exit(cmds):
             '''Exits the repl.'''
             return True
@@ -316,26 +324,26 @@ class REPL(object):
             cmd_name = s
             args = str()
         try:
-            if not cmds.has_key(cmd_name):
-                raise Exception, "command '%s' not found." % cmd_name
+            if cmd_name not in cmds:
+                raise Exception("command '%s' not found." % cmd_name)
             cmd = cmds[cmd_name]
 
-            if 'args' in cmd.func_code.co_varnames and args != str():
+            if 'args' in cmd.__code__.co_varnames and args != str():
                 return cmd(cmds, args)
-            elif 'args' in cmd.func_code.co_varnames and args == str():
-                raise Exception, "'%s' requires arguments, but none given" % cmd_name
-            elif 'opt' in cmd.func_code.co_varnames and args != str():
+            elif 'args' in cmd.__code__.co_varnames and args == str():
+                raise Exception("'%s' requires arguments, but none given" % cmd_name)
+            elif 'opt' in cmd.__code__.co_varnames and args != str():
                 return cmd(cmds, opt=args)
-            elif 'args' not in cmd.func_code.co_varnames and args != str():
-                raise Exception, "'%s' does not except arguments" % cmd_name
+            elif 'args' not in cmd.__code__.co_varnames and args != str():
+                raise Exception("'%s' does not except arguments" % cmd_name)
             else:
                 return cmd(cmds)
-        except Exception, e:
-            print '\n<----------ERROR---------->'
-            print 'error: ', e
-            print 'command: ', cmd_name
-            print 'arguments: ', args
-            print '</---------ERROR---------->\n'
+        except Exception as e:
+            print('\n<----------ERROR---------->')
+            print('error: ', e)
+            print('command: ', cmd_name)
+            print('arguments: ', args)
+            print('</---------ERROR---------->\n')
             #raise
 
     def start(self):

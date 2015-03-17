@@ -10,9 +10,10 @@ Purpose: Tests for the Parser
 NB: Should test most of the language, as in make sure examples compile. Tests
     for correctness will be quite difficult given the nature of this compiler.
 '''
+from __future__ import absolute_import
 
 import unittest, os, sys, base64, itertools, random, time
-import pyflwor
+from . import pyflwor
 
 
 class TestParser(unittest.TestCase):

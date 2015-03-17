@@ -8,6 +8,8 @@ Licensed under a BSD style license see the LICENSE file.
 File: lexer.py
 Purpose: The lexer front end for the Query Compiler.
 '''
+from __future__ import print_function
+from builtins import object
 
 from ply import lex
 from ply.lex import Token
@@ -144,10 +146,10 @@ class Lexer(object):
     t_ignore = " \t"
 
     def t_error(self, t):
-        raise Exception, "Illegal character '%s'" % t
+        raise Exception("Illegal character '%s'" % t)
         t.lexer.skip(1)
 
 if __name__ == '__main__':
     lexer = Lexer()
-    print lexer.input('.')
-    print [x for x in lexer]
+    print(lexer.input('.'))
+    print([x for x in lexer])

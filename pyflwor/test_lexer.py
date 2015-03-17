@@ -8,14 +8,17 @@ Licensed under a BSD style license see the LICENSE file.
 File: t_lexer.py
 Purpose: Tests for the Lexer
 '''
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import next
 
 import unittest, os, sys, base64, itertools, random, time
 from contextlib import contextmanager
 from ply import lex
-import lexer
+from . import lexer
 
 def showcmp(a,b):
-    print (a.type == b.type, a.value == b.value, a.lexpos == b.lexpos, a.lineno == b.lineno)
+    print((a.type == b.type, a.value == b.value, a.lexpos == b.lexpos, a.lineno == b.lineno))
 
 def compare(a,b):
     return (a.type == b.type and a.value == b.value and
@@ -74,7 +77,7 @@ class TestLexer(unittest.TestCase):
         clex.input("0xab 0xab")
         tokens = [token("NUMBER", 0xab,0,1),token("NUMBER", 171,5,1)]
         with comparable_tokens():
-            for t2 in tokens: self.assertEquals(clex.next(), t2)
+            for t2 in tokens: self.assertEquals(next(clex), t2)
 
     def test_FLOAT(self):
         clex = lexer.Lexer()
@@ -83,29 +86,29 @@ class TestLexer(unittest.TestCase):
             token("NUMBER", 2.3e4,7,1), token("NUMBER", .2,13,1),
             token("NUMBER", 2.3e4,16,1)]
         with comparable_tokens():
-            for t2 in tokens: self.assertEquals(clex.next(), t2)
+            for t2 in tokens: self.assertEquals(next(clex), t2)
 
     def test_OCT(self):
         clex = lexer.Lexer()
         clex.input("073 073 073")
-        tokens = [token("NUMBER", 073,0,1), token("NUMBER", 59,4,1), token("NUMBER", 59,8,1)]
+        tokens = [token("NUMBER", 0o73,0,1), token("NUMBER", 59,4,1), token("NUMBER", 59,8,1)]
         with comparable_tokens():
-            for t2 in tokens: self.assertEquals(clex.next(), t2)
+            for t2 in tokens: self.assertEquals(next(clex), t2)
 
     def test_DEC(self):
         clex = lexer.Lexer()
         clex.input("73 730 7")
         tokens = [token("NUMBER", 73,0,1), token("NUMBER", 730, 3,1), token("NUMBER", 7, 7,1)]
         with comparable_tokens():
-            for t2 in tokens: self.assertEquals(clex.next(), t2)
+            for t2 in tokens: self.assertEquals(next(clex), t2)
 
     def test_KEYWORDS(self):
-        for value,typ in lexer.reserved.iteritems():
+        for value,typ in list(lexer.reserved.items()):
             clex = lexer.Lexer()
             clex.input(value)
             tokens = [token(typ,value,0,1)]
             with comparable_tokens():
-                for t2 in tokens: self.assertEquals(clex.next(), t2)
+                for t2 in tokens: self.assertEquals(next(clex), t2)
 
     def test_chrs(self):
         for typ,value in [(attr[2:],getattr(lexer.Lexer, attr))
@@ -119,7 +122,7 @@ class TestLexer(unittest.TestCase):
             clex.input(value)
             tokens = [token(typ,value,0,1)]
             with comparable_tokens():
-                for t2 in tokens: self.assertEquals(clex.next(), t2)
+                for t2 in tokens: self.assertEquals(next(clex), t2)
 
 
 if __name__ == '__main__':
