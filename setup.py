@@ -11,6 +11,6 @@ setup(name='pyflwor',
       url='https://www.github.com/timtadh/pyflwor',
       license='BSD',
       packages=['pyflwor'],
-      install_require=['ply']
+      install_requires=['ply']
 )
 
