@@ -9,6 +9,8 @@ File: pyflwor.py
 Purpose: The public API for PyFlwor.
 '''
 from __future__ import absolute_import
+from __future__ import unicode_literals
+from builtins import str, bytes
 
 from .parser import Parser
 from .lexer import Lexer
