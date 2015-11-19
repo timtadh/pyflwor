@@ -13,8 +13,12 @@ from __future__ import absolute_import
 from builtins import object
 
 from ply import yacc
-from .lexer import tokens, Lexer
-from . import symbols
+try:
+    from .lexer import tokens, Lexer
+    from . import symbols
+except SystemError:
+    from lexer import tokens, Lexer
+    import symbols
 
 ## The parser does not build an abstract syntax tree nor does it build
 ## intermediate code, instead it composes functions and objects together. These

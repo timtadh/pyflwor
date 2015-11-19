@@ -12,8 +12,14 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 from builtins import str, bytes
 
-from .parser import Parser
-from .lexer import Lexer
+try:
+    from .parser import Parser
+    from .lexer import Lexer
+
+except SystemError:
+    from parser import Parser
+    from lexer import Lexer
+
 import re
 
 def compile(query):
@@ -29,4 +35,3 @@ def execute(query, namespace):
     particular query many times, use compile to get a query function.
     '''
     return compile(query)(namespace)
-

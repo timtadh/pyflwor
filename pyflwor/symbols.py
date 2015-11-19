@@ -19,7 +19,7 @@ from builtins import object
 import collections
 from collections import deque
 from itertools import product
-from .OrderedSet import OrderedSet
+from OrderedSet import OrderedSet
 
 class Attribute(object):
     '''
@@ -409,7 +409,7 @@ def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, ord
                     return dict((name, f(cobjs)) for name,f in obj)
                 else: # multiple positional return values
                     return tuple(f(cobjs) for f in obj)
-            if not collecting: 
+            if not collecting:
                 return _build_return(return_expr)
             collectors = list()
             for collector in return_expr:
@@ -428,7 +428,7 @@ def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, ord
             ##   for PyQuery otherwise it just isn't worth it.
             if for_expr is not None:
                 obs = [
-                    [(seqs[0], obj) for obj in seqs[1](objs)] 
+                    [(seqs[0], obj) for obj in seqs[1](objs)]
                     for seqs in for_expr]
             else:
                 ## The goal is to get the for loop to run once. this syntax does

@@ -15,9 +15,14 @@ from past.utils import old_div
 from builtins import object
 
 import unittest, os, sys, base64, itertools, random, time
-from .OrderedSet import OrderedSet as oset
-from . import pyflwor
-from . import symbols
+from OrderedSet import OrderedSet as oset
+
+try:
+    from . import pyflwor
+    from . import symbols
+except SystemError:
+    import pyflwor
+    import symbols
 
 exe = pyflwor.execute
 class TestPyQuery(unittest.TestCase):
@@ -391,7 +396,7 @@ class TestPyQuery(unittest.TestCase):
             collect n as n with counter
             collect n as (int(n)/int(2)) with counter
           ''', d), (
-            {1: 1, 2: 1, 3: 3, 4: 3, 5: 2, 6: 2, 7: 2}, 
+            {1: 1, 2: 1, 3: 3, 4: 3, 5: 2, 6: 2, 7: 2},
             {0: 1, 1: 4, 2: 5, 3: 4}))
 
 
