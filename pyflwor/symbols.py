@@ -19,7 +19,11 @@ from builtins import object
 import collections
 from collections import deque
 from itertools import product
-from OrderedSet import OrderedSet
+
+try:
+    from .OrderedSet import OrderedSet
+except SystemError:
+    from OrderedSet import OrderedSet
 
 class Attribute(object):
     '''

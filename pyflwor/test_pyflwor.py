@@ -15,12 +15,14 @@ from past.utils import old_div
 from builtins import object
 
 import unittest, os, sys, base64, itertools, random, time
-from OrderedSet import OrderedSet as oset
+
 
 try:
+    from .OrderedSet import OrderedSet as oset
     from . import pyflwor
     from . import symbols
 except SystemError:
+    from OrderedSet import OrderedSet as oset
     import pyflwor
     import symbols
 
