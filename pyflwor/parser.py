@@ -36,7 +36,7 @@ class Parser(object):
         ## Does magic to allow PLY to do its thing.
         self = super(Parser, cls).__new__(cls, **kwargs)
         self.names = dict()
-        self.yacc = yacc.yacc(module=self, **kwargs)
+        self.yacc = yacc.yacc(module=self, debug=False, optimize=1, **kwargs)
         return self.yacc
 
     tokens = tokens
