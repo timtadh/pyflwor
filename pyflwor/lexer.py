@@ -44,7 +44,7 @@ class Lexer(object):
 
     def __new__(cls, **kwargs):
         self = super(Lexer, cls).__new__(cls, **kwargs)
-        self.lexer = lex.lex(object=self, debug=False, optimize=1, **kwargs)
+        self.lexer = lex.lex(object=self, debug=False, optimize=True, **kwargs)
         return self.lexer
 
     tokens = tokens
