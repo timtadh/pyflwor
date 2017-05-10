@@ -1,3 +1,6 @@
+from __future__ import print_function
+from builtins import next
+from builtins import range
 # OrderedSet by Raymond Hettinger
 # Active State Recipe 576694
 # Licensed Under the MIT License see the LICENSE file
@@ -5,7 +8,7 @@
 
 import collections
 
-KEY, PREV, NEXT = range(3)
+KEY, PREV, NEXT = list(range(3))
 
 class OrderedSet(collections.MutableSet):
 

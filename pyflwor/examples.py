@@ -8,6 +8,10 @@ Licensed under a BSD style license see the LICENSE file.
 File: examples.py
 Purpose: Example queries for pyflwor.
 '''
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import str
+from builtins import object
 
 import itertools
 from random import seed, randint
@@ -87,24 +91,24 @@ orders = [
     ]
 
 if __name__ == '__main__':
-    import pyflwor
-    print "all orders"
+    from . import pyflwor
+    print("all orders")
     for x in orders:
-        print x
-    print
-    print
-    print
+        print(x)
+    print()
+    print()
+    print()
 
 
-    print "Orders where customer.name = Steve and agent.name = Ullman"
+    print("Orders where customer.name = Steve and agent.name = Ullman")
     q = pyflwor.compile('orders[self.customer.name == "Steve" and self.agent.name == "Ullman"]')
     for x in q(locals()):
-        print x
-    print
-    print
-    print
+        print(x)
+    print()
+    print()
+    print()
 
-    print "1. Get names of products that are ordered by at least one customer three different times."
+    print("1. Get names of products that are ordered by at least one customer three different times.")
     q = pyflwor.compile('''
             products
             [
@@ -126,12 +130,12 @@ if __name__ == '__main__':
         ''')
     t = q(locals())
     for x in t:
-        print x
-    print
-    print
-    print
+        print(x)
+    print()
+    print()
+    print()
 
-    print "2. Get product names that are ordered by at least three customers in the same city."
+    print("2. Get product names that are ordered by at least three customers in the same city.")
     q = pyflwor.compile('''
             products
             [
@@ -154,12 +158,12 @@ if __name__ == '__main__':
             /name
         ''')
     for x in q(locals()):
-        print x
-    print
-    print
-    print
+        print(x)
+    print()
+    print()
+    print()
 
-    print '''3. Get product names that are ordered by at least one customer in each and every customer city listed in the database (universal quantification).'''
+    print('''3. Get product names that are ordered by at least one customer in each and every customer city listed in the database (universal quantification).''')
     q = pyflwor.compile('''
             products
             [
@@ -177,8 +181,8 @@ if __name__ == '__main__':
             /name
         ''')
     for x in q(locals()):
-        print x
-    print
-    print
-    print
+        print(x)
+    print()
+    print()
+    print()
 

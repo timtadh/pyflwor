@@ -1,7 +1,8 @@
+import setuptools
 from distutils.core import setup
 
 setup(name='pyflwor',
-      version='git master',
+      version='1.1',
       description=(
         'A object query system for arbitrary python objects..'
       ),
@@ -10,5 +11,7 @@ setup(name='pyflwor',
       url='https://www.github.com/timtadh/pyflwor',
       license='BSD',
       packages=['pyflwor'],
+      install_requires=['ply',
+                        'future']
 )
 

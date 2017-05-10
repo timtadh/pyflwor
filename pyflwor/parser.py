@@ -8,10 +8,17 @@ Licensed under a BSD style license see the LICENSE file.
 File: parser.py
 Purpose: The LALR parser for the query compiler.
 '''
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import object
 
 from ply import yacc
-from lexer import tokens, Lexer
-import symbols
+try:
+    from .lexer import tokens, Lexer
+    from . import symbols
+except SystemError:
+    from lexer import tokens, Lexer
+    import symbols
 
 ## The parser does not build an abstract syntax tree nor does it build
 ## intermediate code, instead it composes functions and objects together. These
@@ -29,7 +36,7 @@ class Parser(object):
         ## Does magic to allow PLY to do its thing.
         self = super(Parser, cls).__new__(cls, **kwargs)
         self.names = dict()
-        self.yacc = yacc.yacc(module=self, **kwargs)
+        self.yacc = yacc.yacc(module=self, debug=False, optimize=True, write_tables=False, **kwargs)
         return self.yacc
 
     tokens = tokens
@@ -591,7 +598,7 @@ class Parser(object):
         t[0] = symbols.setexprValue2(t[2], symbols.setexprOperator2('is not'), t[7])
 
     def p_error(self, t):
-        raise SyntaxError, "Syntax error at '%s', %s.%s" % (t,t.lineno,t.lexpos)
+        raise SyntaxError("Syntax error at '%s', %s.%s" % (t,t.lineno,t.lexpos))
 
 
 if __name__ == '__main__':
@@ -625,10 +632,10 @@ if __name__ == '__main__':
         a.z = a
         a.a = lambda : [0, lambda x,y,z: ((x,y,z))]
         a.b = 'b attr'
-        print tuple(query({'a':a, 'gx':'gx attr', 'sum':sum, 'tuple':tuple}))
-        print "SUCCESS"
-    except Exception, e:
-        print e
-        print "FAILURE"
+        print(tuple(query({'a':a, 'gx':'gx attr', 'sum':sum, 'tuple':tuple})))
+        print("SUCCESS")
+    except Exception as e:
+        print(e)
+        print("FAILURE")
         raise
     #Parser().parse('Attr1.SubAttr.SubSubAttr', lexer=Lexer())

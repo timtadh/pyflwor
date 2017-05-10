@@ -8,11 +8,22 @@ Licensed under a BSD style license see the LICENSE file.
 File: symbols.py
 Purpose: Objects and functions representing components of a query.
 '''
+from __future__ import division
+from __future__ import absolute_import
+from builtins import zip
+from builtins import str
+from builtins import range
+from past.utils import old_div
+from builtins import object
 
 import collections
 from collections import deque
 from itertools import product
-from OrderedSet import OrderedSet
+
+try:
+    from .OrderedSet import OrderedSet
+except SystemError:
+    from OrderedSet import OrderedSet
 
 class Attribute(object):
     '''
@@ -87,7 +98,7 @@ def attributeValue(attribute_list, scalar=False, context='locals'):
             for call in attr.callchain:
                 p = list()
                 for param in call.params:
-                    if isinstance(param, type(value)) and value.func_code == param.func_code or \
+                    if isinstance(param, type(value)) and value.__code__ == param.__code__ or \
                         isinstance(param, type(value)) and hasattr(param, '__objquery__'):
                         p.append(param(objs))
                     else:
@@ -111,7 +122,7 @@ def attributeValue(attribute_list, scalar=False, context='locals'):
             if hasattr(obj, attr.name):
                 obj = expand(objs, obj, attr, getattr(obj, attr.name))
             else:
-                raise Exception, "object %s did not have attr %s" % (str(obj), attr.name)
+                raise Exception("object %s did not have attr %s" % (str(obj), attr.name))
         return obj
 
     return value
@@ -126,7 +137,7 @@ def operator(op):
     if op == '>=': return lambda x,y: x >= y
     if op == '<': return lambda x,y: x < y
     if op == '>': return lambda x,y: x > y
-    raise Exception, "operator %s not found" % op
+    raise Exception("operator %s not found" % op)
 
 def arith_operator(op):
     '''
@@ -135,8 +146,8 @@ def arith_operator(op):
     if op == '+': return lambda x,y: x + y
     if op == '-': return lambda x,y: x - y
     if op == '*': return lambda x,y: x * y
-    if op == '/': return lambda x,y: x / y
-    raise Exception, "operator %s not found" % op
+    if op == '/': return lambda x,y: old_div(x, y)
+    raise Exception("operator %s not found" % op)
 
 def setoperator(op):
     '''
@@ -145,7 +156,7 @@ def setoperator(op):
     if op == '|': return lambda x,y: x | y
     if op == '&': return lambda x,y: x & y
     if op == '-': return lambda x,y: x - y
-    raise Exception, "operator %s not found" % op
+    raise Exception("operator %s not found" % op)
 
 def setexprOperator1(op):
     '''
@@ -153,7 +164,7 @@ def setexprOperator1(op):
     '''
     if op == 'in': return lambda x,y: x in y
     if op == 'not in': return lambda x,y: x not in y
-    raise Exception, "operator %s not found" % op
+    raise Exception("operator %s not found" % op)
 
 def setexprOperator2(op):
     '''
@@ -165,7 +176,7 @@ def setexprOperator2(op):
     if op == 'superset': return lambda x,y: x >= y
     if op == 'proper subset': return lambda x,y: x < y
     if op == 'proper superset': return lambda x,y: x > y
-    raise Exception, "operator %s not found" % op
+    raise Exception("operator %s not found" % op)
 
 def booleanOperator(op):
     '''
@@ -173,14 +184,14 @@ def booleanOperator(op):
     '''
     if op == 'and': return lambda x,y,objs: x(objs) and y(objs)
     if op == 'or':  return lambda x,y,objs: x(objs) or y(objs)
-    raise Exception, "operator %s not found" % op
+    raise Exception("operator %s not found" % op)
 
 def unaryOperator(op):
     '''
     Returns a function which performs unary (not) operation
     '''
     if op == 'not': return lambda x: not x
-    raise Exception, "operator %s not found" % op
+    raise Exception("operator %s not found" % op)
 
 def comparisonValue(value1, op, value2):
     '''
@@ -317,7 +328,7 @@ def queryValue(q):
                 if hasattr(u, attrname): # the current object has the attr
                     v = getattr(u, attrname)
                     #it is iterable
-                    if not isinstance(v, basestring) and hasattr(v, '__iter__'):
+                    if not isinstance(v, str) and hasattr(v, '__iter__'):
                         for z in v:
                             # add each child into the processing queue
                             if isinstance(v, dict):
@@ -368,7 +379,7 @@ def quantifiedValue(mode, name, s, satisfies):
                 if satisfies(cobjs):
                     return True
             return False
-        raise Exception, "mode '%s' is not 'every' or 'some'" % mode
+        raise Exception("mode '%s' is not 'every' or 'some'" % mode)
     return where
 
 def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, order_expr=None, flatten=False, collecting=False):
@@ -402,7 +413,7 @@ def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, ord
                     return dict((name, f(cobjs)) for name,f in obj)
                 else: # multiple positional return values
                     return tuple(f(cobjs) for f in obj)
-            if not collecting: 
+            if not collecting:
                 return _build_return(return_expr)
             collectors = list()
             for collector in return_expr:
@@ -421,7 +432,7 @@ def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, ord
             ##   for PyQuery otherwise it just isn't worth it.
             if for_expr is not None:
                 obs = [
-                    [(seqs[0], obj) for obj in seqs[1](objs)] 
+                    [(seqs[0], obj) for obj in seqs[1](objs)]
                     for seqs in for_expr]
             else:
                 ## The goal is to get the for loop to run once. this syntax does
@@ -445,7 +456,7 @@ def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, ord
                     for i in _flatten_func(return_expr[0](cobjs)):
                         yield i
         if collecting:
-            rets = tuple(dict() for _ in xrange(len(return_expr)))
+            rets = tuple(dict() for _ in range(len(return_expr)))
             for collectors in inner(objs):
                 for i, collector in enumerate(collectors):
                     _as = collector['as']
@@ -462,12 +473,10 @@ def flwrSequence(return_expr, for_expr=None, let_expr=None, where_expr=None, ord
                 attr, direction = order_expr
                 if isinstance(attr, str):
                     if not isinstance(return_expr[0], tuple):
-                        raise SyntaxError, \
-                        "Using a name in the order by clause when not using named return values."
+                        raise SyntaxError("Using a name in the order by clause when not using named return values.")
                 else:
                     if isinstance(return_expr[0], tuple):
-                        raise SyntaxError, \
-                        "Using a number in the order by clause when not using positional return values."
+                        raise SyntaxError("Using a number in the order by clause when not using positional return values.")
                 if len(return_expr) == 1 and not isinstance(return_expr[0], tuple):
                     keyfunc = lambda x: x
                 else:
@@ -482,9 +491,9 @@ def functionDefinition(params, query):
     def flwr_function(objs):
         def function(*args):
             if len(args) != len(params):
-                raise RuntimeError, "Got wrong number of params expected %d got %d" % (len(params), len(args))
+                raise RuntimeError("Got wrong number of params expected %d got %d" % (len(params), len(args)))
             namespace = dict(objs)
-            namespace.update(zip(params, args))
+            namespace.update(list(zip(params, args)))
             return query(namespace)
         return function
     return flwr_function

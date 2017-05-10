@@ -9,11 +9,22 @@ File: t_parser.py
 Purpose: System Tests
 NB: More tests need to be written, this is just the start.
 '''
+from __future__ import division
+from __future__ import absolute_import
+from past.utils import old_div
+from builtins import object
 
 import unittest, os, sys, base64, itertools, random, time
-from OrderedSet import OrderedSet as oset
-import pyflwor
-import symbols
+
+
+try:
+    from .OrderedSet import OrderedSet as oset
+    from . import pyflwor
+    from . import symbols
+except SystemError:
+    from OrderedSet import OrderedSet as oset
+    import pyflwor
+    import symbols
 
 exe = pyflwor.execute
 class TestPyQuery(unittest.TestCase):
@@ -355,7 +366,7 @@ class TestPyQuery(unittest.TestCase):
                 4.0*3.0/2.0,
                 4.0/3.0*2.0,
                 (3.0+9.0)*4.0/8.0,
-                ((9.0-3.0)+(5.0-3.0))/2.0 + 2.0,
+                old_div(((9.0-3.0)+(5.0-3.0)),2.0) + 2.0,
                 5.0 * 4.0 / 2.0 - 10.0 + 5.0 - 2.0 + 3.0,
                 5.0 / 4.0 * 2.0 + 10.0 - 5.0 * 2.0 / 3.0
           ))
@@ -387,7 +398,7 @@ class TestPyQuery(unittest.TestCase):
             collect n as n with counter
             collect n as (int(n)/int(2)) with counter
           ''', d), (
-            {1: 1, 2: 1, 3: 3, 4: 3, 5: 2, 6: 2, 7: 2}, 
+            {1: 1, 2: 1, 3: 3, 4: 3, 5: 2, 6: 2, 7: 2},
             {0: 1, 1: 4, 2: 5, 3: 4}))
 
 

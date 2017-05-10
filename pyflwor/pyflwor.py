@@ -8,9 +8,18 @@ Licensed under a BSD style license see the LICENSE file.
 File: pyflwor.py
 Purpose: The public API for PyFlwor.
 '''
+from __future__ import absolute_import
+from __future__ import unicode_literals
+from builtins import str, bytes
 
-from parser import Parser
-from lexer import Lexer
+try:
+    from .parser import Parser
+    from .lexer import Lexer
+
+except SystemError:
+    from parser import Parser
+    from lexer import Lexer
+
 import re
 
 def compile(query):
@@ -18,7 +27,7 @@ def compile(query):
     Compiles a query string into a python function that takes one parameter, the execution namespace.
     The compiled function is re-usable. For information on the grammar see X.
     '''
-    return Parser().parse(query.decode('string_escape'), lexer=Lexer())
+    return Parser().parse(bytes(query, 'utf-8').decode('unicode_escape'), lexer=Lexer())
 
 def execute(query, namespace):
     '''
@@ -26,4 +35,3 @@ def execute(query, namespace):
     particular query many times, use compile to get a query function.
     '''
     return compile(query)(namespace)
-
