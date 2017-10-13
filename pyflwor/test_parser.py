@@ -214,11 +214,48 @@ class TestParser(unittest.TestCase):
 
     def test_reduce(self):
         pyflwor.compile('''
-          for x in <asdf> 
+          for x in <asdf>
           collect x.tree as x.attr with function(prev, next) {
             if prev == None then next else prev.combine(next)
           }
           ''')
+
+
+class TestParser2(unittest.TestCase):
+    """Test for the new 'feature': 'bla' in ['list', 'of', 'stuffs']"""
+
+    def test_in_list1(self):
+        pyflwor.compile("hello['foo' in ['foo','bar']]")
+
+    def test_in_list2(self):
+        pyflwor.compile("hello['bazzz' in ['foo','bar']]")
+
+    def test_not_in_list1(self):
+        pyflwor.compile("hello['foo' not in ['foo','bar']]")
+
+    def test_not_in_list2(self):
+        pyflwor.compile("hello['bazzz' not in ['foo','bar']]")
+
+    def test_in_list2(self):
+        result = pyflwor.execute("res[test_elt in ['foo','bar']]",
+                                 {'res': True, 'test_elt': 'foo'})
+        self.assertTrue(bool(result))
+
+    def test_in_list3(self):
+        result = pyflwor.execute("res[test_elt in ['foo','bar']]",
+                                 {'res': True, 'test_elt': 'bazzzz'})
+        self.assertFalse(bool(result))
+
+    def test_not_in_list4(self):
+        result = pyflwor.execute("res[test_elt not in ['foo','bar']]",
+                                 {'res': True, 'test_elt': 'bazzzz'})
+        self.assertTrue(bool(result))
+
+    def test_not_in_list5(self):
+        result = pyflwor.execute("res[test_elt not in ['foo','bar']]",
+                                 {'res': True, 'test_elt': 'foo'})
+        self.assertFalse(bool(result))
+
 
 if __name__ == '__main__':
     unittest.main()

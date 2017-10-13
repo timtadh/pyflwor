@@ -598,8 +598,22 @@ class Parser(object):
         'SetExpr : LANGLE Set RANGLE IS NOT LANGLE Set RANGLE'
         t[0] = symbols.setexprValue2(t[2], symbols.setexprOperator2('is not'), t[7])
 
+    def p_SetExpr9(self, t):
+        'SetExpr : ArithExpr IN LSQUARE ValueList RSQUARE'
+        t[0] = symbols.setexprValue1(t[1], symbols.setexprOperator1('in'), symbols.listValue(t[4]))
+
+    def p_SetExpr10(self, t):
+        'SetExpr : ArithExpr NOT IN LSQUARE ValueList RSQUARE'
+        t[0] = symbols.setexprValue1(t[1], symbols.setexprOperator1('not in'), symbols.listValue(t[5]))
+
+
     def p_error(self, t):
-        raise SyntaxError("Syntax error at '%s', %s.%s" % (t,t.lineno,t.lexpos))
+        if t is None:
+            raise SyntaxError("Unexpected end of input")
+        else:
+            raise SyntaxError("Syntax error at '%s', %s.%s" % (t,
+                                                               t.lineno,
+                                                               t.lexpos))
 
 
 if __name__ == '__main__':
