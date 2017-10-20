@@ -20,23 +20,24 @@ except SystemError:
     from lexer import tokens, Lexer
     import symbols
 
-## The parser does not build an abstract syntax tree nor does it build
-## intermediate code, instead it composes functions and objects together. These
-## functions are defined in symbols.py file. The composed function returned
-## computes the query based on the object dictionary passed into it. This
-## dictionary (objs) is passed down through the functions (sometimes with
-## modification).
+# The parser does not build an abstract syntax tree nor does it build
+# intermediate code, instead it composes functions and objects together. These
+# functions are defined in symbols.py file. The composed function returned
+# computes the query based on the object dictionary passed into it. This
+# dictionary (objs) is passed down through the functions (sometimes with
+# modification).
 
-## If you are confused about the syntax in this file I recommend reading the
-## documentation on the PLY website to see how this compiler compiler's syntax
-## works.
+# If you are confused about the syntax in this file I recommend reading the
+# documentation on the PLY website to see how this compiler compiler's syntax
+# works.
 class Parser(object):
 
     def __new__(cls, **kwargs):
         ## Does magic to allow PLY to do its thing.
         self = super(Parser, cls).__new__(cls, **kwargs)
         self.names = dict()
-        self.yacc = yacc.yacc(module=self, debug=False, optimize=True, write_tables=False, **kwargs)
+        self.yacc = yacc.yacc(module=self, debug=False, optimize=True,
+                              write_tables=False, **kwargs)
         return self.yacc
 
     tokens = tokens
@@ -597,8 +598,22 @@ class Parser(object):
         'SetExpr : LANGLE Set RANGLE IS NOT LANGLE Set RANGLE'
         t[0] = symbols.setexprValue2(t[2], symbols.setexprOperator2('is not'), t[7])
 
+    def p_SetExpr9(self, t):
+        'SetExpr : ArithExpr IN LSQUARE ValueList RSQUARE'
+        t[0] = symbols.setexprValue1(t[1], symbols.setexprOperator1('in'), symbols.listValue(t[4]))
+
+    def p_SetExpr10(self, t):
+        'SetExpr : ArithExpr NOT IN LSQUARE ValueList RSQUARE'
+        t[0] = symbols.setexprValue1(t[1], symbols.setexprOperator1('not in'), symbols.listValue(t[5]))
+
+
     def p_error(self, t):
-        raise SyntaxError("Syntax error at '%s', %s.%s" % (t,t.lineno,t.lexpos))
+        if t is None:
+            raise SyntaxError("Unexpected end of input")
+        else:
+            raise SyntaxError("Syntax error at '%s', %s.%s" % (t,
+                                                               t.lineno,
+                                                               t.lexpos))
 
 
 if __name__ == '__main__':

@@ -19,8 +19,8 @@ Table of Contents
 5. Formal Language Specification
 
 
-Introducton
------------
+Introduction
+------------
 
 PyFlwor is a query language for querying python object collections. While
 Python has many interesting ways of persisting objects, it does not have (to my
@@ -659,3 +659,18 @@ For Reference Some Named Regular Expresssions:
     Where : OrExpr
     WhereExpr : WHERE Where
 
+Changelog
+---------
+
+### Path Expressions
+
+### v1.2
+
+    * added a new query syntax to query in and not in static list
+
+      hello['foo' in ['foo','bar']] 
+      hello['foo' not in ['foo','bar']]
+
+### v1.1
+
+    * python3 compatibility
